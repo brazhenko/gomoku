@@ -201,6 +201,8 @@ int main(int, char**)
 
 		IM_ASSERT(ret);
 
+		ImGui::Text("pointer");
+
 		ImGui::Begin("OpenGL Texture Text");
 		ImGui::Text("pointer = %p", my_image_texture);
 		ImGui::Text("size = %d x %d", my_image_width, my_image_height);
