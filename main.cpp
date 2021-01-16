@@ -8,6 +8,9 @@
 #include "imgui_little/imgui_impl_opengl3.h"
 #include <stdio.h>
 #include <iostream>
+#include <unordered_map>
+#include <string>
+
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
 //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
@@ -112,6 +115,7 @@ int main(int, char**)
     //glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GL_TRUE);            // 3.0+ only
 #endif
 
+	glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
 	// Create window with graphics context
 	GLFWwindow* window = glfwCreateWindow(1280, 720, "Dear ImGui GLFW+OpenGL3 example", NULL, NULL);
 	if (window == NULL)
@@ -149,43 +153,47 @@ int main(int, char**)
 	ImGuiIO& io = ImGui::GetIO();
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 	//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
-
 	// Setup Dear ImGui style
 	ImGui::StyleColorsDark();
-	//ImGui::StyleColorsClassic();
-
 	// Setup Platform/Renderer backends
 	ImGui_ImplGlfw_InitForOpenGL(window, true);
 	ImGui_ImplOpenGL3_Init(glsl_version);
 
-	// Load Fonts
-	// - If no fonts are loaded, dear imgui will use the default font. You can also load multiple fonts and use ImGui::PushFont()/PopFont() to select them.
-	// - AddFontFromFileTTF() will return the ImFont* so you can store it if you need to select the font among multiple.
-	// - If the file cannot be loaded, the function will return NULL. Please handle those errors in your application (e.g. use an assertion, or display an error and quit).
-	// - The fonts will be rasterized at a given size (w/ oversampling) and stored into a texture when calling ImFontAtlas::Build()/GetTexDataAsXXXX(), which ImGui_ImplXXXX_NewFrame below will call.
-	// - Read 'docs/FONTS.md' for more instructions and details.
-	// - Remember that in C/C++ if you want to include a backslash \ in a string literal you need to write a double backslash \\ !
-	//io.Fonts->AddFontDefault();
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Roboto-Medium.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/Cousine-Regular.ttf", 15.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/DroidSans.ttf", 16.0f);
-	//io.Fonts->AddFontFromFileTTF("../../misc/fonts/ProggyTiny.ttf", 10.0f);
-	//ImFont* font = io.Fonts->AddFontFromFileTTF("c:\\Windows\\Fonts\\ArialUni.ttf", 18.0f, NULL, io.Fonts->GetGlyphRangesJapanese());
-	//IM_ASSERT(font != NULL);
 
-	// Our state
-	bool show_demo_window = true;
-	bool show_another_window = false;
 	ImVec4 clear_color = ImVec4(0.45f, 0.55f, 0.60f, 1.00f);
+
+	struct textureHelper
+	{
+		textureHelper() = default;
+
+		explicit textureHelper(const std::string &path)
+		{
+			bool ret = LoadTextureFromFile(path.c_str(), &my_image_texture, &image_width, &image_height);
+			if (!ret) throw std::runtime_error("Cannot load texture");
+		}
+		int image_width = 0;
+		int image_height = 0;
+		GLuint my_image_texture = 0;
+	};
+
+	int my_image_width = 0;
+	int my_image_height = 0;
+	GLuint my_image_texture = 0;
+	bool ret = LoadTextureFromFile("../MyImage01.jpg", &my_image_texture, &my_image_width, &my_image_height);
+
+
+	std::unordered_map<std::string, textureHelper> textures;
+
+	textures["example"] = textureHelper("../MyImage01.jpg");
+
+
+	textures["background"] = textureHelper("../textures/1280x720_c2c6ff.png");
+
+
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
 	{
-		// Poll and handle events (inputs, window resize, etc.)
-		// You can read the io.WantCaptureMouse, io.WantCaptureKeyboard flags to tell if dear imgui wants to use your inputs.
-		// - When io.WantCaptureMouse is true, do not dispatch mouse input data to your main application.
-		// - When io.WantCaptureKeyboard is true, do not dispatch keyboard input data to your main application.
-		// Generally you may always pass all inputs to dear imgui, and hide them from your application based on those two flags.
 		glfwPollEvents();
 
 		// Start the Dear ImGui frame
@@ -194,27 +202,26 @@ int main(int, char**)
 		ImGui::NewFrame();
 
 
-		int my_image_width = 0;
-		int my_image_height = 0;
-		GLuint my_image_texture = 0;
-		bool ret = LoadTextureFromFile("../MyImage01.jpg", &my_image_texture, &my_image_width, &my_image_height);
+
+
 
 		IM_ASSERT(ret);
-
-		ImGui::Text("pointer");
-
-		ImGui::Begin("OpenGL Texture Text");
-		ImGui::Text("pointer = %p", my_image_texture);
-		ImGui::Text("size = %d x %d", my_image_width, my_image_height);
-		ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height));
-		ImGui::End();
 
 		// 2. Show a simple window that we create ourselves. We use a Begin/End pair to created a named window.
 		{
 			static float f = 0.0f;
 			static int counter = 0;
 
-			ImGui::Begin("Hello, world!");                          // Create a window called "Hello, world!" and append into it.
+
+			ImGui::SetNextWindowSize(ImVec2{1280, 720});
+			ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoMove | 0 | ImGuiWindowFlags_NoTitleBar);
+
+
+//			ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height), ImVec2(0, 0));
+			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["example"].my_image_texture, ImVec2{100, 100}, ImVec2{200, 200});
+
+
+			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["background"].my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
 
 
 			ImTextureID my_tex_id = io.Fonts->TexID;
@@ -225,57 +232,48 @@ int main(int, char**)
 			auto t = ImGui::GetStyle().ItemSpacing.y;
 			ImGui::GetStyle().ItemSpacing.y = 0;
 
-			static int pressed_count = 0;
-			for (int i = 0; i < 19; i++)
-			{
-				for (int i = 0; i < 19; i++)
-				{
-					ImGui::PushID(i);
-					int frame_padding = 1;// + i;                             		// -1 == uses default padding (style.FramePadding)
-					ImVec2 size = ImVec2(32.0f, 32.0f);                     // Size of the image we want to make visible
-					ImVec2 uv0 = ImVec2(0.0f, 0.0f);                        // UV coordinates for lower-left
-					ImVec2 uv1 = ImVec2(64.0f / my_tex_w, 64.0f / my_tex_h);// UV coordinates for (32,32) in our texture
-					ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);         // Black background
-					ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);       // No tint
-					if (ImGui::ImageButton((void*)(intptr_t)my_image_texture, size, uv0, uv1, frame_padding, bg_col, tint_col)) {
-						pressed_count += 1;
-					}
-					if (ImGui::IsItemHovered())
-						std::cout << "123" << std::endl;
-					ImGui::PopID();
-					ImGui::SameLine(0, 0);
-				}
-				ImGui::NewLine();
-
-
-			}
+//			static int pressed_count = 0;
+//			for (int i = 0; i < 19; i++)
+//			{
+//				for (int i = 0; i < 19; i++)
+//				{
+//					ImGui::PushID(i);
+//					int frame_padding = 1;// + i;                             		// -1 == uses default padding (style.FramePadding)
+//					ImVec2 size = ImVec2(32.0f, 32.0f);                     // Size of the image we want to make visible
+//					ImVec2 uv0 = ImVec2(0.0f, 0.0f);                        // UV coordinates for lower-left
+//					ImVec2 uv1 = ImVec2(64.0f / my_tex_w, 64.0f / my_tex_h);// UV coordinates for (32,32) in our texture
+//					ImVec4 bg_col = ImVec4(0.0f, 0.0f, 0.0f, 1.0f);         // Black background
+//					ImVec4 tint_col = ImVec4(1.0f, 1.0f, 1.0f, 1.0f);       // No tint
+//					if (ImGui::ImageButton((void*)(intptr_t)my_image_texture, size, uv0, uv1, frame_padding, bg_col, tint_col)) {
+//						pressed_count += 1;
+//					}
+//					if (ImGui::IsItemHovered())
+//						std::cout << "123" << std::endl;
+//					ImGui::PopID();
+//					ImGui::SameLine(0, 0);
+//				}
+//				ImGui::NewLine();
+//
+//
+//			}
 			ImGui::GetStyle().ItemSpacing.y = t;
 
-			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
-			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
-			ImGui::Checkbox("Another Window", &show_another_window);
-
-			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
-			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
-
-			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
-				counter++;
-			ImGui::SameLine();
-			ImGui::Text("counter = %d", counter);
+//			ImGui::Text("This is some useful text.");               // Display some text (you can use a format strings too)
+//			ImGui::Checkbox("Demo Window", &show_demo_window);      // Edit bools storing our window open/close state
+//			ImGui::Checkbox("Another Window", &show_another_window);
+//
+//			ImGui::SliderFloat("float", &f, 0.0f, 1.0f);            // Edit 1 float using a slider from 0.0f to 1.0f
+//			ImGui::ColorEdit3("clear color", (float*)&clear_color); // Edit 3 floats representing a color
+//
+//			if (ImGui::Button("Button"))                            // Buttons return true when clicked (most widgets return true when edited/activated)
+//				counter++;
+//			ImGui::SameLine();
+//			ImGui::Text("counter = %d", counter);
 
 			ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 			ImGui::End();
 		}
 
-		// 3. Show another simple window.
-		if (show_another_window)
-		{
-			ImGui::Begin("Another Window", &show_another_window);   // Pass a pointer to our bool variable (the window will have a closing button that will clear the bool when clicked)
-			ImGui::Text("Hello from another window!");
-			if (ImGui::Button("Close Me"))
-				show_another_window = false;
-			ImGui::End();
-		}
 
 		// Rendering
 		ImGui::Render();
