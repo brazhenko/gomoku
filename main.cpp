@@ -187,9 +187,12 @@ int main(int, char**)
 	textures["example"] = textureHelper("../MyImage01.jpg");
 
 
-	textures["background"] = textureHelper("../textures/1280x720_c2c6ff.png");
+	textures["background"] = textureHelper("../textures/main.png");
+	textures["fishka"] = textureHelper("../textures/blue.png");
 
 
+
+	// left upper corner: 50, 60
 
 	// Main loop
 	while (!glfwWindowShouldClose(window))
@@ -224,6 +227,9 @@ int main(int, char**)
 
 			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["background"].my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
 
+			float xm = ImGui::GetMousePos().x - (int)ImGui::GetMousePos().x % 30;
+			float ym = ImGui::GetMousePos().y - (int)ImGui::GetMousePos().y % 30;
+			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["fishka"].my_image_texture,  ImVec2{xm + 1, ym + 10 + 1}, ImVec2{xm + 30 + 1, ym + 30 + 10});
 
 			ImTextureID my_tex_id = io.Fonts->TexID;
 			float my_tex_w = (float)io.Fonts->TexWidth;
