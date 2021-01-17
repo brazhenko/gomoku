@@ -214,11 +214,12 @@ int main(int, char**)
 
 
 			ImGui::SetNextWindowSize(ImVec2{1280, 720});
-			ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoMove | 0 | ImGuiWindowFlags_NoTitleBar);
+			ImGui::SetNextWindowPos(ImVec2{0, 0});
+			ImGui::Begin("Main Window", nullptr, ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoResize);
 
 
 //			ImGui::Image((void*)(intptr_t)my_image_texture, ImVec2(my_image_width, my_image_height), ImVec2(0, 0));
-			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["example"].my_image_texture, ImVec2{100, 100}, ImVec2{200, 200});
+//			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["example"].my_image_texture, ImVec2{100, 100}, ImVec2{200, 200});
 
 
 			ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["background"].my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
