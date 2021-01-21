@@ -10,6 +10,7 @@ find_package (
 )
 
 find_package(OpenGL REQUIRED)
+find_package(Boost COMPONENTS system filesystem REQUIRED)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 find_package(GLEW REQUIRED)
@@ -18,13 +19,12 @@ if (GLEW_FOUND)
     #link_libraries(${GLEW_LIBRARIES})
 endif()
 
-include_directories(imgui)
-include_directories(imgui/backends)
-include_directories(imgui/examples)
 include_directories(imgui/examples/libs/gl3w)
-include_directories(/usr/local/include)
-include_directories(/opt/local/include)
+#include_directories(/usr/local/include)
+#include_directories(/opt/local/include)
 include_directories(little_imgui)
+
+
 
 SET(IMGUI_SOURCES
         imgui_little/imgui.cpp
@@ -37,7 +37,10 @@ SET(IMGUI_SOURCES
         imgui_little/imgui_widgets.cpp
         imgui_little/imgui_impl_opengl3.cpp
         imgui_little/imgui_impl_glfw.cpp
-        imgui_little/stb_image.h)
+        imgui_little/stb_image.h
+        imgui_little/imfilebrowser.hpp
+
+        )
 
 # </IMGUI>
 
@@ -80,14 +83,19 @@ SET(PGNLIB_SRC
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 
+
+
 add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
         ${IMGUI_SOURCES}
         ${PGNLIB_SRC}
         Cell.cpp Cell.h Board.cpp Board.h)
 
+target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
+
 target_link_libraries(${PROJECT_NAME}
         glfw
         ${OPENGL_LIBRARIES}
         GLEW::GLEW
+        ${Boost_LIBRARIES}
         )
 

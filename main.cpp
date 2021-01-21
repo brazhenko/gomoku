@@ -13,6 +13,9 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 #include "PGNGame.h"
 #include <sstream>
 #include "Game.h"
+#include "imgui.h"
+
+#include "imfilebrowser.hpp"
 
 int main()
 {
@@ -61,18 +64,29 @@ int main()
 		return (-1);
 	}
 
+	ImGui::FileBrowser fileDialog;
 
+	// (optional) set browser properties
+	fileDialog.SetTitle("title");
+	fileDialog.SetTypeFilters({ ".pgn" });
+	fileDialog.SetPwd(getenv("HOME"));
 	// Main loop
 	while (GomokuDraw::Go())
 	{
+
 		if (game.state_ == Gomoku::Game::State::Start)
 		{
 			// Отрисовать какие-то меньюшки, туториалы и прочее.
 
 		}
+
+
 		else if (game.state_ == Gomoku::Game::State::Main)
 		{
 			GomokuDraw::DrawSome();
+
+			for (const auto &stone : game.postedStones)
+				GomokuDraw::DrawStone(stone.first.placeX_, stone.first.placeY_, stone.second);
 
 			auto cell = GomokuDraw::HandleBoardInteraction();
 			game.ProcessStone(cell);
@@ -80,6 +94,32 @@ int main()
 			GomokuDraw::HandleWindowClick();
 
 			ImGui::End();
+		}
+
+
+		if(ImGui::Begin("dummy window"))
+		{
+			// open file dialog when user clicks this button
+			if(ImGui::Button("open file dialog"))
+				fileDialog.Open();
+
+
+		}
+		ImGui::End();
+
+		if(fileDialog.HasSelected())
+		{
+			std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
+			fileDialog.ClearSelected();
+		}
+
+
+		fileDialog.Display();
+
+		if(fileDialog.HasSelected())
+		{
+			std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
+			fileDialog.ClearSelected();
 		}
 
 		GomokuDraw::Render();

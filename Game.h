@@ -17,8 +17,9 @@ namespace Gomoku
 	{
 	private:
 		bool WhiteMove = true;
-		std::vector<Gomoku::Cell> postedStones;
 	public:
+
+		std::vector<std::pair<Gomoku::Cell, int>> postedStones;
 		Gomoku::Board board_;
 		enum class State
 		{
@@ -37,20 +38,25 @@ namespace Gomoku
 				if (cell->pressed_)
 				{
 					this->board_.arr[cell->col_][cell->row_] = 1;
-					postedStones.push_back(*cell);
+					if (WhiteMove)
+						postedStones.emplace_back(*cell, 2);
+					else
+						postedStones.emplace_back(*cell, 4);
+
+					WhiteMove ^= true; // Change move
 				}
 				else
 				{
-					GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 1);
+					if (WhiteMove)
+						GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 1);
+					else
+						GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 3);
 				}
 			}
 			else
 			{
 				GomokuDraw::ForbiddenCursor();
 			}
-
-			for (const auto &stone : postedStones)
-				GomokuDraw::DrawStone(stone.placeX_, stone.placeY_, 2);
 		}
 
 		[[nodiscard]] bool isWhiteMove() const;

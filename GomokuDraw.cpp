@@ -230,7 +230,7 @@ namespace GomokuDraw
 
 	int HandleWindowClick()
 	{
-		std::cout << ImGui::IsMouseClicked(0) << std::endl;
+		// std::cout << ImGui::IsMouseClicked(0) << std::endl;
 		return 0;
 	}
 
@@ -267,8 +267,8 @@ namespace GomokuDraw
 //					// Координата нижнего правого угла
 //					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 
-			std::cerr << "Cell: " << letterCoordinates[(int)(mPt.x - upperLeftBoard_x) / cellSide]
-				<< 19 - (int)(mPt.y - upperLeftBoard_y) / cellSide << std::endl;
+//			std::cerr << "Cell: " << letterCoordinates[(int)(mPt.x - upperLeftBoard_x) / cellSide]
+//				<< 19 - (int)(mPt.y - upperLeftBoard_y) / cellSide << std::endl;
 
 			return Gomoku::Cell((int)(mPt.x - upperLeftBoard_x) / cellSide,
 					19 - (int)(mPt.y - upperLeftBoard_y) / cellSide - 1,
@@ -293,6 +293,20 @@ namespace GomokuDraw
 		else if (type == 2)
 			ImGui::GetWindowDrawList()->AddImage(
 					(void*)(intptr_t)textures.at("stone_red").my_image_texture,
+					// Координата верхнего левого угла
+					ImVec2{xCoordinate, yCoordinate},
+					// Координата нижнего правого угла
+					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
+		else if (type == 3)
+			ImGui::GetWindowDrawList()->AddImage(
+					(void*)(intptr_t)textures.at("fantom_stone_blue").my_image_texture,
+					// Координата верхнего левого угла
+					ImVec2{xCoordinate, yCoordinate},
+					// Координата нижнего правого угла
+					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
+		else if (type == 4)
+			ImGui::GetWindowDrawList()->AddImage(
+					(void*)(intptr_t)textures.at("stone_blue").my_image_texture,
 					// Координата верхнего левого угла
 					ImVec2{xCoordinate, yCoordinate},
 					// Координата нижнего правого угла
