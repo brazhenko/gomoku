@@ -41,15 +41,53 @@ SET(IMGUI_SOURCES
 
 # </IMGUI>
 
+# <PGNLIB>
+
+include_directories(pgnlib)
+SET(PGNLIB_SRC
+        pgnlib/PGNCommentText.cpp
+        pgnlib/PGNCommentText.h
+        pgnlib/PGNException.cpp
+        pgnlib/PGNException.h
+        pgnlib/PGNGame.cpp
+        pgnlib/PGNGame.h
+        pgnlib/PGNGameCollection.cpp
+        pgnlib/PGNGameCollection.h
+        pgnlib/PGNGameResult.cpp
+        pgnlib/PGNGameResult.h
+        pgnlib/PGNMove.cpp
+        pgnlib/PGNMove.h
+        pgnlib/PGNMoveList.cpp
+        pgnlib/PGNMoveList.h
+        pgnlib/PGNParser.cpp
+        pgnlib/PGNParser.h
+        pgnlib/PGNPiece.cpp
+        pgnlib/PGNPiece.h
+        pgnlib/PGNPly.cpp
+        pgnlib/PGNPly.h
+        pgnlib/PGNPosition.cpp
+        pgnlib/PGNPosition.h
+        pgnlib/PGNSquare.cpp
+        pgnlib/PGNSquare.h
+        pgnlib/PGNTag.cpp
+        pgnlib/PGNTag.h
+        pgnlib/PGNTagList.cpp
+        pgnlib/PGNTagList.h
+		Game.cpp Game.h)
+# </PGNLIB>
 
 
+file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
-add_executable(${PROJECT_NAME} main.cpp
+
+add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
         ${IMGUI_SOURCES}
-        )
+        ${PGNLIB_SRC}
+        Cell.cpp Cell.h Board.cpp Board.h)
 
 target_link_libraries(${PROJECT_NAME}
         glfw
         ${OPENGL_LIBRARIES}
         GLEW::GLEW
         )
+
