@@ -28,11 +28,7 @@ int main()
 //		pgn::MoveList ml;
 //		pgn::GameResult gr;
 //
-//
-//
 //		ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
-//
-//
 //
 //		std::stringstream ss;
 //		ss << pgn::Game(tl, ml, gr) << std::endl;
@@ -43,8 +39,6 @@ int main()
 //
 //		std::cerr << g2;
 //
-//
-//
 //	}
 //	catch (std::exception &e)
 //	{
@@ -54,9 +48,7 @@ int main()
 //
 //	return 0;
 
-
 	Gomoku::Game game{};
-
 
 	if (!GomokuDraw::Init())
 	{
@@ -67,9 +59,10 @@ int main()
 	ImGui::FileBrowser fileDialog;
 
 	// (optional) set browser properties
-	fileDialog.SetTitle("title");
+	fileDialog.SetTitle("Select game file...");
 	fileDialog.SetTypeFilters({ ".pgn" });
 	fileDialog.SetPwd(getenv("HOME"));
+
 	// Main loop
 	while (GomokuDraw::Go())
 	{
@@ -93,19 +86,19 @@ int main()
 
 			GomokuDraw::HandleWindowClick();
 
-			ImGui::End();
-		}
-
-
-		if(ImGui::Begin("dummy window"))
-		{
 			// open file dialog when user clicks this button
 			if(ImGui::Button("open file dialog"))
 				fileDialog.Open();
 
-
+			ImGui::End();
 		}
-		ImGui::End();
+
+
+//		if(ImGui::Begin("dummy window"))
+//		{
+//
+//		}
+//		ImGui::End();
 
 		if(fileDialog.HasSelected())
 		{

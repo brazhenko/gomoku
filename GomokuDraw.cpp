@@ -181,8 +181,7 @@ namespace GomokuDraw
 
 
 		textures["example"] = textureHelper("../MyImage01.jpg");
-		textures["background"] = textureHelper("../textures/main.png");
-//		textures["fishka"] = textureHelper("../textures/light_blue.png");
+		textures["background"] = textureHelper("textures/main.png");
 
 		textures["fantom_stone_blue"] = textureHelper("textures/light_blue.png");
 		textures["fantom_stone_red"] = textureHelper("textures/light_red.png");
