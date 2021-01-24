@@ -15,10 +15,16 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 #include "Game.h"
 #include "imgui.h"
 
+#include "gtest/gtest.h"
+
 #include "imfilebrowser.hpp"
 
 int main()
 {
+#if DEBUG
+	if (RUN_ALL_TESTS()) return (-1);
+#endif
+
 //	try
 //	{
 //		std::ifstream pgnfile("./sample.pgn");
@@ -70,10 +76,8 @@ int main()
 		if (game.state_ == Gomoku::Game::State::Start)
 		{
 			// Отрисовать какие-то меньюшки, туториалы и прочее.
-
 		}
-
-
+		// Главный экран с движком и игрой
 		else if (game.state_ == Gomoku::Game::State::Main)
 		{
 			GomokuDraw::DrawSome();

@@ -83,19 +83,34 @@ SET(PGNLIB_SRC
 file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
 
 
-
-
 add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
         ${IMGUI_SOURCES}
         ${PGNLIB_SRC}
-        Cell.cpp Cell.h Board.cpp Board.h)
+        Cell.cpp Cell.h Board.cpp Board.h tests.cpp)
 
 target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
+
+
+enable_testing()
+find_package(GTest REQUIRED)
+include_directories(${GTEST_INCLUDE_DIR})
 
 target_link_libraries(${PROJECT_NAME}
         glfw
         ${OPENGL_LIBRARIES}
         GLEW::GLEW
         ${Boost_LIBRARIES}
+        # TEST
+        ${GTEST_LIBRARY}
+        ${GTEST_MAIN_LIBRARY}
         )
 
+
+add_test(
+        NAME runUnitTests
+        COMMAND runUnitTests
+)
+
+if(CMAKE_BUILD_TYPE MATCHES Debug)
+    target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG)
+endif()

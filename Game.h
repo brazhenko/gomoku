@@ -20,7 +20,7 @@ namespace Gomoku
 	public:
 
 		std::vector<std::pair<Gomoku::Cell, int>> postedStones;
-		Gomoku::Board board_;
+		Gomoku::BoardState board_;
 		enum class State
 		{
 			Start,
@@ -33,11 +33,11 @@ namespace Gomoku
 			if (cell == std::nullopt)
 				return ;
 
-			if (board_.isFree(cell->col_, cell->row_))
+			if (board_.CanMakeMove(cell->row_, cell->col_))
 			{
 				if (cell->pressed_)
 				{
-					this->board_.arr[cell->col_][cell->row_] = 1;
+					board_.MakeMove(cell->row_, cell->col_);
 					if (WhiteMove)
 						postedStones.emplace_back(*cell, 2);
 					else

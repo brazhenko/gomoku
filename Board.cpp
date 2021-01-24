@@ -3,18 +3,11 @@
 //
 
 #include "Board.h"
+#include <vector>
 
-bool Gomoku::Board::isFree(int col, int row) const
-{
-	return !this->arr[col][row];
-}
 
 Gomoku::BoardState::BoardState()
 {
-	this->rows.fill(0);
-	this->cols.fill(0);
-	this->downLines.fill(0);
-	this->upLines.fill(0);
 
 }
 
@@ -22,3 +15,8 @@ std::unordered_set<Gomoku::BoardState> Gomoku::BoardState::meth()
 {
 	return std::unordered_set<BoardState>();
 }
+
+Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>()> &moves) {
+
+}
+

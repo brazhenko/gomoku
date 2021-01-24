@@ -9,74 +9,97 @@
 #include <cstdint>
 #include <array>
 #include <unordered_set>
-
-# define ROW_BIT_SIZE (38U)
-# define REVERSE_LINE(n) { \
-	uint32_t ret = 0, power = 63; \
-                           \
-	while (n != 0) { \
-		ret += (n & 1U) << power; \
-		n = n >> 1U; \
-		power -= 1U; \
-	} \
-	n = ret;                  \
-	n <<= (64U - ROW_BIT_SIZE);	\
-}
+#include <bitset>
 
 namespace Gomoku
 {
-	class Board
-	{
-	public:
-		int arr[19][19]{0};
-		[[nodiscard]] bool isFree(int col, int row) const;
-
-	};
-
+//	class Board
+//	{
+//	public:
+//		int arr[19][19]{0};
+//		[[nodiscard]] bool isFree(int col, int row) const;
+//	};
 
 	class BoardState
 	{
-		std::array<uint64_t, 19> cols{};
-		std::array<uint64_t, 19> rows{};
-		std::array<uint64_t, 37> downLines{};
-		std::array<uint64_t, 37> upLines{};
+		using board_line=std::bitset<19*2>;
 
-		void RotateBy45Degrees()
-		{
+		const board_line figure_five_w { 0b0101010101 };				// XXXXX
 
-		}
+		const board_line figure_free_three1_w { 0b00'010101'00 };	// _XXX_
+		const board_line figure_free_three2_w { 0b00'01000101'00 };	// _X_XX_
+		const board_line figure_free_three3_w { 0b00'01010001'00 };	// _XX_X_
 
-		void MirrorHorisontal()
-		{
-			for (auto &row: rows)
-				REVERSE_LINE(row);
+		const board_line figure_free_three2 {0b010101};
 
-			std::reverse(cols.begin(), cols.end());
 
-		}
+		// array of rows, board_[1][2] == board["c2"]
+		std::array<board_line, 19> board_{};
 
-		void MirrorVertical()
-		{
+		board_line movePattern{0b01};
 
-		}
+		std::vector<std::pair<int, int>> moves_;
 
 	public:
 		[[nodiscard]] size_t hash() const
 		{
-			std::size_t seed = rows.size() + cols.size() + downLines.size() + upLines.size();
+			std::size_t seed = board_.size();
 
-			for(const auto& i : rows)
-				seed ^= i + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
-			for(const auto& i : cols)
-				seed ^= i + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
-			for(const auto& i : downLines)
-				seed ^= i + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
-			for(const auto& i : upLines)
-				seed ^= i + 0x9e3779b9 + (seed << 6U) + (seed >> 2U);
+			for(const auto& i : board_)
+				seed ^= std::hash<board_line>{}(i);
 
 			return seed;
 		}
+
+		bool MakeMove(int row, int col)
+		{
+			if (!CanMakeMove(row, col)) return false;
+
+			// Add to move history
+			moves_.emplace_back(row, col);
+			// Put stone on board
+			board_[row] |= (movePattern << (col * 2));
+			// Change move
+			movePattern ^= 0b11;
+
+			return true;
+		}
+
+		[[nodiscard]] bool WhiteMove() const
+		{
+			return movePattern == 0b01;
+		}
+
+		[[nodiscard]] bool CanMakeMove(int row, int col) const
+		{
+			std::bitset<38> tmp;
+			tmp[col * 2] = true;
+			tmp[col * 2 + 1] = true;
+
+			// Check if cell free
+			if ((board_[row] & tmp).any())
+				return false;
+			return true;
+		}
+
+		bool TakeBackMove()
+		{
+			if (moves_.empty()) return false;
+
+			const auto &lastMove = moves_.back();
+
+			// Clear board from one stone.
+			board_[lastMove.first][lastMove.second * 2] = false;
+			board_[lastMove.first][lastMove.second * 2 + 1] = false;
+
+			moves_.pop_back();
+
+			return true;
+		}
+
 		BoardState();
+		explicit BoardState(const std::vector<std::pair<int, int>()> &moves);
+
 		std::unordered_set<BoardState> meth();
 	};
 }
