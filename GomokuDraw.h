@@ -17,7 +17,10 @@ namespace GomokuDraw
 
 
 	int HandleWindowClick();
+	std::pair<int, int> MouseCoordinatesToStonePosition(float x_, float y_);
+	std::pair<float, float> StonePositionToPrintCoorinates(std::pair<int, int> stone);
 
+	bool MouseInsideBoard();
 
 	std::optional<Gomoku::Cell> HandleBoardInteraction();
 	void ForbiddenCursor();

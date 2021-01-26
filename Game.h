@@ -16,9 +16,9 @@ namespace Gomoku
 	class Game
 	{
 	private:
+		int focusMove = 0;
 	public:
 
-		std::vector<std::pair<Gomoku::Cell, int>> postedStones;
 		Gomoku::BoardState board_;
 		enum class State
 		{
@@ -27,39 +27,13 @@ namespace Gomoku
 		};
 		State state_ = State::Main;
 
-		void ProcessStone(std::optional<Gomoku::Cell> cell)
+		void TakeBack()
 		{
-			if (cell == std::nullopt)
-				return ;
-
-			if (board_.CanMakeMove(cell->row_, cell->col_))
-			{
-				if (cell->pressed_)
-				{
-					if (board_.WhiteMove())
-						postedStones.emplace_back(*cell, 2);
-					else
-						postedStones.emplace_back(*cell, 4);
-
-					board_.MakeMove(cell->row_, cell->col_);
-				}
-				else
-				{
-					if (board_.WhiteMove())
-						GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 1);
-					else
-						GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 3);
-				}
-			}
-			else
-			{
-				GomokuDraw::ForbiddenCursor();
-			}
+			board_.TakeBackMove();
 		}
 
 		void Reset()
 		{
-			postedStones.clear();
 			board_.Reset();
 		}
 

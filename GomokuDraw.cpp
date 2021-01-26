@@ -179,8 +179,6 @@ namespace GomokuDraw
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
-
-		textures["example"] = textureHelper("../MyImage01.jpg");
 		textures["background"] = textureHelper("textures/main.png");
 
 		textures["fantom_stone_blue"] = textureHelper("textures/light_blue.png");
@@ -234,50 +232,38 @@ namespace GomokuDraw
 	}
 
 	constexpr float textureCellSide = 28.0;
+	constexpr float upperLeftBoard_x = 50.0;
+	constexpr float upperLeftBoard_y = 60.0;
 
-	std::optional<Gomoku::Cell> HandleBoardInteraction()
+	constexpr float downRightBoard_x = 620.0;
+	constexpr float downRightBoard_y = 630.0;
+
+	constexpr float boardSizePixels = 570.0;
+	constexpr int cellSide = 30;
+
+	// Mouse MUST be inside the board !
+	std::pair<int, int> MouseCoordinatesToStonePosition(float x_, float y_)
 	{
-		// board 570x570 pixels
-		constexpr float upperLeftBoard_x = 50.0;
-		constexpr float upperLeftBoard_y = 60.0;
+		return {
+			19 - (int)(y_ - upperLeftBoard_y) / cellSide - 1,
+			(int)(x_ - upperLeftBoard_x) / cellSide
+		};
+	}
 
-		constexpr float downRightBoard_x = 620.0;
-		constexpr float downRightBoard_y = 630.0;
+	std::pair<float, float> StonePositionToPrintCoorinates(std::pair<int, int> stone)
+	{
+		return {
+				upperLeftBoard_x + (stone.second * cellSide),
+			downRightBoard_y - (stone.first * cellSide) - 30
+		};
+	}
 
-		constexpr float boardSizePixels = 570.0;
-
+	bool MouseInsideBoard()
+	{
 		const auto &mPt = ImGui::GetMousePos();
 
-		constexpr int cellSide = 30;
-
-
-		static const char *letterCoordinates = "abcdefghijklmnopqrs";
-
-		const float xCoordinate = mPt.x - float((int)(mPt.x - upperLeftBoard_x) % cellSide) + 1;
-		const float yCoordinate = mPt.y - float((int)(mPt.y - upperLeftBoard_y) % cellSide) + 1;
-
-		if (upperLeftBoard_x <= mPt.x && mPt.x < downRightBoard_x
-			&& upperLeftBoard_y <= mPt.y && mPt.y < downRightBoard_y)
-		{
-//			ImGui::GetWindowDrawList()->AddImage(
-//					(void*)(intptr_t)textures.at("fantom_stone_red").my_image_texture,
-//					// Координата верхнего левого угла
-//					ImVec2{xCoordinate, yCoordinate},
-//					// Координата нижнего правого угла
-//					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
-
-//			std::cerr << "Cell: " << letterCoordinates[(int)(mPt.x - upperLeftBoard_x) / cellSide]
-//				<< 19 - (int)(mPt.y - upperLeftBoard_y) / cellSide << std::endl;
-
-			return Gomoku::Cell((int)(mPt.x - upperLeftBoard_x) / cellSide,
-					19 - (int)(mPt.y - upperLeftBoard_y) / cellSide - 1,
-					xCoordinate,
-					yCoordinate,
-					ImGui::IsMouseClicked(0));
-
-		}
-
-		return std::nullopt;
+		return upperLeftBoard_x <= mPt.x && mPt.x < downRightBoard_x
+			   && upperLeftBoard_y <= mPt.y && mPt.y < downRightBoard_y;
 	}
 
 	void DrawStone(float xCoordinate, float yCoordinate, int type)
@@ -286,7 +272,7 @@ namespace GomokuDraw
 			ImGui::GetWindowDrawList()->AddImage(
 				(void*)(intptr_t)textures.at("fantom_stone_red").my_image_texture,
 				// Координата верхнего левого угла
-				ImVec2{xCoordinate, yCoordinate},
+				ImVec2{ xCoordinate, yCoordinate },
 				// Координата нижнего правого угла
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 2)

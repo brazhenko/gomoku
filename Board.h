@@ -29,10 +29,10 @@ namespace Gomoku
 			int			size;
 		};
 
-		const GomokuShape figure_five_w1 { 0b0101010101, 5}; // XXXXX
-		const GomokuShape figure_free_three1_w { 0b00'010101'00, -1 };	// _XXX_
-		const GomokuShape figure_free_three2_w { 0b00'01000101'00, -1 };	// _X_XX_
-		const GomokuShape figure_free_three3_w { 0b00'01010001'00, -1 };	// _XX_X_
+		constexpr static GomokuShape figure_five_w1 { 0b0101010101, 5}; // XXXXX
+		constexpr static GomokuShape figure_free_three1_w { 0b00'010101'00, -1 };	// _XXX_
+		constexpr static GomokuShape figure_free_three2_w { 0b00'01000101'00, -1 };	// _X_XX_
+		constexpr static GomokuShape figure_free_three3_w { 0b00'01010001'00, -1 };	// _XX_X_
 
 
 
@@ -43,12 +43,21 @@ namespace Gomoku
 		mutable std::array<board_line, 38> up_lines_{};
 		mutable std::array<board_line, 38> down_lines_{};
 
-
 		board_line movePattern { 0b01 };
 
 		std::vector<std::pair<int, int>> moves_;
 
 	public:
+		enum class Side
+		{
+			None = 0,
+			White,
+			Black
+		};
+
+		BoardState();
+		explicit BoardState(const std::vector<std::pair<int, int>()> &moves);
+
 		static std::string MoveToString(const std::pair<int, int> &move)
 		{
 			std::stringstream ss;
@@ -184,8 +193,6 @@ namespace Gomoku
 				return false;
 
 
-
-
 			return true;
 		}
 
@@ -211,10 +218,23 @@ namespace Gomoku
 			board_.fill(0);
 		}
 
-		BoardState();
-		explicit BoardState(const std::vector<std::pair<int, int>()> &moves);
+		Side At(int row, int col) const
+		{
+			switch (
+					int(board_[row][col * 2]) |
+					int(board_[row][col * 2 + 1] << 1)
+					) {
+				case 0:
+					return Side::None;
+				case 1:
+					return Side::White;
+				case 2:
+					return Side::Black;
+			}
 
-		std::unordered_set<BoardState> meth();
+			throw std::runtime_error("Unknown stone on board");
+		}
+
 	};
 }
 
