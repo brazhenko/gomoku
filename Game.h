@@ -16,7 +16,6 @@ namespace Gomoku
 	class Game
 	{
 	private:
-		bool WhiteMove = true;
 	public:
 
 		std::vector<std::pair<Gomoku::Cell, int>> postedStones;
@@ -37,17 +36,16 @@ namespace Gomoku
 			{
 				if (cell->pressed_)
 				{
-					board_.MakeMove(cell->row_, cell->col_);
-					if (WhiteMove)
+					if (board_.WhiteMove())
 						postedStones.emplace_back(*cell, 2);
 					else
 						postedStones.emplace_back(*cell, 4);
 
-					WhiteMove ^= true; // Change move
+					board_.MakeMove(cell->row_, cell->col_);
 				}
 				else
 				{
-					if (WhiteMove)
+					if (board_.WhiteMove())
 						GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 1);
 					else
 						GomokuDraw::DrawStone(cell->placeX_, cell->placeY_, 3);
@@ -59,8 +57,11 @@ namespace Gomoku
 			}
 		}
 
-		[[nodiscard]] bool isWhiteMove() const;
-
+		void Reset()
+		{
+			postedStones.clear();
+			board_.Reset();
+		}
 
 	};
 

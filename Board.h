@@ -10,37 +10,60 @@
 #include <array>
 #include <unordered_set>
 #include <bitset>
+#include <iostream>
+#include <sstream>
 
 namespace Gomoku
 {
-//	class Board
-//	{
-//	public:
-//		int arr[19][19]{0};
-//		[[nodiscard]] bool isFree(int col, int row) const;
-//	};
-
 	class BoardState
 	{
-		using board_line=std::bitset<19*2>;
+		static constexpr int bits_per_cell = 2;
+		static constexpr int cells_in_line = 19;
+		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
-		const board_line figure_five_w { 0b0101010101 };				// XXXXX
+		using board_line=std::bitset<bits_per_line>;
 
-		const board_line figure_free_three1_w { 0b00'010101'00 };	// _XXX_
-		const board_line figure_free_three2_w { 0b00'01000101'00 };	// _X_XX_
-		const board_line figure_free_three3_w { 0b00'01010001'00 };	// _XX_X_
+		struct GomokuShape
+		{
+			board_line 	data;
+			int			size;
+		};
 
-		const board_line figure_free_three2 {0b010101};
+		const GomokuShape figure_five_w1 { 0b0101010101, 5}; // XXXXX
+		const GomokuShape figure_free_three1_w { 0b00'010101'00, -1 };	// _XXX_
+		const GomokuShape figure_free_three2_w { 0b00'01000101'00, -1 };	// _X_XX_
+		const GomokuShape figure_free_three3_w { 0b00'01010001'00, -1 };	// _XX_X_
+
 
 
 		// array of rows, board_[1][2] == board["c2"]
 		std::array<board_line, 19> board_{};
+		// Twisted lines of board
+		mutable std::array<board_line, 19> vertical_{};
+		mutable std::array<board_line, 38> up_lines_{};
+		mutable std::array<board_line, 38> down_lines_{};
 
-		board_line movePattern{0b01};
+
+		board_line movePattern { 0b01 };
 
 		std::vector<std::pair<int, int>> moves_;
 
 	public:
+		static std::string MoveToString(const std::pair<int, int> &move)
+		{
+			std::stringstream ss;
+			static const char *letters = "abcdefghijklmnopqrs";
+
+			ss << letters[move.second] << move.first + 1;
+
+			return ss.str();
+		}
+
+		[[nodiscard]] const auto& GetMovesList() const
+		{
+			return this->moves_;
+		}
+
 		[[nodiscard]] size_t hash() const
 		{
 			std::size_t seed = board_.size();
@@ -70,6 +93,32 @@ namespace Gomoku
 			return movePattern == 0b01;
 		}
 
+		template<typename B>
+		int CountFigures(const B &lines, const GomokuShape &shape) const
+		{
+			int ret = 0;
+
+			// Check for 'fifth'
+			for (const auto& row_ : lines)
+			{
+				for (int i = 0; i < cells_in_line - shape.size; i++)
+				{
+
+					auto copy = (row_
+							<< ((cells_in_line - i - shape.size) * bits_per_cell)
+							>> ((cells_in_line - i - shape.size) * bits_per_cell)
+							>> (i * bits_per_cell));
+					if (copy
+							== shape.data
+							)
+						// shape in a row found!
+						ret++;
+				}
+			}
+
+			return ret;
+		}
+
 		[[nodiscard]] bool CanMakeMove(int row, int col) const
 		{
 			std::bitset<38> tmp;
@@ -79,6 +128,64 @@ namespace Gomoku
 			// Check if cell free
 			if ((board_[row] & tmp).any())
 				return false;
+
+			// Check for 'fifth'
+			if (CountFigures(board_, figure_five_w1) > 0)
+				return false;
+
+			// Prepare help lines
+			// Vertical lines ||||
+			for (int j = 0; j < cells_in_line; j++)
+				for (int i = 0; i < cells_in_line; i++)
+				{
+					vertical_[j][2*i] = board_[i][2*j];
+					vertical_[j][2*i + 1] = board_[i][2*j + 1];
+				}
+			if (CountFigures(vertical_, figure_five_w1) > 0)
+				return false;
+			// Up Lines ////
+			constexpr int diagonal_count = cells_in_line * 2 - 1;
+			for (int line = 1; line <= diagonal_count; line++)
+			{
+				/* Get column index of the first element
+				   in this line of output.
+				   The index is 0 for first ROW lines and
+				   line - ROW for remaining lines  */
+				int start_col = std::max(0, line - cells_in_line);
+
+				/* Get count of elements in this line. The
+				   count of elements is equal to minimum of
+				   line number, COL-start_col and ROW */
+				int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+				/* Print elements of this line */
+				for (int j = 0; j < count; j++)
+				{
+					up_lines_[line - 1][j * 2] = board_[std::min(cells_in_line, line)-j-1][(start_col+j) * 2];
+					up_lines_[line - 1][(j * 2) + 1] = board_[std::min(cells_in_line, line)-j-1][(start_col+j) * 2 + 1];
+				}
+			}
+
+			if (CountFigures(up_lines_, figure_five_w1) > 0)
+				return false;
+			// Down Lines \\\\  |
+			for (int line = 1; line <= diagonal_count; line++)
+			{
+				int start_col = std::max(0, line - cells_in_line);
+				int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+				for (int j = 0; j < count; j++)
+				{
+					down_lines_[line - 1][j * 2] = board_[std::min(cells_in_line, line)-j-1][(cells_in_line - (start_col + j)) * 2];
+					down_lines_[line - 1][(j * 2) + 1] = board_[std::min(cells_in_line, line)-j-1][(cells_in_line - (start_col+j)) * 2 + 1];
+				}
+			}
+			if (CountFigures(down_lines_, figure_five_w1) > 0)
+				return false;
+
+
+
+
 			return true;
 		}
 
@@ -95,6 +202,13 @@ namespace Gomoku
 			moves_.pop_back();
 
 			return true;
+		}
+
+		void Reset()
+		{
+			movePattern = 0b01;
+			moves_.clear();
+			board_.fill(0);
 		}
 
 		BoardState();

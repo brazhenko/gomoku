@@ -3,8 +3,3 @@
 //
 
 #include "Game.h"
-
-bool Gomoku::Game::isWhiteMove() const
-{
-	return this->WhiteMove;
-}

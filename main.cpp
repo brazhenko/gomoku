@@ -22,6 +22,7 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 int main()
 {
 #if DEBUG
+	testing::InitGoogleTest();
 	if (RUN_ALL_TESTS()) return (-1);
 #endif
 
@@ -85,24 +86,47 @@ int main()
 			for (const auto &stone : game.postedStones)
 				GomokuDraw::DrawStone(stone.first.placeX_, stone.first.placeY_, stone.second);
 
-			auto cell = GomokuDraw::HandleBoardInteraction();
-			game.ProcessStone(cell);
+			if (!fileDialog.IsOpened())
+			{
+				auto cell = GomokuDraw::HandleBoardInteraction();
+				game.ProcessStone(cell);
+			}
 
 			GomokuDraw::HandleWindowClick();
+
+			ImGui::SetNextWindowSize(ImVec2{1259 - 660, 349 - 40});
+			ImGui::SetNextWindowPos(ImVec2{660, 40});
+			ImGui::Begin("Game2", nullptr);
+
+			if (ImGui::Button("clear board"))
+				game.Reset();
 
 			// open file dialog when user clicks this button
 			if(ImGui::Button("open file dialog"))
 				fileDialog.Open();
 
 			ImGui::End();
+
+			ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
+			ImGui::SetNextWindowPos(ImVec2{660, 370}); // 1259, 679
+			ImGui::Begin("Game", nullptr);
+
+			for (int i = 0; i < game.board_.GetMovesList().size(); i++)
+			{
+				ImGui::Text("%d. %s  ", i + 1,
+						Gomoku::BoardState::MoveToString(game.board_.GetMovesList()[i]).c_str());
+				ImGui::SameLine();
+				if ((i + 1) % 8 == 0)
+					ImGui::NewLine();
+			}
+
+			ImGui::End();
+
+
+
+			ImGui::End();
 		}
 
-
-//		if(ImGui::Begin("dummy window"))
-//		{
-//
-//		}
-//		ImGui::End();
 
 		if(fileDialog.HasSelected())
 		{

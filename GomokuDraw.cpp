@@ -218,7 +218,7 @@ namespace GomokuDraw
 		ImGui::Begin("Main Window", nullptr,
 				ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground
 						| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings
-						| ImGuiWindowFlags_NoResize);
+						| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 
 		ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["background"].my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
