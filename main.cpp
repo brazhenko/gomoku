@@ -134,11 +134,12 @@ int main()
 			// Various
 			static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
 			ImGui::PushItemWidth(80);
-			const char* items[] = { "AAAA", "BBBB", "CCCC", "DDDD" };
-			static int item = -1;
-			ImGui::Combo("Red", &item, items, IM_ARRAYSIZE(items));
+			const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+			static int player1 = 0;
+			static int player2 = 0;
+			ImGui::Combo("Red", &player1, items, IM_ARRAYSIZE(items));
 
-			ImGui::Combo("Blue", &item, items, IM_ARRAYSIZE(items));
+			ImGui::Combo("Blue", &player2, items, IM_ARRAYSIZE(items));
 
 			ImGui::PopItemWidth();
 

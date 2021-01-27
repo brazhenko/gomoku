@@ -208,6 +208,9 @@ namespace Gomoku
 
 			moves_.pop_back();
 
+			// Change move
+			movePattern ^= 0b11;
+
 			return true;
 		}
 
