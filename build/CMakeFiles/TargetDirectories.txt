@@ -1,0 +1,4 @@
+/Users/jcorwin/Desktop/gomoku/build/CMakeFiles/rebuild_cache.dir
+/Users/jcorwin/Desktop/gomoku/build/CMakeFiles/edit_cache.dir
+/Users/jcorwin/Desktop/gomoku/build/CMakeFiles/test.dir
+/Users/jcorwin/Desktop/gomoku/build/CMakeFiles/gomoku.dir

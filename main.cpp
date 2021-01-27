@@ -21,7 +21,7 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 #include "gtest/gtest.h"
 
 #include "imfilebrowser.hpp"
-
+#include "imgui_internal.h"
 
 int main()
 {
@@ -88,7 +88,7 @@ int main()
 		else if (game.state_ == Gomoku::Game::State::Main)
 		{
 			GomokuDraw::DrawSome();
-
+            static bool is_disable = false;
 			// Draw all stones on the board
 			for (int row = 0; row < 19; row++)
 				for (int col = 0; col < 19; col++)
@@ -133,43 +133,183 @@ int main()
 
 			// Various
 			static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
-			ImGui::PushItemWidth(80);
-			const char* items[] = { "Human", "AI1", "AI2", "AI3" };
-			static int player1 = 0;
-			static int player2 = 0;
-			ImGui::Combo("Red", &player1, items, IM_ARRAYSIZE(items));
+			ImGui::PushItemWidth(100);
+            ImGui::BeginGroup();
+            {
+                static int game_mode = 0;
+                if (is_disable)
+                {
+                    ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                    ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                }
+                ImGui::Combo("Game mode", &game_mode, "42\0Classic\0Omok\0\0");
+                if (is_disable)
+                {
+                    ImGui::PopItemFlag();
+                    ImGui::PopStyleVar();
+                }
+                ImGui::Dummy(ImVec2(15.0f, 15.0f));
+                ImGui::BeginGroup();
+                {
+                    const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+                    static int player1 = 0;
+                    ImGui::Text("    Red");
 
-			ImGui::Combo("Blue", &player2, items, IM_ARRAYSIZE(items));
+                    // DISABLING
+                    
+                    
+                    if (is_disable)
+                    {
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                    }
+                    ImGui::Combo("    ", &player1, items, IM_ARRAYSIZE(items)); 
+                    if (is_disable)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleVar();
+                    }
 
-			ImGui::PopItemWidth();
+                    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                    static float wrap_width = 70.0f;
+                    ImGui::Text("Seconds left");
+                    ImVec2 pos = ImGui::GetCursorScreenPos();
+                    ImVec2 marker_min = ImVec2(pos.x, pos.y);
+                    ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
+                    draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
+                    if (game.board_.WhiteMove())
+                        draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
+                    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+                    ImGui::Dummy(ImVec2(15.0f, 4.0f));
+                    ImGui::Dummy(ImVec2(15.0f, 1.0f));
+                    ImGui::SameLine();
+                    ImGui::Text("%d", 600);
+                    ImGui::PopTextWrapPos();
+                    ImGui::Dummy(ImVec2(15.0f, 10.0f));
 
+                    ImGui::Text("Move ms:");
+                    pos = ImGui::GetCursorScreenPos();
+                    marker_min = ImVec2(pos.x, pos.y);
+                    marker_max = ImVec2(pos.x + wrap_width, pos.y + 15);
+                    draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
+                    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+                    ImGui::Text(" %d", 77777);
 
+                    // Draw actual text bounding box, following by marker of our expected limit (should not overlap!)
+                    //draw_list->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 255, 0, 255));
+                    ImGui::PopTextWrapPos();
+                }
+                ImGui::EndGroup();
+                ImGui::SameLine();
+                ImGui::BeginGroup();
+                {
+                    // const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+                    // static int player2 = 0;
+                    ImGui::Text("   Blue");
+                    static int item_current_2 = 0;
+                    if (is_disable)
+                    {
+                        ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+                        ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+                    }
+                    ImGui::Combo("", &item_current_2, "Human\0AI1\0AI2\0AI3\0\0");
+                    if (is_disable)
+                    {
+                        ImGui::PopItemFlag();
+                        ImGui::PopStyleVar();
+                    }
 
-			if (ImGui::Button("clear board"))
-				game.Reset();
+                    ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                    static float wrap_width = 70.0f;
+                    ImGui::Text("Seconds left");
+                    ImVec2 pos = ImGui::GetCursorScreenPos();
+                    ImVec2 marker_min = ImVec2(pos.x, pos.y);
+                    ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
+                    draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
+                    if (!game.board_.WhiteMove())
+                        draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
+                    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+                    ImGui::Dummy(ImVec2(15.0f, 4.0f));
+                    ImGui::Dummy(ImVec2(15.0f, 1.0f));
+                    ImGui::SameLine();
+                    ImGui::Text("%d", 600);
+                    ImGui::PopTextWrapPos();
+                    ImGui::Dummy(ImVec2(15.0f, 10.0f));
 
-			if (ImGui::Button("takeback"))
-				game.TakeBack();
+                    ImGui::Text("Move ms:");
+                    pos = ImGui::GetCursorScreenPos();
+                    marker_min = ImVec2(pos.x, pos.y);
+                    marker_max = ImVec2(pos.x + wrap_width, pos.y + 15);
+                    draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
+                    ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+                    ImGui::Text(" %d", 11);
+                    ImGui::PopTextWrapPos();
+                }
+                ImGui::EndGroup();
+                ImGui::Dummy(ImVec2(110.0f, 20.0f));
+                static int counter = 0;
+                float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+                ImGui::Text("Steps back");
+                ImGui::SameLine();
+                ImGui::PushButtonRepeat(true);
+                if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { counter++; }
+                ImGui::SameLine(0.0f, spacing);
+                if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { counter > 0 ? counter-- : counter; }
+                ImGui::PopButtonRepeat();
+                ImGui::SameLine();
+                ImGui::Text("%d", counter);
+                ImGui::SameLine();
+                if (ImGui::Button("takeback"))
+                {
+                    if (counter > 0) counter--;
+                    game.TakeBack();
+                }
+                ImGui::Dummy(ImVec2(130.0f, 20.0f));
+                if (ImGui::Button("start"))
+                    ;
+                ImGui::SameLine();
+                if (ImGui::Button("pause"))
+                    ;
+                ImGui::SameLine();
+                if (ImGui::Button("stop"))
+                    ;
+                ImGui::SameLine();
+                if (ImGui::Button("restart"))
+                    game.Reset();
+            }
+            ImGui::EndGroup();
+            ImGui::SameLine();
+            ImGui::Dummy(ImVec2(130.0f, 1.0f));
+            ImGui::SameLine();
+            ImGui::BeginGroup();
+            {
+                // Arrow buttons with Repeater
+                ImGui::Checkbox("Analysis", &enableEngine);
+                ImGui::Checkbox("Disable", &is_disable);
 
-			// open file dialog w13hen user clicks this button
-			if(ImGui::Button("open file dialog"))
-				fileDialog.Open();
+                ImGui::Dummy(ImVec2(20.0f, 171.0f));
+                ImGui::BeginGroup();
+                if (ImGui::Button("save fen"))
+                    std::cout << "save fen" << std::endl;
 
-			if (ImGui::Button("save fen"))
-				std::cout << "save fen" << std::endl;
+                if (ImGui::Button("load fen")) 
+                    fileDialog.Open();
+                ImGui::EndGroup();
+                ImGui::SameLine();
+                ImGui::Dummy(ImVec2(20.0f, 1.0f));
+                 ImGui::SameLine();
+                ImGui::BeginGroup();
+                if (ImGui::Button("save pgn"))
+                    std::cout << "save pgn" << std::endl;
+                if (ImGui::Button("load pgn"))
+                    fileDialog.Open();
+                ImGui::EndGroup();
+            }
+            
+            ImGui::PopItemWidth();
+            ImGui::EndGroup();
 
-			if (ImGui::Button("load fen"))
-				std::cout << "load fen" << std::endl;
-
-			if (ImGui::Button("save pgn"))
-				std::cout << "save pgn" << std::endl;
-			if (ImGui::Button("load pgn"))
-				std::cout << "save fen" << std::endl;
-
-			ImGui::Checkbox("Analysis", &enableEngine);
-
-
-
+            /// до сюда твоя зона
 			ImGui::End();
 
 			ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
@@ -191,7 +331,6 @@ int main()
 
 			ImGui::End();
 		}
-
 
 		if(fileDialog.HasSelected())
 		{
