@@ -10,14 +10,17 @@ Gomoku::BoardState::BoardState()
 {
 	for (int i = 0; i < 19; i++)
 		for (int j = 0; j < 19; j++)
+		{
 			this->free_cells.emplace(i, j);
+			this->available_moves.emplace(i, j);
+		}
+
+
 }
 
 
 Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves) {
-	for (int i = 0; i < 19; i++)
-		for (int j = 0; j < 19; j++)
-			this->free_cells.emplace(i, j);
+	BoardState();
 
 	for (const auto &move : moves)
 		if (!this->MakeMove(move.first, move.second))

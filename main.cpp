@@ -113,8 +113,8 @@ int main()
 				const auto &mPt = ImGui::GetMousePos();
 
 				auto stone = GomokuDraw::MouseCoordinatesToStonePosition(mPt.x, mPt.y);
-				std::cout << stone.first << " " << stone.second << std::endl;
-				if (game.board_.CanMakeMove(stone.first, stone.second))
+
+				if (game.board_.GetAvailableMoves().find({stone.first, stone.second}) != game.board_.GetAvailableMoves().end())
 				{
 					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates(stone);
 					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, game.board_.WhiteMove() ? 1 : 3);
