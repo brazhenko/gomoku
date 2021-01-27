@@ -8,11 +8,25 @@
 
 Gomoku::BoardState::BoardState()
 {
-
+	for (int i = 0; i < 19; i++)
+		for (int j = 0; j < 19; j++)
+			this->free_cells.emplace(i, j);
 }
 
 
-Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>()> &moves) {
+Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves) {
+	for (int i = 0; i < 19; i++)
+		for (int j = 0; j < 19; j++)
+			this->free_cells.emplace(i, j);
+
+	for (const auto &move : moves)
+		if (!this->MakeMove(move.first, move.second))
+		{
+			std::stringstream ss;
+
+			ss << "Trying to construct board with wrong move: " << move.first << " " << move.second;
+			throw std::runtime_error(ss.str());
+		}
 
 }
 

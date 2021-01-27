@@ -13,6 +13,16 @@
 #include <iostream>
 #include <sstream>
 
+struct pairhash {
+public:
+	template <typename T, typename U>
+	std::size_t operator()(const std::pair<T, U> &x) const
+	{
+		return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+	}
+};
+
+
 namespace Gomoku
 {
 	class BoardState
@@ -21,7 +31,7 @@ namespace Gomoku
 		static constexpr int cells_in_line = 19;
 		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
-		using board_line=std::bitset<bits_per_line>;
+		using board_line = std::bitset<bits_per_line>;
 
 		struct GomokuShape
 		{
@@ -34,7 +44,8 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three2_w { 0b00'01000101'00, -1 };	// _X_XX_
 		constexpr static GomokuShape figure_free_three3_w { 0b00'01010001'00, -1 };	// _XX_X_
 
-
+		std::unordered_set<std::pair<int, int>, pairhash> free_cells;
+		std::unordered_set<std::pair<int, int>, pairhash> available_moves;
 
 		// array of rows, board_[1][2] == board["c2"]
 		std::array<board_line, 19> board_{};
@@ -56,7 +67,7 @@ namespace Gomoku
 		};
 
 		BoardState();
-		explicit BoardState(const std::vector<std::pair<int, int>()> &moves);
+		explicit BoardState(const std::vector<std::pair<int, int>> &moves);
 
 		static std::string MoveToString(const std::pair<int, int> &move)
 		{
@@ -91,6 +102,160 @@ namespace Gomoku
 			moves_.emplace_back(row, col);
 			// Put stone on board
 			board_[row] |= (movePattern << (col * 2));
+			// Delete cell from available ones
+			free_cells.erase({row, col});
+			// Check if capture and remove from board
+
+			auto a = int(this->At(row + 1, col));
+			auto b = int(this->At(row + 2, col));
+			auto c = int(this->At(row + 3, col));
+			auto d = movePattern.to_ulong();
+
+			// capture pair up
+			if (row + 3 < 19
+				&& int(this->At(row + 1, col)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 2, col)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 3, col)) == (movePattern.to_ulong())
+			)
+			{
+				free_cells.emplace(row + 1, col);
+				free_cells.emplace(row + 2, col);
+
+				board_[row + 1][col * 2] = false;
+				board_[row + 1][col * 2 + 1] = false;
+
+				board_[row + 2][col * 2] = false;
+				board_[row + 2][col * 2 + 1] = false;
+			}
+
+			// capture pair up right
+			if (row + 3 < 19
+				&& col + 3 < 19
+				&& int(this->At(row + 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 3, col + 3)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row + 1, col + 1);
+				free_cells.emplace(row + 2, col + 2);
+
+				board_[(row + 1)][(col + 1) * 2] = false;
+				board_[(row + 1)][(col + 1) * 2 + 1] = false;
+
+				board_[(row + 2)][(col + 2) * 2] = false;
+				board_[(row + 2)][(col + 2) * 2 + 1] = false;
+			}
+
+			// capture pair right
+			if (col + 3 < 19
+				&& int(this->At(row, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col + 3)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row, col + 1);
+				free_cells.emplace(row, col + 2);
+
+				board_[(row)][(col + 1) * 2] = false;
+				board_[(row)][(col + 1) * 2 + 1] = false;
+
+				board_[(row)][(col + 2) * 2] = false;
+				board_[(row)][(col + 2) * 2 + 1] = false;
+			}
+
+			// capture pair down right
+			if (row - 3 >= 0
+				&& col + 3 < 19
+				&& int(this->At(row - 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 3, col + 3)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row - 1, col + 1);
+				free_cells.emplace(row - 2, col + 2);
+
+				board_[(row - 1)][(col + 1) * 2] = false;
+				board_[(row - 1)][(col + 1) * 2 + 1] = false;
+
+				board_[(row - 2)][(col + 2) * 2] = false;
+				board_[(row - 2)][(col + 2) * 2 + 1] = false;
+			}
+
+			// capture pair down
+			if (row - 3 >= 0
+				&& int(this->At(row - 1, col)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 2, col)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 3, col)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row - 1, col);
+				free_cells.emplace(row - 2, col);
+
+				board_[(row - 1)][(col) * 2] = false;
+				board_[(row - 1)][(col) * 2 + 1] = false;
+
+				board_[(row - 2)][(col) * 2] = false;
+				board_[(row - 2)][(col) * 2 + 1] = false;
+			}
+
+			// capture pair down left
+			if (row - 3 >= 0
+				&& col - 3 >= 0
+				&& int(this->At(row - 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 3, col - 3)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row - 1, col - 1);
+				free_cells.emplace(row - 2, col -2);
+
+				board_[(row - 1)][(col - 1) * 2] = false;
+				board_[(row - 1)][(col - 1) * 2 + 1] = false;
+
+				board_[(row - 2)][(col - 2) * 2] = false;
+				board_[(row - 2)][(col - 2) * 2 + 1] = false;
+			}
+
+			// capture pair left
+			if (col - 3 >= 0
+				&& int(this->At(row, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col - 3)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row, col - 1);
+				free_cells.emplace(row, col - 2);
+
+				board_[(row)][(col - 1) * 2] = false;
+				board_[(row)][(col - 1) * 2 + 1] = false;
+
+				board_[(row)][(col - 2) * 2] = false;
+				board_[(row)][(col - 2) * 2 + 1] = false;
+			}
+
+			// capture pair up left
+			if (row + 3 < 19
+				&& col - 3 >= 0
+				&& int(this->At(row + 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 3, col - 3)) == (movePattern.to_ulong())
+					)
+			{
+				free_cells.emplace(row + 1, col - 1);
+				free_cells.emplace(row + 2, col - 2);
+
+				board_[(row + 1)][(col - 1) * 2] = false;
+				board_[(row + 1)][(col - 1) * 2 + 1] = false;
+
+				board_[(row + 2)][(col - 2) * 2] = false;
+				board_[(row + 2)][(col - 2) * 2 + 1] = false;
+			}
+
+
+			const auto uple = std::make_pair(row + 3, col - 3);
+
+
+
 			// Change move
 			movePattern ^= 0b11;
 
@@ -249,7 +414,6 @@ namespace std {
 		}
 	};
 }
-
 
 
 #endif //GOMOKU_BOARD_H
