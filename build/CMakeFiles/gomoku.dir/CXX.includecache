@@ -56,6 +56,22 @@ imgui.h
 TargetConditionals.h
 ../imgui_little/TargetConditionals.h
 
+../imgui_little/imgui_internal.h
+stdio.h
+-
+stdlib.h
+-
+math.h
+-
+limits.h
+-
+imstb_textedit.h
+../imgui_little/imstb_textedit.h
+
+../imgui_little/imstb_textedit.h
+string.h
+-
+
 ../pgnlib/PGNCommentText.h
 fstream
 -
@@ -227,6 +243,8 @@ gtest/gtest.h
 /Users/jcorwin/Desktop/gomoku/gtest/gtest.h
 imfilebrowser.hpp
 /Users/jcorwin/Desktop/gomoku/imfilebrowser.hpp
+imgui_internal.h
+/Users/jcorwin/Desktop/gomoku/imgui_internal.h
 imgui.h
 /Users/jcorwin/Desktop/gomoku/imgui.h
 imgui_impl_glfw.h

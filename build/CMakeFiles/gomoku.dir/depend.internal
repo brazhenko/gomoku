@@ -72,6 +72,8 @@ CMakeFiles/gomoku.dir/main.cpp.o
  ../imgui_little/imgui.h
  ../imgui_little/imgui_impl_glfw.h
  ../imgui_little/imgui_impl_opengl3.h
+ ../imgui_little/imgui_internal.h
+ ../imgui_little/imstb_textedit.h
  ../pgnlib/PGNCommentText.h
  ../pgnlib/PGNGame.h
  ../pgnlib/PGNGameCollection.h

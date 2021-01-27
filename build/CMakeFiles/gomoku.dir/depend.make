@@ -71,6 +71,8 @@ CMakeFiles/gomoku.dir/main.cpp.o: ../imgui_little/imfilebrowser.hpp
 CMakeFiles/gomoku.dir/main.cpp.o: ../imgui_little/imgui.h
 CMakeFiles/gomoku.dir/main.cpp.o: ../imgui_little/imgui_impl_glfw.h
 CMakeFiles/gomoku.dir/main.cpp.o: ../imgui_little/imgui_impl_opengl3.h
+CMakeFiles/gomoku.dir/main.cpp.o: ../imgui_little/imgui_internal.h
+CMakeFiles/gomoku.dir/main.cpp.o: ../imgui_little/imstb_textedit.h
 CMakeFiles/gomoku.dir/main.cpp.o: ../pgnlib/PGNCommentText.h
 CMakeFiles/gomoku.dir/main.cpp.o: ../pgnlib/PGNGame.h
 CMakeFiles/gomoku.dir/main.cpp.o: ../pgnlib/PGNGameCollection.h
