@@ -17,7 +17,7 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 #include <sstream>
 #include "Game.h"
 #include "imgui.h"
-
+#include "ChessClock.h"
 #include "gtest/gtest.h"
 
 #include "imfilebrowser.hpp"
@@ -60,6 +60,9 @@ int main()
 //	return 0;
 
 	Gomoku::Game game{};
+	Gomoku::ChessClock clock(20, 20);
+	clock.Start();
+
 
 	if (!GomokuDraw::Init())
 	{
@@ -120,7 +123,10 @@ int main()
 					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, game.board_.WhiteMove() ? 1 : 3);
 
 					if (ImGui::IsMouseClicked(0))
+					{
 						game.board_.MakeMove(stone.first, stone.second);
+						clock.ChangeMove();
+					}
 				}
 				else
 					GomokuDraw::ForbiddenCursor();
@@ -183,7 +189,9 @@ int main()
                     ImGui::Dummy(ImVec2(15.0f, 4.0f));
                     ImGui::Dummy(ImVec2(15.0f, 1.0f));
                     ImGui::SameLine();
-                    ImGui::Text("%d", 600);
+
+                    ImGui::Text("%s", clock.GetTimeLeftWhite().c_str());
+
                     ImGui::PopTextWrapPos();
                     ImGui::Dummy(ImVec2(15.0f, 10.0f));
 
@@ -232,7 +240,10 @@ int main()
                     ImGui::Dummy(ImVec2(15.0f, 4.0f));
                     ImGui::Dummy(ImVec2(15.0f, 1.0f));
                     ImGui::SameLine();
-                    ImGui::Text("%d", 600);
+
+
+					ImGui::Text("%s", clock.GetTimeLeftBlack().c_str());
+
                     ImGui::PopTextWrapPos();
                     ImGui::Dummy(ImVec2(15.0f, 10.0f));
 

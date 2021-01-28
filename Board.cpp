@@ -14,13 +14,47 @@ Gomoku::BoardState::BoardState()
 			this->available_moves.emplace(i, j);
 		}
 
+	// Initialize mappings
+	// Normal coordinates to projectcions
+
+	// Vertical lines ||||
+	for (int j = 0; j < cells_in_line; j++)
+		for (int i = 0; i < cells_in_line; i++)
+		{
+			__cToVerticles.insert({{i, j}, {j, i}});
+		}
+
+	// Up Lines ////
+	constexpr int diagonal_count = cells_in_line * 2 - 1;
+	for (int line = 1; line <= diagonal_count; line++)
+	{
+		int start_col = std::max(0, line - cells_in_line);
+		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+		for (int j = 0; j < count; j++)
+		{
+			__cToUpLines.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
+		}
+	}
+
+	// Down Lines \\\\  |f
+	for (int line = 1; line <= diagonal_count; line++)
+	{
+		int start_col = std::max(0, line - cells_in_line);
+		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+		for (int j = 0; j < count; j++)
+		{
+			__cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
+		}
+	}
+
 
 }
 
-
-Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves) {
-	BoardState();
-
+Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
+	: BoardState()
+{
 	for (const auto &move : moves)
 		if (!this->MakeMove(move.first, move.second))
 		{
@@ -291,7 +325,7 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 	if (!WhiteMove() && BlackCapturePoints >= 5)
 		return true;
 	int fifthCount = 0;
-	PrepareHelpLines();
+
 	if (WhiteMove())
 	{
 		fifthCount += CountFigures(board_, figure_five_w);
@@ -313,9 +347,6 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 	movePattern ^= 0b11;
 
 	// Form available moves for next turn
-
-	PrepareHelpLines();
-
 
 	for (int i = 0; i < 19; i++)
 	{
@@ -356,54 +387,3 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 
 	return true;
 }
-
-void Gomoku::BoardState::PrepareHelpLines() const
-{
-	// Prepare help lines
-
-	// Horizontal lines ____
-	// Default board_
-
-	// Vertical lines ||||
-	for (int j = 0; j < cells_in_line; j++)
-		for (int i = 0; i < cells_in_line; i++)
-		{
-			vertical_[j][2*i] = board_[i][2*j];
-			vertical_[j][2*i + 1] = board_[i][2*j + 1];
-		}
-	// Up Lines ////
-	constexpr int diagonal_count = cells_in_line * 2 - 1;
-	for (int line = 1; line <= diagonal_count; line++)
-	{
-		/* Get column index of the first element
-		   in this line of output.
-		   The index is 0 for first ROW lines and
-		   line - ROW for remaining lines  */
-		int start_col = std::max(0, line - cells_in_line);
-
-		/* Get count of elements in this line. The
-		   count of elements is equal to minimum of
-		   line number, COL-start_col and ROW */
-		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
-
-		/* Print elements of this line */
-		for (int j = 0; j < count; j++)
-		{
-			up_lines_[line - 1][j * 2] = board_[std::min(cells_in_line, line)-j-1][(start_col+j) * 2];
-			up_lines_[line - 1][(j * 2) + 1] = board_[std::min(cells_in_line, line)-j-1][(start_col+j) * 2 + 1];
-		}
-	}
-	// Down Lines \\\\  |
-	for (int line = 1; line <= diagonal_count; line++)
-	{
-		int start_col = std::max(0, line - cells_in_line);
-		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
-
-		for (int j = 0; j < count; j++)
-		{
-			down_lines_[line - 1][j * 2] = board_[std::min(cells_in_line, line)-j-1][(cells_in_line - 1 - (start_col + j)) * 2];
-			down_lines_[line - 1][(j * 2) + 1] = board_[std::min(cells_in_line, line)-j-1][(cells_in_line - 1 - (start_col+j)) * 2 + 1];
-		}
-	}
-}
-
