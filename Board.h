@@ -12,6 +12,7 @@
 #include <bitset>
 #include <iostream>
 #include <sstream>
+#include <unordered_map>
 
 struct pairhash {
 public:
@@ -36,7 +37,7 @@ namespace Gomoku
 		struct GomokuShape
 		{
 			board_line 	data;
-			int			size;
+			int			size{};
 		};
 
 		// White shapes
@@ -57,6 +58,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
 
+		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> __cToVerticles;
+		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> __cToUpLines;
+		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> __cToDownLines;
 
 		std::unordered_set<std::pair<int, int>, pairhash> available_moves;
 
@@ -168,22 +172,14 @@ namespace Gomoku
 			return ret;
 		}
 
-		void PrepareHelpLines() const;
+//		void PrepareHelpLines() const;
 
 		bool TakeBackMove()
 		{
 			if (moves_.empty()) return false;
-
-			const auto &lastMove = moves_.back();
-
-			// Clear board from one stone.
-			board_[lastMove.first][lastMove.second * 2] = false;
-			board_[lastMove.first][lastMove.second * 2 + 1] = false;
-
 			moves_.pop_back();
 
-			// Change move
-			movePattern ^= 0b11;
+			*this = BoardState(moves_);
 
 			return true;
 		}
@@ -202,10 +198,21 @@ namespace Gomoku
 
 		void Set(int row, int col, Side s)
 		{
+			const auto &verticle = __cToVerticles.at({row, col});
+			const auto &upline = __cToUpLines.at({row, col});
+			const auto &downline = __cToDownLines.at({row, col});
+
 			board_[row][col * 2] = unsigned(s)&1U;
 			board_[row][col * 2 + 1] = (unsigned(s)>>1U)&1U;
 
-			PrepareHelpLines();
+			vertical_[verticle.first][verticle.second * 2] = unsigned(s)&1U;
+			vertical_[verticle.first][verticle.second * 2 + 1] = (unsigned(s)>>1U)&1U;
+
+			up_lines_[upline.first][upline.second * 2] = unsigned(s)&1U;
+			up_lines_[upline.first][upline.second * 2 + 1] = (unsigned(s)>>1U)&1U;
+
+			down_lines_[downline.first][downline.second * 2] = unsigned(s)&1U;
+			down_lines_[downline.first][downline.second * 2 + 1] = (unsigned(s)>>1U)&1U;
 		}
 
 		Side At(int row, int col) const
@@ -238,6 +245,8 @@ namespace Gomoku
 		{
 			return available_moves;
 		}
+
+		void PrintHelpLines() const;
 	};
 }
 

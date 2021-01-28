@@ -17,7 +17,7 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 #include <sstream>
 #include "Game.h"
 #include "imgui.h"
-
+#include "ChessClock.h"
 #include "gtest/gtest.h"
 
 #include "imfilebrowser.hpp"
@@ -60,6 +60,9 @@ int main()
 //	return 0;
 
 	Gomoku::Game game{};
+	Gomoku::ChessClock clock(20, 20);
+	clock.Start();
+
 
 	if (!GomokuDraw::Init())
 	{
@@ -120,7 +123,10 @@ int main()
 					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, game.board_.WhiteMove() ? 1 : 3);
 
 					if (ImGui::IsMouseClicked(0))
+					{
 						game.board_.MakeMove(stone.first, stone.second);
+						clock.ChangeMove();
+					}
 				}
 				else
 					GomokuDraw::ForbiddenCursor();
@@ -199,7 +205,9 @@ int main()
                     ImGui::Dummy(ImVec2(15.0f, 4.0f));
                     ImGui::Dummy(ImVec2(15.0f, 1.0f));
                     ImGui::SameLine();
-                    ImGui::Text("%d", 600);
+
+                    ImGui::Text("%s", clock.GetTimeLeftWhite().c_str());
+
                     ImGui::PopTextWrapPos();
                     ImGui::Dummy(ImVec2(15.0f, 10.0f));
 
@@ -259,7 +267,10 @@ int main()
                     ImGui::Dummy(ImVec2(15.0f, 4.0f));
                     ImGui::Dummy(ImVec2(15.0f, 1.0f));
                     ImGui::SameLine();
-                    ImGui::Text("%d", 600);
+
+
+					ImGui::Text("%s", clock.GetTimeLeftBlack().c_str());
+
                     ImGui::PopTextWrapPos();
                     ImGui::Dummy(ImVec2(15.0f, 10.0f));
 
@@ -293,10 +304,10 @@ int main()
                 }
                 ImGui::Dummy(ImVec2(130.0f, 20.0f));
                 if (ImGui::Button("start"))
-                    ;
+                    clock.Start();
                 ImGui::SameLine();
                 if (ImGui::Button("pause"))
-                    ;
+					clock.Pause();
                 ImGui::SameLine();
                 if (ImGui::Button("stop"))
                     ;
@@ -327,8 +338,50 @@ int main()
                  ImGui::SameLine();
                 ImGui::BeginGroup();
                 if (ImGui::Button("save pgn"))
-                    std::cout << "save pgn" << std::endl;
-                ImGui::Dummy(ImVec2(20.0f, 4.0f));
+				{
+					try
+					{
+						std::ofstream pgnfile("/Users/lreznak-/Desktop/test.pgn");
+
+						pgn::TagList tl;
+						tl.insert(pgn::Tag("Game", "Gomoku"));
+						pgn::MoveList ml;
+						pgn::GameResult gr;
+
+
+						const auto& moves = game.board_.GetMovesList();
+
+						for (int i = 0; i < moves.size(); i += 2)
+						{
+							ml.push_back(pgn::Move(
+									pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
+									(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
+									(i/2) + 1));
+							std::cout << Gomoku::BoardState::MoveToString(moves[i]) << std::endl;
+						}
+
+//						ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
+
+						std::stringstream ss;
+						ss << pgn::Game(tl, ml, gr) << std::endl;
+
+
+						pgnfile << pgn::Game(tl, ml, gr) << std::endl;
+
+						pgn::Game g2;
+
+						ss >> g2;
+
+						std::cerr << g2;
+
+					}
+					catch (std::exception &e)
+					{
+						std::cerr << "exception: " << e.what() << std::endl;
+						return -1;
+					}
+				}
+				ImGui::Dummy(ImVec2(20.0f, 4.0f));
                 if (ImGui::Button("load pgn"))
                     fileDialog.Open();
                 ImGui::EndGroup();
