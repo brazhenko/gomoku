@@ -277,10 +277,10 @@ int main()
                 }
                 ImGui::Dummy(ImVec2(130.0f, 20.0f));
                 if (ImGui::Button("start"))
-                    ;
+                    clock.Start();
                 ImGui::SameLine();
                 if (ImGui::Button("pause"))
-                    ;
+					clock.Pause();
                 ImGui::SameLine();
                 if (ImGui::Button("stop"))
                     ;
@@ -311,7 +311,49 @@ int main()
                  ImGui::SameLine();
                 ImGui::BeginGroup();
                 if (ImGui::Button("save pgn"))
-                    std::cout << "save pgn" << std::endl;
+				{
+					try
+					{
+						std::ofstream pgnfile("/Users/lreznak-/Desktop/test.pgn");
+
+						pgn::TagList tl;
+						tl.insert(pgn::Tag("Game", "Gomoku"));
+						pgn::MoveList ml;
+						pgn::GameResult gr;
+
+
+						const auto& moves = game.board_.GetMovesList();
+
+						for (int i = 0; i < moves.size(); i += 2)
+						{
+							ml.push_back(pgn::Move(
+									pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
+									(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
+									(i/2) + 1));
+							std::cout << Gomoku::BoardState::MoveToString(moves[i]) << std::endl;
+						}
+
+//						ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
+
+						std::stringstream ss;
+						ss << pgn::Game(tl, ml, gr) << std::endl;
+
+
+						pgnfile << pgn::Game(tl, ml, gr) << std::endl;
+
+						pgn::Game g2;
+
+						ss >> g2;
+
+						std::cerr << g2;
+
+					}
+					catch (std::exception &e)
+					{
+						std::cerr << "exception: " << e.what() << std::endl;
+						return -1;
+					}
+				}
                 if (ImGui::Button("load pgn"))
                     fileDialog.Open();
                 ImGui::EndGroup();
