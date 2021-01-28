@@ -153,7 +153,23 @@ int main()
                 {
                     const char* items[] = { "Human", "AI1", "AI2", "AI3" };
                     static int player1 = 0;
-                    ImGui::Text("    Red");
+                    {
+                        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                        ImVec2 pos = ImGui::GetCursorScreenPos();
+                        for (int i = 0; i < 5; i++) {
+                            ImVec2 marker_min = ImVec2(pos.x + 21 * i , pos.y);
+                            ImVec2 marker_max = ImVec2(pos.x + 21 * i + 15, pos.y + 15);
+                            int color = i > 4 - game.board_.GetCapturePoints(Gomoku::BoardState::Side::Black) ? 0 : 255;
+                            draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(color, 0, 0, 255));
+                            // ImGui::Dummy(ImVec2(15.0f, 4.0f));
+                            // ImGui::Dummy(ImVec2(15.0f, 1.0f));
+                            // Gomoku::BoardState::WhiteCapturePoints
+                            if (i != 4) ImGui::SameLine();
+                        }
+                        // ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+                        ImGui::Dummy(ImVec2(15.0f, 22.0f));
+                    }
+                    ImGui::Text("    ");
 
                     // DISABLING
                     
@@ -205,7 +221,18 @@ int main()
                 {
                     // const char* items[] = { "Human", "AI1", "AI2", "AI3" };
                     // static int player2 = 0;
-                    ImGui::Text("   Blue");
+                    {
+                        ImDrawList* draw_list = ImGui::GetWindowDrawList();
+                        ImVec2 pos = ImGui::GetCursorScreenPos();
+                        for (int i = 0; i < 5; i++) {
+                            ImVec2 marker_min = ImVec2(pos.x + 21 * i , pos.y);
+                            ImVec2 marker_max = ImVec2(pos.x + 21 * i + 15, pos.y + 15);
+                            int color = i > 4 - game.board_.GetCapturePoints(Gomoku::BoardState::Side::White) ? 0 : 255;
+                            draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(0, 0, color, 255));
+                        }
+                        ImGui::Dummy(ImVec2(15.0f, 3.0f));
+                    }
+                    ImGui::Text("    ");
                     static int item_current_2 = 0;
                     if (is_disable)
                     {
@@ -291,7 +318,7 @@ int main()
                 ImGui::BeginGroup();
                 if (ImGui::Button("save fen"))
                     std::cout << "save fen" << std::endl;
-
+                ImGui::Dummy(ImVec2(20.0f, 4.0f));
                 if (ImGui::Button("load fen")) 
                     fileDialog.Open();
                 ImGui::EndGroup();
@@ -301,6 +328,7 @@ int main()
                 ImGui::BeginGroup();
                 if (ImGui::Button("save pgn"))
                     std::cout << "save pgn" << std::endl;
+                ImGui::Dummy(ImVec2(20.0f, 4.0f));
                 if (ImGui::Button("load pgn"))
                     fileDialog.Open();
                 ImGui::EndGroup();
