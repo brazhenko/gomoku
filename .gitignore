@@ -31,6 +31,15 @@
 *.out
 *.app
 
+# Musor pod nogami
+CMakeCache.txt
+CMakeFiles/
+CTestTestfile.cmake
+Makefile
+cmake_install.cmake
+gomoku
+imgui.ini
+
 .idea/
 cmake-build-debug/
 imgui/
