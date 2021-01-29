@@ -43,3 +43,4 @@ imgui.ini
 .idea/
 cmake-build-debug/
 imgui/
+cmake-build-release/
