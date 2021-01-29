@@ -100,6 +100,17 @@ namespace Gomoku
 			return ss.str();
 		}
 
+		static std::pair<int, int> StringToMove(const std::string &s)
+		{
+			std::pair<int, int> ret;
+
+			ret.second = s[0] - 'a';
+
+			ret.first = std::stoi(s.c_str() + 1) - 1;
+
+			return ret;
+		}
+
 		[[nodiscard]] const auto& GetMovesList() const
 		{
 			return this->moves_;
@@ -264,7 +275,7 @@ namespace Gomoku
 			return available_moves;
 		}
 
-		void PrintHelpLines() const;
+		std::string ToPgnString() const;
 
 		friend std::ostream& operator<<(std::ostream& os, const BoardState& bs)
 		{
@@ -276,10 +287,10 @@ namespace Gomoku
 							os << "_";
 							break;
 						case Side::White:
-							os << "O";
+							os << "X";
 							break;
 						case Side::Black:
-							os << "X";
+							os << "O";
 							break;
 					}
 				}
@@ -289,7 +300,8 @@ namespace Gomoku
 		}
 		friend std::istream& operator>>(std::istream& is, BoardState& bs)
 		{
-		
+			bs = BoardState();
+
 			int a, b;
 			is >> bs.WhiteCapturePoints >> bs.BlackCapturePoints >> bs.movePattern;
 			std::cout << bs.WhiteCapturePoints << bs.BlackCapturePoints << bs.movePattern;
@@ -302,10 +314,10 @@ namespace Gomoku
 						case '_':
 							bs.Set(i, j, Side::None); 
 							break;
-						case 'O':
+						case 'X':
 							bs.Set(i, j, Side::White); 
 							break;
-						case 'X':
+						case 'O':
 							bs.Set(i, j, Side::Black); 
 							break;
 					}
@@ -313,7 +325,6 @@ namespace Gomoku
 				std::cout << std::endl;
 			}
 			return is;
-
 		}
 
 	};

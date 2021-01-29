@@ -280,7 +280,7 @@ namespace pgn
 		for (unsigned int i=0; i<text.size(); ++i)
 		{
 			if ((text[i] >= 'a' && text[i] <= 's') ||
-				(text[i] >= '1' && text[i] <= '8')) 
+				(text[i] >= '0' && text[i] <= '9'))
 			{
 				if (!e_coord)
 					e_coord = text[i];

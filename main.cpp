@@ -71,11 +71,24 @@ int main()
 	}
 
 	ImGui::FileBrowser fileDialog;
-
 	// (optional) set browser properties
 	fileDialog.SetTitle("Select game file...");
 	fileDialog.SetTypeFilters({ ".pgn" });
 	fileDialog.SetPwd(getenv("HOME"));
+
+
+	ImGui::FileBrowser fileDialogBoardPos;
+	// (optional) set browser properties
+	fileDialogBoardPos.SetTitle("Select game position file...");
+	fileDialogBoardPos.SetTypeFilters({ ".gg" });
+	fileDialogBoardPos.SetPwd(getenv("HOME"));
+
+
+	ImGui::FileBrowser fileDialogGame;
+	// (optional) set browser properties
+	fileDialogGame.SetTitle("Select game file...");
+	fileDialogGame.SetTypeFilters({ ".pgn" });
+	fileDialogGame.SetPwd(getenv("HOME"));
 
 
 	bool enableEngine = false;
@@ -328,51 +341,66 @@ int main()
                 ImGui::Dummy(ImVec2(20.0f, 171.0f));
                 ImGui::BeginGroup();
                 if (ImGui::Button("save fen"))
-                    std::cout << game.board_ << std::endl;
+				{
+                	std::stringstream fn;
+					auto t = std::time(nullptr);
+					auto tm = *std::localtime(&t);
+
+                	fn << "/Users/lreznak-/Desktop/gomoku_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".gg";
+
+                	std::ofstream ofs { fn.str() };
+
+                	if (ofs.is_open())
+						ofs << game.board_ << std::endl;
+                	else
+					{
+						std::cerr << "Cannot open file: " << fn.str() << std::endl;
+					}
+
+				}
                 ImGui::Dummy(ImVec2(20.0f, 4.0f));
-                if (ImGui::Button("load fen")) 
-                    std::cin >> game.board_;
+                if (ImGui::Button("load fen"))
+				{
+                	fileDialogBoardPos.Open();
+				}
+
+				fileDialogBoardPos.Display();
+
+				if(fileDialogBoardPos.HasSelected())
+				{
+					std::ifstream ifs { fileDialogBoardPos.GetSelected().string() };
+
+					if (ifs.is_open())
+						ifs >> game.board_;
+					else
+						std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
+
+					fileDialogBoardPos.ClearSelected();
+				}
+
+
                 ImGui::EndGroup();
                 ImGui::SameLine();
                 ImGui::Dummy(ImVec2(20.0f, 1.0f));
-                 ImGui::SameLine();
+                ImGui::SameLine();
                 ImGui::BeginGroup();
                 if (ImGui::Button("save pgn"))
 				{
 					try
 					{
-						std::ofstream pgnfile("/Users/lreznak-/Desktop/test.pgn");
+						std::stringstream fn;
+						auto t = std::time(nullptr);
+						auto tm = *std::localtime(&t);
 
-						pgn::TagList tl;
-						tl.insert(pgn::Tag("Game", "Gomoku"));
-						pgn::MoveList ml;
-						pgn::GameResult gr;
+						fn << "/Users/lreznak-/Desktop/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".pgn";
 
+						std::ofstream ofs { fn.str() };
 
-						const auto& moves = game.board_.GetMovesList();
+						if (ofs.is_open())
+							ofs << game.board_.ToPgnString() << std::endl;
+						else
+							std::cerr << "Cannot open file: " << fn.str() << std::endl;
 
-						for (int i = 0; i < moves.size(); i += 2)
-						{
-							ml.push_back(pgn::Move(
-									pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
-									(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
-									(i/2) + 1));
-							std::cout << Gomoku::BoardState::MoveToString(moves[i]) << std::endl;
-						}
-
-//						ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
-
-						std::stringstream ss;
-						ss << pgn::Game(tl, ml, gr) << std::endl;
-
-
-						pgnfile << pgn::Game(tl, ml, gr) << std::endl;
-
-						pgn::Game g2;
-
-						ss >> g2;
-
-						std::cerr << g2;
 
 					}
 					catch (std::exception &e)
@@ -383,7 +411,40 @@ int main()
 				}
 				ImGui::Dummy(ImVec2(20.0f, 4.0f));
                 if (ImGui::Button("load pgn"))
-                    fileDialog.Open();
+					fileDialogGame.Open();
+                fileDialogGame.Display();
+
+				if(fileDialogGame.HasSelected())
+				{
+					std::ifstream ifs { fileDialogGame.GetSelected().string() };
+
+					if (ifs.is_open())
+					{
+						pgn::Game g;
+
+						ifs >> g;
+						std::cerr << "Loaded game" << std::endl << g << std::endl;
+
+						std::vector<std::pair<int, int>> moves;
+
+						for (const auto & move: g.moves())
+						{
+							if (move.white().valid())
+								moves.push_back(Gomoku::BoardState::StringToMove(move.white().str()));
+							if (move.black().valid())
+								moves.push_back(Gomoku::BoardState::StringToMove(move.black().str()));
+						}
+
+						game.board_ = Gomoku::BoardState(moves);
+					}
+					else
+						std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
+
+
+
+					fileDialogGame.ClearSelected();
+				}
+
                 ImGui::EndGroup();
             }
             
@@ -413,20 +474,6 @@ int main()
 			ImGui::End();
 		}
 
-		if(fileDialog.HasSelected())
-		{
-			std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
-			fileDialog.ClearSelected();
-		}
-
-
-		fileDialog.Display();
-
-		if(fileDialog.HasSelected())
-		{
-			std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
-			fileDialog.ClearSelected();
-		}
 
 		GomokuDraw::Render();
 	}
