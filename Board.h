@@ -120,6 +120,9 @@ namespace Gomoku
 		int CountFreeThrees(Side side, const std::pair<int, int> lastMove) const;
 		
 		bool MakeMove(int row, int col);
+		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
+		void FindMovesBreaksFifth();
+
 
 		[[nodiscard]] bool WhiteMove() const
 		{
@@ -173,28 +176,42 @@ namespace Gomoku
 			return ret;
 		}
 
-//		void PrepareHelpLines() const;
+		template<typename B>
+		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int x, int y) const
+		{
+			int ret = 0;
+
+			const auto& row_ = lines[x];
+
+			for (int i = std::max(0, y - shape.size); i < std::min(y + shape.size, cells_in_line - shape.size); i++)
+			{
+				auto copy = (row_
+						<< ((cells_in_line - i - shape.size) * bits_per_cell)
+						>> ((cells_in_line - i - shape.size) * bits_per_cell)
+						>> (i * bits_per_cell));
+				if (copy
+					== shape.data
+						)
+					// shape in a row found!
+					ret++;
+			}
+
+			return ret;
+		}
 
 		bool TakeBackMove()
 		{
 			if (moves_.empty()) return false;
 			moves_.pop_back();
 
-			*this = BoardState(moves_);
 
+			*this = BoardState(moves_);
 			return true;
 		}
 
 		void Reset()
 		{
-			movePattern = 0b01;
-
-			for (int i = 0; i < 19; i++)
-				for (int j = 0; j < 19; j++)
-					this->available_moves.emplace(i, j);
-
-			moves_.clear();
-			board_.fill(0);
+			*this = BoardState();
 		}
 
 		void Set(int row, int col, Side s)
