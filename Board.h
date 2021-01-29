@@ -13,6 +13,7 @@
 #include <iostream>
 #include <sstream>
 #include <unordered_map>
+#include <fstream>
 
 struct pairhash {
 public:
@@ -247,8 +248,62 @@ namespace Gomoku
 		}
 
 		void PrintHelpLines() const;
+
+		friend std::ostream& operator<<(std::ostream& os, const BoardState& bs)
+		{
+			os << bs.GetCapturePoints(Side::White) << " " << bs.GetCapturePoints(Side::Black) << " " << bs.movePattern << std::endl;
+			for (int i = 18; i >= 0; i--) {
+				for (int j = 0; j < 19; j++) {
+					switch (bs.At(i, j)) {
+						case Side::None:
+							os << "_";
+							break;
+						case Side::White:
+							os << "O";
+							break;
+						case Side::Black:
+							os << "X";
+							break;
+					}
+				}
+				os << std::endl;
+			}
+			return os;
+		}
+		friend std::istream& operator>>(std::istream& is, BoardState& bs)
+		{
+		
+			int a, b;
+			is >> bs.WhiteCapturePoints >> bs.BlackCapturePoints >> bs.movePattern;
+			std::cout << bs.WhiteCapturePoints << bs.BlackCapturePoints << bs.movePattern;
+			for (int i = 18; i >= 0; i--) {
+				for (int j = 0; j < 19; j++) {
+					char kek;
+					is >> kek;
+					std::cout << kek;
+					switch (kek) {
+						case '_':
+							bs.Set(i, j, Side::None); 
+							break;
+						case 'O':
+							bs.Set(i, j, Side::White); 
+							break;
+						case 'X':
+							bs.Set(i, j, Side::Black); 
+							break;
+					}
+				}
+				std::cout << std::endl;
+			}
+			return is;
+
+		}
+
 	};
 }
+
+// std::cout << game.board_;
+
 
 namespace std {
 	template <>
