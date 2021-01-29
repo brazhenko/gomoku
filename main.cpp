@@ -328,10 +328,10 @@ int main()
                 ImGui::Dummy(ImVec2(20.0f, 171.0f));
                 ImGui::BeginGroup();
                 if (ImGui::Button("save fen"))
-                    std::cout << "save fen" << std::endl;
+                    std::cout << game.board_ << std::endl;
                 ImGui::Dummy(ImVec2(20.0f, 4.0f));
                 if (ImGui::Button("load fen")) 
-                    fileDialog.Open();
+                    std::cin >> game.board_;
                 ImGui::EndGroup();
                 ImGui::SameLine();
                 ImGui::Dummy(ImVec2(20.0f, 1.0f));
