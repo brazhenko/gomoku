@@ -5,7 +5,12 @@
 #ifndef GOMOKU_GOMOKUDRAW_H
 #define GOMOKU_GOMOKUDRAW_H
 
+#include "Game.h"
+#include "ChessClock.h"
 #include "Cell.h"
+#include "PGNGame.h"
+#include "imgui.h"
+#include "imfilebrowser.hpp"
 #include <optional>
 
 namespace GomokuDraw
@@ -28,6 +33,13 @@ namespace GomokuDraw
 
 	void Render();
 	void Cleanup();
+
+	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite);
+	void DrawSteps(Gomoku::Game &game);
+	void DrawButtons(Gomoku::Game &game, Gomoku::ChessClock &clock);
+	void DrawCheckboxes();
+	void DrawFilesButtons(Gomoku::Game &game, ImGui::FileBrowser &fileDialog);
+	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock, ImGui::FileBrowser &fileDialog);
 };
 
 #endif //GOMOKU_GOMOKUDRAW_H

@@ -7,7 +7,6 @@
 
 #include <optional>
 #include "Cell.h"
-#include "GomokuDraw.h"
 #include "Board.h"
 
 

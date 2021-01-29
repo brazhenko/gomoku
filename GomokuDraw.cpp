@@ -4,6 +4,7 @@
 
 #include "GomokuDraw.h"
 #include <unordered_map>
+#include "imgui_internal.h"
 #include "imgui_little/imgui.h"
 #include "imgui_little/imgui_impl_glfw.h"
 #include "imgui_little/imgui_impl_opengl3.h"
@@ -339,5 +340,224 @@ namespace GomokuDraw
 
 		glfwDestroyWindow(window);
 		glfwTerminate();
+	}
+
+	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite)
+	{
+		int count = game.board_.GetCapturePoints(isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
+		ImGui::BeginGroup();
+		{
+			const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+			const char* items2[] = { "Human", "AI1", "AI2", "AI3" };
+			int player1 = 0;
+			int player2 = 0;
+			{
+				ImDrawList* draw_list = ImGui::GetWindowDrawList();
+				ImVec2 pos = ImGui::GetCursorScreenPos();
+				for (int i = 0; i < 5; i++) {
+					ImVec2 marker_min = ImVec2(pos.x + 21 * i , pos.y);
+					ImVec2 marker_max = ImVec2(pos.x + 21 * i + 15, pos.y + 15);
+					int color = i > 4 - count ? 0 : 255;
+					draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(isWhite ? color : 0, 0, isWhite ? 0 : color, 255));
+				}
+				// ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+				ImGui::Dummy(ImVec2(15.0f, 4.0f));
+			}
+			ImGui::Text("    ");
+			if (isDisable)
+			{
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+			}
+			if (isWhite)
+				ImGui::Combo("    ##1", &player1, items, IM_ARRAYSIZE(items)); 
+			else
+				ImGui::Combo("    ##2", &player2, items2, IM_ARRAYSIZE(items)); 
+			if (isDisable)
+			{
+				ImGui::PopItemFlag();
+				ImGui::PopStyleVar();
+			}
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			static float wrap_width = 70.0f;
+			ImGui::Text("Seconds left");
+			ImVec2 pos = ImGui::GetCursorScreenPos();
+			ImVec2 marker_min = ImVec2(pos.x, pos.y);
+			ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
+			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
+			if (game.board_.WhiteMove())
+				draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+			ImGui::Dummy(ImVec2(15.0f, 4.0f));
+			// ImGui::Dummy(ImVec2(15.0f, 1.0f));
+			// ImGui::SameLine();
+
+			ImGui::Text(" %s", timeLeft.c_str());
+
+			ImGui::PopTextWrapPos();
+			ImGui::Dummy(ImVec2(15.0f, 10.0f));
+
+			ImGui::Text("Move ms:");
+			pos = ImGui::GetCursorScreenPos();
+			marker_min = ImVec2(pos.x, pos.y);
+			marker_max = ImVec2(pos.x + wrap_width, pos.y + 15);
+			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+			ImGui::Text(" %d", 77777);
+
+			ImGui::PopTextWrapPos();
+		}
+		ImGui::EndGroup();
+	}
+
+	void DrawSteps(Gomoku::Game &game)
+	{
+		static int counter = 0;
+		float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+		ImGui::Text("Steps back");
+		ImGui::SameLine();
+		ImGui::PushButtonRepeat(true);
+		if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { counter++; }
+		ImGui::SameLine(0.0f, spacing);
+		if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { counter > 0 ? counter-- : counter; }
+		ImGui::PopButtonRepeat();
+		ImGui::SameLine();
+		ImGui::Text("%d", counter);
+		ImGui::SameLine();
+		if (ImGui::Button("takeback"))
+		{
+			if (counter > 0) counter--;
+			game.TakeBack();
+		}
+	}
+
+	void DrawButtons(Gomoku::Game &game, Gomoku::ChessClock &clock)
+	{
+		ImGui::BeginGroup();
+		{
+			if (ImGui::Button("start"))
+				clock.Start();
+			ImGui::SameLine();
+			if (ImGui::Button("pause"))
+				clock.Pause();
+			ImGui::SameLine();
+			if (ImGui::Button("stop"))
+				;
+			ImGui::SameLine();
+			if (ImGui::Button("restart"))
+				game.Reset();
+		}
+		ImGui::EndGroup();
+	}
+
+	void DrawFilesButtons(Gomoku::Game &game, ImGui::FileBrowser &fileDialog)
+	{
+		ImGui::Dummy(ImVec2(20.0f, 129.0f));
+		ImGui::BeginGroup();
+		if (ImGui::Button("save fen"))
+			std::cout << game.board_ << std::endl;
+		ImGui::Dummy(ImVec2(20.0f, 4.0f));
+		if (ImGui::Button("load fen")) 
+			std::cin >> game.board_;
+		ImGui::EndGroup();
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(20.0f, 1.0f));
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		if (ImGui::Button("save pgn"))
+		{
+			try
+			{
+				std::ofstream pgnfile("/Users/lreznak-/Desktop/test.pgn");
+
+				pgn::TagList tl;
+				tl.insert(pgn::Tag("Game", "Gomoku"));
+				pgn::MoveList ml;
+				pgn::GameResult gr;
+
+
+				const auto& moves = game.board_.GetMovesList();
+
+				for (int i = 0; i < moves.size(); i += 2)
+				{
+					ml.push_back(pgn::Move(
+							pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
+							(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
+							(i/2) + 1));
+					std::cout << Gomoku::BoardState::MoveToString(moves[i]) << std::endl;
+				}
+
+//						ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
+
+				std::stringstream ss;
+				ss << pgn::Game(tl, ml, gr) << std::endl;
+
+
+				pgnfile << pgn::Game(tl, ml, gr) << std::endl;
+
+				pgn::Game g2;
+
+				ss >> g2;
+
+				std::cerr << g2;
+
+			}
+			catch (std::exception &e)
+			{
+				std::cerr << "exception: " << e.what() << std::endl;
+				// return -1;
+			}
+		}
+		ImGui::Dummy(ImVec2(20.0f, 4.0f));
+		if (ImGui::Button("load pgn"))
+			fileDialog.Open();
+		ImGui::EndGroup();
+	}
+
+	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock, ImGui::FileBrowser &fileDialog)
+	{
+		static bool enableEngine = false;
+		static bool isDisable = false;
+		static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
+		ImGui::PushItemWidth(100);
+		static int game_mode = 0;
+		if (isDisable)
+		{
+			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+		}
+		ImGui::Combo("Game mode", &game_mode, "42\0Classic\0Omok\0\0");
+		if (isDisable)
+		{
+			ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
+		}
+		ImGui::Dummy(ImVec2(15.0f, 15.0f));
+		ImGui::BeginGroup();
+		{
+			GomokuDraw::DrawPlayer(game, clock.GetTimeLeftWhite().c_str(), 77777, isDisable, true);
+			ImGui::SameLine();
+			GomokuDraw::DrawPlayer(game, clock.GetTimeLeftBlack().c_str(), 13, isDisable, false);
+			ImGui::Dummy(ImVec2(110.0f, 20.0f));
+			GomokuDraw::DrawSteps(game);
+			ImGui::Dummy(ImVec2(130.0f, 20.0f));
+			GomokuDraw::DrawButtons(game, clock);
+		}
+		ImGui::EndGroup();
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(110.0f, 1.0f));
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		{
+			// Arrow buttons with Repeater
+			ImGui::Checkbox("Analysis", &enableEngine);
+			ImGui::Checkbox("Disable", &isDisable);
+
+			
+			GomokuDraw::DrawFilesButtons(game, fileDialog);
+		}
+		
+		ImGui::PopItemWidth();
+		ImGui::EndGroup();
 	}
 }
