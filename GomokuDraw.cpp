@@ -344,7 +344,7 @@ namespace GomokuDraw
 
 	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite)
 	{
-		int count = game.board_.GetCapturePoints(isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
+		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
 		ImGui::BeginGroup();
 		{
 			const char* items[] = { "Human", "AI1", "AI2", "AI3" };
