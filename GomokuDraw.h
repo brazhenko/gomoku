@@ -38,8 +38,8 @@ namespace GomokuDraw
 	void DrawSteps(Gomoku::Game &game);
 	void DrawButtons(Gomoku::Game &game, Gomoku::ChessClock &clock);
 	void DrawCheckboxes();
-	void DrawFilesButtons(Gomoku::Game &game, ImGui::FileBrowser &fileDialog);
-	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock, ImGui::FileBrowser &fileDialog);
+	void DrawFilesButtons(Gomoku::Game &game);
+	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock);
 };
 
 #endif //GOMOKU_GOMOKUDRAW_H

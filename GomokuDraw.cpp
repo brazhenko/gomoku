@@ -450,15 +450,48 @@ namespace GomokuDraw
 		ImGui::EndGroup();
 	}
 
-	void DrawFilesButtons(Gomoku::Game &game, ImGui::FileBrowser &fileDialog)
+	void DrawFilesButtons(Gomoku::Game &game)
 	{
 		ImGui::Dummy(ImVec2(20.0f, 129.0f));
 		ImGui::BeginGroup();
 		if (ImGui::Button("save fen"))
-			std::cout << game.board_ << std::endl;
+		{
+			std::stringstream fn;
+			auto t = std::time(nullptr);
+			auto tm = *std::localtime(&t);
+
+			fn << "/Users/lreznak-/Desktop/gomoku_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".gg";
+
+			std::ofstream ofs { fn.str() };
+
+			if (ofs.is_open())
+				ofs << game.board_ << std::endl;
+			else
+			{
+				std::cerr << "Cannot open file: " << fn.str() << std::endl;
+			}
+		}
+
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
-		if (ImGui::Button("load fen")) 
-			std::cin >> game.board_;
+
+		if (ImGui::Button("load fen"))
+			game.fileDialogBoardPos.Open();
+
+		game.fileDialogBoardPos.Display();
+
+		if(game.fileDialogBoardPos.HasSelected())
+		{
+			std::ifstream ifs { game.fileDialogBoardPos.GetSelected().string() };
+
+			if (ifs.is_open())
+				ifs >> game.board_;
+			else
+				std::cerr << "Cannot open file: " << game.fileDialogBoardPos.GetSelected().string() <<  std::endl;
+
+			game.fileDialogBoardPos.ClearSelected();
+		}
+
+
 		ImGui::EndGroup();
 		ImGui::SameLine();
 		ImGui::Dummy(ImVec2(20.0f, 1.0f));
@@ -468,53 +501,63 @@ namespace GomokuDraw
 		{
 			try
 			{
-				std::ofstream pgnfile("/Users/lreznak-/Desktop/test.pgn");
+				std::stringstream fn;
+				auto t = std::time(nullptr);
+				auto tm = *std::localtime(&t);
 
-				pgn::TagList tl;
-				tl.insert(pgn::Tag("Game", "Gomoku"));
-				pgn::MoveList ml;
-				pgn::GameResult gr;
+				fn << "/Users/lreznak-/Desktop/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".pgn";
 
+				std::ofstream ofs { fn.str() };
 
-				const auto& moves = game.board_.GetMovesList();
-
-				for (int i = 0; i < moves.size(); i += 2)
-				{
-					ml.push_back(pgn::Move(
-							pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
-							(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
-							(i/2) + 1));
-					std::cout << Gomoku::BoardState::MoveToString(moves[i]) << std::endl;
-				}
-
-//						ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
-
-				std::stringstream ss;
-				ss << pgn::Game(tl, ml, gr) << std::endl;
-
-
-				pgnfile << pgn::Game(tl, ml, gr) << std::endl;
-
-				pgn::Game g2;
-
-				ss >> g2;
-
-				std::cerr << g2;
-
+				if (ofs.is_open())
+					ofs << game.board_.ToPgnString() << std::endl;
+				else
+					std::cerr << "Cannot open file: " << fn.str() << std::endl;
 			}
 			catch (std::exception &e)
 			{
 				std::cerr << "exception: " << e.what() << std::endl;
-				// return -1;
 			}
 		}
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
 		if (ImGui::Button("load pgn"))
-			fileDialog.Open();
+			game.fileDialogGame.Open();
+		game.fileDialogGame.Display();
+
+		if(game.fileDialogGame.HasSelected())
+		{
+			std::ifstream ifs { game.fileDialogGame.GetSelected().string() };
+
+			if (ifs.is_open())
+			{
+				pgn::Game g;
+
+				ifs >> g;
+				std::cerr << "Loaded game" << std::endl << g << std::endl;
+
+				std::vector<std::pair<int, int>> moves;
+
+				for (const auto & move: g.moves())
+				{
+					if (move.white().valid())
+						moves.push_back(Gomoku::BoardState::StringToMove(move.white().str()));
+					if (move.black().valid())
+						moves.push_back(Gomoku::BoardState::StringToMove(move.black().str()));
+				}
+
+				game.board_ = Gomoku::BoardState(moves);
+			}
+			else
+				std::cerr << "Cannot open file: " << game.fileDialogBoardPos.GetSelected().string() <<  std::endl;
+
+
+
+			game.fileDialogGame.ClearSelected();
+		}
 		ImGui::EndGroup();
 	}
 
-	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock, ImGui::FileBrowser &fileDialog)
+	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock)
 	{
 		static bool enableEngine = false;
 		static bool isDisable = false;
@@ -554,7 +597,7 @@ namespace GomokuDraw
 			ImGui::Checkbox("Disable", &isDisable);
 
 			
-			GomokuDraw::DrawFilesButtons(game, fileDialog);
+			GomokuDraw::DrawFilesButtons(game);
 		}
 		
 		ImGui::PopItemWidth();

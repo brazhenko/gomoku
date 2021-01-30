@@ -30,35 +30,6 @@ int main()
 	if (RUN_ALL_TESTS()) return (-1);
 #endif
 
-//	try
-//	{
-//		std::ifstream pgnfile("./sample.pgn");
-//
-//		pgn::TagList tl;
-//		tl.insert(pgn::Tag("Game", "Gomoku"));
-//		pgn::MoveList ml;
-//		pgn::GameResult gr;
-//
-//		ml.push_back(pgn::Move(pgn::Ply("i14"), pgn::Ply("e5"), 1));
-//
-//		std::stringstream ss;
-//		ss << pgn::Game(tl, ml, gr) << std::endl;
-//
-//		pgn::Game g2;
-//
-//		ss >> g2;
-//
-//		std::cerr << g2;
-//
-//	}
-//	catch (std::exception &e)
-//	{
-//		std::cerr << "exception: " << e.what() << std::endl;
-//		return -1;
-//	}
-//
-//	return 0;
-
 	Gomoku::Game game{};
 	Gomoku::ChessClock clock(20, 20);
 	clock.Start();
@@ -70,12 +41,7 @@ int main()
 		return (-1);
 	}
 
-	ImGui::FileBrowser fileDialog;
-
-	// (optional) set browser properties
-	fileDialog.SetTitle("Select game file...");
-	fileDialog.SetTypeFilters({ ".pgn" });
-	fileDialog.SetPwd(getenv("HOME"));
+	bool enableEngine = false;
 
 	// Main loop
 	while (GomokuDraw::Go())
@@ -109,7 +75,7 @@ int main()
 				}
 
 			// Handle board
-			if (GomokuDraw::MouseInsideBoard())
+			if (GomokuDraw::MouseInsideBoard() && !game.fileDialogGame.IsOpened() && !game.fileDialogBoardPos.IsOpened())
 			{
 				const auto &mPt = ImGui::GetMousePos();
 
@@ -136,7 +102,8 @@ int main()
 
 
 			// Various
-			GomokuDraw::DrawGameMenu(game, clock, fileDialog);
+			GomokuDraw::DrawGameMenu(game, clock);
+
 
             /// до сюда твоя зона
 			ImGui::End();
@@ -161,20 +128,6 @@ int main()
 			ImGui::End();
 		}
 
-		if(fileDialog.HasSelected())
-		{
-			std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
-			fileDialog.ClearSelected();
-		}
-
-
-		fileDialog.Display();
-
-		if(fileDialog.HasSelected())
-		{
-			std::cout << "Selected filename" << fileDialog.GetSelected().string() << std::endl;
-			fileDialog.ClearSelected();
-		}
 
 		GomokuDraw::Render();
 	}

@@ -8,7 +8,8 @@
 #include <optional>
 #include "Cell.h"
 #include "Board.h"
-
+#include "imgui.h"
+#include "imfilebrowser.hpp"
 
 namespace Gomoku
 {
@@ -17,6 +18,8 @@ namespace Gomoku
 	private:
 		int focusMove = 0;
 	public:
+		ImGui::FileBrowser fileDialogBoardPos;
+		ImGui::FileBrowser fileDialogGame;
 
 		Gomoku::BoardState board_;
 		enum class State
@@ -25,6 +28,18 @@ namespace Gomoku
 			Main,
 		};
 		State state_ = State::Main;
+
+		Game()
+		{
+			// (optional) set browser properties
+			fileDialogGame.SetTitle("Select game file...");
+			fileDialogGame.SetTypeFilters({ ".pgn" });
+			fileDialogGame.SetPwd(getenv("HOME"));
+
+			fileDialogBoardPos.SetTitle("Select game position file...");
+			fileDialogBoardPos.SetTypeFilters({ ".gg" });
+			fileDialogBoardPos.SetPwd(getenv("HOME"));
+		}
 
 		void TakeBack()
 		{

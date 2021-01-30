@@ -4,7 +4,7 @@
 
 #include "Board.h"
 #include <vector>
-
+#include "PGNGame.h"
 
 Gomoku::BoardState::BoardState()
 {
@@ -476,4 +476,41 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 	}
 
 	return true;
+}
+
+std::string Gomoku::BoardState::ToPgnString() const
+{
+	std::stringstream ss;
+
+
+	pgn::TagList tl;
+
+	tl.insert(pgn::Tag("Game", "Gomoku"));
+	tl.insert(pgn::Tag("Variant", "42"));
+
+	pgn::MoveList ml;
+	pgn::GameResult gr;
+
+
+	const auto& moves = GetMovesList();
+
+	for (int i = 0; i < moves.size(); i += 2)
+	{
+
+		auto a = pgn::Move(
+				pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
+				(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
+				(i/2) + 1);
+		ml.push_back(
+				a
+				);
+
+		// TODO delete
+		std::cout << Gomoku::BoardState::MoveToString(moves[i]) << ",  ";
+		std::cout << ((i + 1 < moves.size()) ? Gomoku::BoardState::MoveToString(moves[i+1]) : "" )<< std::endl;
+	}
+
+	ss << pgn::Game(tl, ml, gr) << std::endl;
+
+	return ss.str();
 }
