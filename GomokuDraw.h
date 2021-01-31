@@ -20,26 +20,27 @@ namespace GomokuDraw
 
 	void DrawSome();
 
-
-	int HandleWindowClick();
 	std::pair<int, int> MouseCoordinatesToStonePosition(float x_, float y_);
 	std::pair<float, float> StonePositionToPrintCoorinates(std::pair<int, int> stone);
 
 	bool MouseInsideBoard();
 
-	std::optional<Gomoku::Cell> HandleBoardInteraction();
 	void ForbiddenCursor();
 	void DrawStone(float x, float y, int type);
 
-	void Render();
-	void Cleanup();
+	void DrawStones(const Gomoku::BoardState &bs);
 
 	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite);
 	void DrawSteps(Gomoku::Game &game);
 	void DrawButtons(Gomoku::Game &game, Gomoku::ChessClock &clock);
-	void DrawCheckboxes();
+
 	void DrawFilesButtons(Gomoku::Game &game);
 	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock);
+
+	void DrawGameMoves(const Gomoku::BoardState &bs);
+
+	void Render();
+	void Cleanup();
 };
 
 #endif //GOMOKU_GOMOKUDRAW_H

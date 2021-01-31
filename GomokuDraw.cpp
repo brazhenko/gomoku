@@ -10,7 +10,7 @@
 #include "imgui_little/imgui_impl_opengl3.h"
 #include <iostream>
 #include <optional>
-
+#include "TextWithColors.hpp"
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
 //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
@@ -109,6 +109,9 @@ namespace GomokuDraw
 	{
 		fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 	}
+
+	static const char* gameModes[] = { "42", "Classic", "Omok" };
+	static int gameModeId = 0;
 
 	bool Init()
 	{
@@ -223,13 +226,6 @@ namespace GomokuDraw
 		ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["background"].my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-
-	}
-
-	int HandleWindowClick()
-	{
-		// std::cout << ImGui::IsMouseClicked(0) << std::endl;
-		return 0;
 	}
 
 	constexpr float textureCellSide = 28.0;
@@ -299,8 +295,6 @@ namespace GomokuDraw
 					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 	}
 
-
-
 	void ForbiddenCursor()
 	{
 		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
@@ -313,8 +307,26 @@ namespace GomokuDraw
 				ImVec2{ImGui::GetMousePos().x + 15, ImGui::GetMousePos().y + 15});
 	}
 
+	void DrawStones(const Gomoku::BoardState &bs)
+	{
+		// Draw all stones on the board
+		for (int row = 0; row < 19; row++)
+			for (int col = 0; col < 19; col++)
+			{
+				auto stoneType = bs.At(row, col);
 
-
+				if (stoneType == Gomoku::BoardState::Side::White)
+				{
+					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
+					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, 2);
+				}
+				else if (bs.At(row, col) == Gomoku::BoardState::Side::Black)
+				{
+					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
+					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, 4);
+				}
+			}
+	}
 
 
 	void Render()
@@ -342,15 +354,16 @@ namespace GomokuDraw
 		glfwTerminate();
 	}
 
+	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+	static int player1 = 0;
+	static int player2 = 0;
+
 	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite)
 	{
 		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
 		ImGui::BeginGroup();
 		{
-			const char* items[] = { "Human", "AI1", "AI2", "AI3" };
-			const char* items2[] = { "Human", "AI1", "AI2", "AI3" };
-			int player1 = 0;
-			int player2 = 0;
+
 			{
 				ImDrawList* draw_list = ImGui::GetWindowDrawList();
 				ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -372,7 +385,8 @@ namespace GomokuDraw
 			if (isWhite)
 				ImGui::Combo("    ##1", &player1, items, IM_ARRAYSIZE(items)); 
 			else
-				ImGui::Combo("    ##2", &player2, items2, IM_ARRAYSIZE(items)); 
+				ImGui::Combo("    ##2", &player2, items, IM_ARRAYSIZE(items));
+
 			if (isDisable)
 			{
 				ImGui::PopItemFlag();
@@ -436,7 +450,7 @@ namespace GomokuDraw
 		ImGui::BeginGroup();
 		{
 			if (ImGui::Button("start"))
-				clock.Start();
+				game.Start(items[player1], items[player2], gameModes[gameModeId]);
 			ImGui::SameLine();
 			if (ImGui::Button("pause"))
 				clock.Pause();
@@ -559,17 +573,22 @@ namespace GomokuDraw
 
 	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock)
 	{
+		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 349 - 40});
+		ImGui::SetNextWindowPos(ImVec2{660, 40});
+		ImGui::Begin("Game2", nullptr);
+
 		static bool enableEngine = false;
 		static bool isDisable = false;
 		static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
 		ImGui::PushItemWidth(100);
-		static int game_mode = 0;
 		if (isDisable)
 		{
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 		}
-		ImGui::Combo("Game mode", &game_mode, "42\0Classic\0Omok\0\0");
+
+		ImGui::Combo("Game mode", &gameModeId, gameModes, IM_ARRAYSIZE(gameModes));
+
 		if (isDisable)
 		{
 			ImGui::PopItemFlag();
@@ -602,5 +621,37 @@ namespace GomokuDraw
 		
 		ImGui::PopItemWidth();
 		ImGui::EndGroup();
+
+		ImGui::End();
 	}
+
+	void DrawGameMoves(const Gomoku::BoardState &bs)
+	{
+		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
+		ImGui::SetNextWindowPos(ImVec2{660, 370}); // 1259, 679
+		ImGui::Begin("Game", nullptr);
+
+		for (int i = 0; i < bs.GetMovesList().size(); i += 2)
+		{
+			if (i + 1 < bs.GetMovesList().size())
+				TextWithColors( "{e6e600}%d. {ffffff}%s %s  ",
+						i/2 + 1,
+						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str(),
+						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i+1]).c_str());
+			else
+				TextWithColors( "{e6e600}%d. {ffffff}%s ...",
+						i/2 + 1,
+						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str());
+
+
+//			ImGui::Text("%d. %s  ", i + 1,
+//					Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str());
+			ImGui::SameLine();
+			if ((i) % 6 == 0 && i)
+				ImGui::NewLine();
+		}
+
+		ImGui::End();
+	}
+
 }

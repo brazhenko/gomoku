@@ -10,18 +10,11 @@
 
 bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_width, int* out_height);
 
-#include <PGNGameCollection.h>
-#include <iostream>
-#include <fstream>
-#include "PGNGame.h"
-#include <sstream>
+
 #include "Game.h"
-#include "imgui.h"
 #include "ChessClock.h"
 #include "gtest/gtest.h"
 
-#include "imfilebrowser.hpp"
-#include "imgui_internal.h"
 
 int main()
 {
@@ -41,94 +34,40 @@ int main()
 		return (-1);
 	}
 
-	bool enableEngine = false;
 
 	// Main loop
 	while (GomokuDraw::Go())
 	{
-
 		if (game.state_ == Gomoku::Game::State::Start)
 		{
-			// Отрисовать какие-то меньюшки, туториалы и прочее.
+			// Отрисовать какие-то менюшки, туториалы и прочее.
 		}
 		// Главный экран с движком и игрой
 		else if (game.state_ == Gomoku::Game::State::Main)
 		{
 			GomokuDraw::DrawSome();
-            
-			// Draw all stones on the board
-			for (int row = 0; row < 19; row++)
-				for (int col = 0; col < 19; col++)
-				{
-					auto stoneType = game.board_.At(row, col);
 
-					if (stoneType == Gomoku::BoardState::Side::White)
-					{
-						auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
-						GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, 2);
-					}
-					else if (game.board_.At(row, col) == Gomoku::BoardState::Side::Black)
-					{
-						auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
-						GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, 4);
-					}
-				}
+			GomokuDraw::DrawStones(game.board_);
 
-			// Handle board
-			if (GomokuDraw::MouseInsideBoard() && !game.fileDialogGame.IsOpened() && !game.fileDialogBoardPos.IsOpened())
-			{
-				const auto &mPt = ImGui::GetMousePos();
-
-				auto stone = GomokuDraw::MouseCoordinatesToStonePosition(mPt.x, mPt.y);
-
-				if (game.board_.GetAvailableMoves().find({stone.first, stone.second}) != game.board_.GetAvailableMoves().end())
-				{
-					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates(stone);
-					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, game.board_.WhiteMove() ? 1 : 3);
-
-					if (ImGui::IsMouseClicked(0))
-					{
-						game.board_.MakeMove(stone.first, stone.second);
-						clock.ChangeMove();
-					}
-				}
-				else
-					GomokuDraw::ForbiddenCursor();
-			}
-
-			ImGui::SetNextWindowSize(ImVec2{1259 - 660, 349 - 40});
-			ImGui::SetNextWindowPos(ImVec2{660, 40});
-			ImGui::Begin("Game2", nullptr);
-
-
-			// Various
 			GomokuDraw::DrawGameMenu(game, clock);
-
-
-            /// до сюда твоя зона
-			ImGui::End();
-
-			ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
-			ImGui::SetNextWindowPos(ImVec2{660, 370}); // 1259, 679
-			ImGui::Begin("Game", nullptr);
-
-			for (int i = 0; i < game.board_.GetMovesList().size(); i++)
-			{
-				ImGui::Text("%d. %s  ", i + 1,
-						Gomoku::BoardState::MoveToString(game.board_.GetMovesList()[i]).c_str());
-				ImGui::SameLine();
-				if ((i + 1) % 8 == 0)
-					ImGui::NewLine();
-			}
-
-			ImGui::End();
-
-
+			GomokuDraw::DrawGameMoves(game.board_);
 
 			ImGui::End();
 		}
+		else if (game.state_ == Gomoku::Game::State::GameInProcess)
+		{
+			GomokuDraw::DrawSome();
 
+			GomokuDraw::DrawStones(game.board_);
 
+			game.whitePlayer->Ping();
+			game.blackPlayer->Ping();
+
+			GomokuDraw::DrawGameMenu(game, clock);
+			GomokuDraw::DrawGameMoves(game.board_);
+
+			ImGui::End();
+		}
 		GomokuDraw::Render();
 	}
 	GomokuDraw::Cleanup();
