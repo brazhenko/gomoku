@@ -200,7 +200,7 @@ void Gomoku::BoardState::FindMovesBreaksFifth()
 
 					if (!captured.empty())
 					{
-						if (WhiteMove())
+						if (!WhiteMove())
 						{
 							fifthCount += CountFigures(board_, figure_five_w);
 							fifthCount += CountFigures(vertical_, figure_five_w);
@@ -223,7 +223,7 @@ void Gomoku::BoardState::FindMovesBreaksFifth()
 							available_moves.emplace(i, j);
 
 						for (const auto &c : captured)
-							Set(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11));
+							Set(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11U));
 					}
 
 				}
@@ -431,6 +431,11 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 	{
 		// Form avalable ending moves
 		FindMovesBreaksFifth();
+		std::cout << "move: " << Gomoku::BoardState::MoveToString({row, col}) << std::endl;
+		for (const auto &move: available_moves)
+			std::cout << Gomoku::BoardState::MoveToString(move) << ";  ";
+
+		std::cout << std::endl;
 		return true;
 	}
 
@@ -450,11 +455,6 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 					continue;
 				}
 				int freeThreesCount = 0, newFreeThreesCount = 0;
-
-//				if (WhiteMove())
-//					freeThreesCount = CountFreeThrees(Side::White, {i, j});
-//				else
-//					freeThreesCount = CountFreeThrees(Side::Black, {i, j});
 
 				// Pretend to make move
 				Set(i, j, Side(movePattern.to_ulong()));

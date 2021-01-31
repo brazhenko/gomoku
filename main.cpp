@@ -34,7 +34,6 @@ int main()
 		return (-1);
 	}
 
-
 	// Main loop
 	while (GomokuDraw::Go())
 	{
@@ -42,7 +41,7 @@ int main()
 		{
 			// Отрисовать какие-то менюшки, туториалы и прочее.
 		}
-		// Главный экран с движком и игрой
+		// Экран ожидания
 		else if (game.state_ == Gomoku::Game::State::Main)
 		{
 			GomokuDraw::DrawSome();
@@ -54,6 +53,7 @@ int main()
 
 			ImGui::End();
 		}
+		// Экран игры
 		else if (game.state_ == Gomoku::Game::State::GameInProcess)
 		{
 			GomokuDraw::DrawSome();

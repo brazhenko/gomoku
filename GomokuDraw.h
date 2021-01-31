@@ -7,7 +7,6 @@
 
 #include "Game.h"
 #include "ChessClock.h"
-#include "Cell.h"
 #include "PGNGame.h"
 #include "imgui.h"
 #include "imfilebrowser.hpp"

@@ -21,7 +21,6 @@ namespace Gomoku
 		std::chrono::system_clock::time_point startWhite{};
 		std::chrono::system_clock::time_point startBlack{};
 
-		//std::chrono::duration<double>
 		std::chrono::milliseconds whiteTimeLeft;
 		std::chrono::milliseconds blackTimeLeft;
 

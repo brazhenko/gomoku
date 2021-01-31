@@ -86,7 +86,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINAR
 add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
         ${IMGUI_SOURCES}
         ${PGNLIB_SRC}
-        Cell.cpp Cell.h Board.cpp Board.h tests.cpp ChessClock.cpp ChessClock.h IPlayer.cpp IPlayer.h)
+        Board.cpp Board.h tests.cpp ChessClock.cpp ChessClock.h IPlayer.cpp IPlayer.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
 

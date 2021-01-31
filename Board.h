@@ -14,6 +14,7 @@
 #include <sstream>
 #include <unordered_map>
 #include <fstream>
+#include <mutex>
 
 struct pairhash {
 public:
@@ -194,15 +195,13 @@ namespace Gomoku
 
 			const auto& row_ = lines[x];
 
-			for (int i = std::max(0, y - shape.size); i < std::min(y + shape.size, cells_in_line - shape.size); i++)
+			for (int i = std::max(0, y - shape.size + 1); i <= y; i++) //std::min(y + shape.size, cells_in_line - shape.size)
 			{
 				auto copy = (row_
 						<< ((cells_in_line - i - shape.size) * bits_per_cell)
 						>> ((cells_in_line - i - shape.size) * bits_per_cell)
 						>> (i * bits_per_cell));
-				if (copy
-					== shape.data
-						)
+				if (copy == shape.data)
 					// shape in a row found!
 					ret++;
 			}

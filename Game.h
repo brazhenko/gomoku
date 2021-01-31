@@ -6,13 +6,13 @@
 #define GOMOKU_GAME_H
 
 #include <optional>
-#include "Cell.h"
 #include "Board.h"
 #include "imgui.h"
 #include "imfilebrowser.hpp"
 #include "IPlayer.h"
 #include <utility>
 #include <memory>
+#include <thread>
 
 namespace Gomoku
 {
@@ -57,19 +57,25 @@ namespace Gomoku
 				)
 		{
 			Gomoku::MakeMove_t MakeMoveWhite = [this](int row, int col) {
-				if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
-				{
-					this->board_.MakeMove(row, col);
-					this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
-				}
+//				std::thread t(
+//					[this, row, col](){
+						if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
+						{
+							this->board_.MakeMove(row, col);
+							this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
+						}
 			};
 
 			Gomoku::MakeMove_t MakeMoveBlack = [this](int row, int col) {
-				if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
-				{
-					this->board_.MakeMove(row, col);
-					this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
-				}
+				//std::thread t(
+				//		[this, row, col](){
+							if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
+							{
+								this->board_.MakeMove(row, col);
+								this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
+							}
+//						});
+//				t.detach();
 			};
 
 			whitePlayer = PlayerFactory(player1, BoardState::Side::White, MakeMoveWhite);
