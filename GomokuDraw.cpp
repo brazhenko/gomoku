@@ -631,24 +631,26 @@ namespace GomokuDraw
 		ImGui::SetNextWindowPos(ImVec2{660, 370}); // 1259, 679
 		ImGui::Begin("Game", nullptr);
 
+		int helper = 0;
 		for (int i = 0; i < bs.GetMovesList().size(); i += 2)
 		{
 			if (i + 1 < bs.GetMovesList().size())
-				TextWithColors( "{e6e600}%d. {ffffff}%s %s  ",
+				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s % 3s  ",
 						i/2 + 1,
 						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str(),
 						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i+1]).c_str());
 			else
-				TextWithColors( "{e6e600}%d. {ffffff}%s ...",
+				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s ...",
 						i/2 + 1,
 						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str());
 
-
-//			ImGui::Text("%d. %s  ", i + 1,
-//					Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str());
+			helper++;
 			ImGui::SameLine();
-			if ((i) % 6 == 0 && i)
+			if (helper == 5)
+			{
 				ImGui::NewLine();
+				helper = 0;
+			}
 		}
 
 		ImGui::End();

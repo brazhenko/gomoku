@@ -9,6 +9,7 @@
 #include <sstream>
 #include <iostream>
 #include <iomanip>
+#include "Board.h"
 
 namespace Gomoku
 {
