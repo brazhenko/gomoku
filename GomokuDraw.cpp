@@ -533,6 +533,7 @@ namespace GomokuDraw
 				std::cerr << "exception: " << e.what() << std::endl;
 			}
 		}
+
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
 		if (ImGui::Button("load pgn"))
 			game.fileDialogGame.Open();
@@ -563,8 +564,6 @@ namespace GomokuDraw
 			}
 			else
 				std::cerr << "Cannot open file: " << game.fileDialogBoardPos.GetSelected().string() <<  std::endl;
-
-
 
 			game.fileDialogGame.ClearSelected();
 		}
@@ -615,7 +614,6 @@ namespace GomokuDraw
 			ImGui::Checkbox("Analysis", &enableEngine);
 			ImGui::Checkbox("Disable", &isDisable);
 
-			
 			GomokuDraw::DrawFilesButtons(game);
 		}
 		

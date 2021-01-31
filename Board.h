@@ -128,7 +128,7 @@ namespace Gomoku
 
 		bool IsMoveCapture(int row, int col) const;
 
-		int CountFreeThrees(Side side, const std::pair<int, int> lastMove) const;
+		int CountFreeThrees(Side side, std::pair<int, int> lastMove) const;
 		
 		bool MakeMove(int row, int col);
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
@@ -309,7 +309,6 @@ namespace Gomoku
 				for (int j = 0; j < 19; j++) {
 					char kek;
 					is >> kek;
-					std::cout << kek;
 					switch (kek) {
 						case '_':
 							bs.Set(i, j, Side::None); 
@@ -322,7 +321,6 @@ namespace Gomoku
 							break;
 					}
 				}
-				std::cout << std::endl;
 			}
 			return is;
 		}
