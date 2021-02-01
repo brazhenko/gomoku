@@ -22,6 +22,7 @@ namespace Gomoku
 	private:
 		int focusMove = 0;
 
+
 	public:
 		ImGui::FileBrowser fileDialogBoardPos;
 		ImGui::FileBrowser fileDialogGame;
@@ -41,7 +42,7 @@ namespace Gomoku
 		Gomoku::ChessClock clock_;
 
 		Game()
-		: clock_(20, 20)
+		: clock_(0, 0)
 		{
 			// (optional) set browser properties
 			fileDialogGame.SetTitle("Select game file...");
@@ -57,9 +58,11 @@ namespace Gomoku
 		void Go(
 				const std::string &player1,
 				const std::string &player2,
-				const std::string &gameVersion
+				const std::string &gameVersion,
+				const std::string &gameTime
 				)
 		{
+			clock_ = Gomoku::ChessClock(std::stoi(gameTime), std::stoi(gameTime));
 			if (this->state_ == State::GameInProcess)
 			{
 				return;

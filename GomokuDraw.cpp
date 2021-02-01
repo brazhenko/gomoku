@@ -115,6 +115,9 @@ namespace GomokuDraw
 	static const char* gameModes[] = { "42", "Classic", "Omok" };
 	static int gameModeId = 0;
 
+	static const char* gameTimes[] = { "30", "60", "120", "180", "300", "600" };
+	static int gameTimeId = 0;
+
 	bool Init()
 	{
 		// Setup window
@@ -470,7 +473,7 @@ namespace GomokuDraw
 				MakeNextObjectInActive();
 
 			if (ImGui::Button("start"))
-				game.Go(items[player1], items[player2], gameModes[gameModeId]);
+				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
 
 			if (tmp == Gomoku::Game::State::GameInProcess)
 				MakeNextObjectActive();
@@ -505,7 +508,7 @@ namespace GomokuDraw
 			if (ImGui::Button("restart"))
 			{
 				game.Stop();
-				game.Go(items[player1], items[player2], gameModes[gameModeId]);
+				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
 			}
 
 		}
@@ -646,7 +649,11 @@ namespace GomokuDraw
 		if (game.state_ != Gomoku::Game::State::Main)
 			MakeNextObjectInActive();
 
-		ImGui::Combo("Game mode", &gameModeId, gameModes, IM_ARRAYSIZE(gameModes));
+		ImGui::BeginGroup();
+		ImGui::Combo("mode <-- Game --> time", &gameModeId, gameModes, IM_ARRAYSIZE(gameModes));
+		ImGui::SameLine();
+		ImGui::Combo("", &gameTimeId, gameTimes, IM_ARRAYSIZE(gameTimes));
+		ImGui::EndGroup();
 
 		if (game.state_ != Gomoku::Game::State::Main)
 			MakeNextObjectActive();
