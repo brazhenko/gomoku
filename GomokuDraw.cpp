@@ -11,6 +11,8 @@
 #include <iostream>
 #include <optional>
 #include "TextWithColors.hpp"
+#include <limits.h>
+#include <NSSystemDirectories.h>
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
 //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
@@ -358,12 +360,11 @@ namespace GomokuDraw
 	static int player1 = 0;
 	static int player2 = 0;
 
-	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite)
+	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite)
 	{
 		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
 		ImGui::BeginGroup();
 		{
-
 			{
 				ImDrawList* draw_list = ImGui::GetWindowDrawList();
 				ImVec2 pos = ImGui::GetCursorScreenPos();
@@ -377,7 +378,8 @@ namespace GomokuDraw
 				ImGui::Dummy(ImVec2(15.0f, 4.0f));
 			}
 			ImGui::Text("    ");
-			if (isDisable)
+
+			if (game.state_ != Gomoku::Game::State::Main)
 			{
 				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -387,7 +389,7 @@ namespace GomokuDraw
 			else
 				ImGui::Combo("    ##2", &player2, items, IM_ARRAYSIZE(items));
 
-			if (isDisable)
+			if (game.state_ != Gomoku::Game::State::Main)
 			{
 				ImGui::PopItemFlag();
 				ImGui::PopStyleVar();
@@ -430,7 +432,7 @@ namespace GomokuDraw
 	{
 		static int counter = 0;
 		float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
-		ImGui::Text("Steps back");
+		ImGui::Text("not work");
 		ImGui::SameLine();
 		ImGui::PushButtonRepeat(true);
 		if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { counter++; }
@@ -451,8 +453,22 @@ namespace GomokuDraw
 	{
 		ImGui::BeginGroup();
 		{
+			if (game.state_ == Gomoku::Game::State::GameInProcess)
+			{
+				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+			}
+
 			if (ImGui::Button("start"))
 				game.Go(items[player1], items[player2], gameModes[gameModeId]);
+
+			if (game.state_ == Gomoku::Game::State::GameInProcess)
+			{
+				ImGui::PopItemFlag();
+				ImGui::PopStyleVar();
+			}
+
+
 			ImGui::SameLine();
 			if (ImGui::Button("pause"))
 			{
@@ -460,12 +476,32 @@ namespace GomokuDraw
 			}
 			ImGui::SameLine();
 			if (ImGui::Button("stop"))
-				game.clock_.Stop();
+			{
+				game.Stop();
+			}
+
 			ImGui::SameLine();
 			if (ImGui::Button("restart"))
-				game.Reset();
+			{
+				game.Stop();
+				game.Go(items[player1], items[player2], gameModes[gameModeId]);
+			}
+
 		}
 		ImGui::EndGroup();
+	}
+
+
+	/**
+	 * Returns the path to the current user's desktop.
+	 */
+	static char *path2desktop(void) {
+		static char real_public_path[PATH_MAX + 1] = {0};
+		if (real_public_path[0])
+			return real_public_path;
+		strcpy(real_public_path, getenv("HOME"));
+		memcpy(real_public_path + strlen(real_public_path), "/Desktop", 8);
+		return real_public_path;
 	}
 
 	void DrawFilesButtons(Gomoku::Game &game)
@@ -478,16 +514,17 @@ namespace GomokuDraw
 			auto t = std::time(nullptr);
 			auto tm = *std::localtime(&t);
 
-			fn << "/Users/lreznak-/Desktop/gomoku_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".gg";
+			fn << path2desktop()
+			 << "/gomoku_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".gg";
+
+			std::cerr << "path: " << fn.str() << std::endl;
 
 			std::ofstream ofs { fn.str() };
 
 			if (ofs.is_open())
 				ofs << game.board_ << std::endl;
 			else
-			{
 				std::cerr << "Cannot open file: " << fn.str() << std::endl;
-			}
 		}
 
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
@@ -523,7 +560,8 @@ namespace GomokuDraw
 				auto t = std::time(nullptr);
 				auto tm = *std::localtime(&t);
 
-				fn << "/Users/lreznak-/Desktop/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".pgn";
+				fn << path2desktop()
+					<< "/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".pgn";
 
 				std::ofstream ofs { fn.str() };
 
@@ -581,10 +619,10 @@ namespace GomokuDraw
 		ImGui::Begin("Game2", nullptr);
 
 		static bool enableEngine = false;
-		static bool isDisable = false;
+		// static bool isDisable = false;
 		static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
 		ImGui::PushItemWidth(100);
-		if (isDisable)
+		if (game.state_ != Gomoku::Game::State::Main)
 		{
 			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
@@ -592,17 +630,18 @@ namespace GomokuDraw
 
 		ImGui::Combo("Game mode", &gameModeId, gameModes, IM_ARRAYSIZE(gameModes));
 
-		if (isDisable)
+		if (game.state_ != Gomoku::Game::State::Main)
 		{
 			ImGui::PopItemFlag();
 			ImGui::PopStyleVar();
 		}
+
 		ImGui::Dummy(ImVec2(15.0f, 15.0f));
 		ImGui::BeginGroup();
 		{
-			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftWhite().c_str(), 77777, isDisable, true);
+			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftWhite().c_str(), 77777, true);
 			ImGui::SameLine();
-			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack().c_str(), 13, isDisable, false);
+			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack().c_str(), 13, false);
 			ImGui::Dummy(ImVec2(110.0f, 20.0f));
 			GomokuDraw::DrawSteps(game);
 			ImGui::Dummy(ImVec2(130.0f, 20.0f));
@@ -616,11 +655,11 @@ namespace GomokuDraw
 		{
 			// Arrow buttons with Repeater
 			ImGui::Checkbox("Analysis", &enableEngine);
-			ImGui::Checkbox("Disable", &isDisable);
+			// ImGui::Checkbox("Disable", &isDisable);
 
 			GomokuDraw::DrawFilesButtons(game);
 		}
-		
+
 		ImGui::PopItemWidth();
 		ImGui::EndGroup();
 

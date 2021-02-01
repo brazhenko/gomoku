@@ -112,6 +112,12 @@ namespace Gomoku
 			state_ = State::GameInPause;
 			clock_.Pause();
 		}
+		void Stop()
+		{
+			state_ = State::Main;
+			clock_.Stop();
+			board_.Reset();
+		}
 
 		void TakeBack()
 		{

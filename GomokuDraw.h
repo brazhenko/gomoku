@@ -29,7 +29,7 @@ namespace GomokuDraw
 
 	void DrawStones(const Gomoku::BoardState &bs);
 
-	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite);
+	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite);
 	void DrawSteps(Gomoku::Game &game);
 	void DrawButtons(Gomoku::Game &game);
 
