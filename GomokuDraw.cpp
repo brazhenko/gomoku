@@ -198,6 +198,19 @@ namespace GomokuDraw
 		return true;
 	}
 
+	void MakeNextObjectInActive()
+	{
+		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
+		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
+	}
+
+	void MakeNextObjectActive()
+	{
+		ImGui::PopItemFlag();
+		ImGui::PopStyleVar();
+	}
+
+
 	bool Go()
 	{
 		auto ret = !glfwWindowShouldClose(window);
@@ -380,20 +393,16 @@ namespace GomokuDraw
 			ImGui::Text("    ");
 
 			if (game.state_ != Gomoku::Game::State::Main)
-			{
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-			}
+				MakeNextObjectInActive();
+
 			if (isWhite)
 				ImGui::Combo("    ##1", &player1, items, IM_ARRAYSIZE(items)); 
 			else
 				ImGui::Combo("    ##2", &player2, items, IM_ARRAYSIZE(items));
 
 			if (game.state_ != Gomoku::Game::State::Main)
-			{
-				ImGui::PopItemFlag();
-				ImGui::PopStyleVar();
-			}
+				MakeNextObjectActive();
+
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
 			static float wrap_width = 70.0f;
 			ImGui::Text("Seconds left");
@@ -449,36 +458,48 @@ namespace GomokuDraw
 		}
 	}
 
+
+
+
 	void DrawButtons(Gomoku::Game &game)
 	{
 		ImGui::BeginGroup();
 		{
-			if (game.state_ == Gomoku::Game::State::GameInProcess)
-			{
-				ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-				ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-			}
+			auto tmp = game.state_;
+			if (tmp == Gomoku::Game::State::GameInProcess)
+				MakeNextObjectInActive();
 
 			if (ImGui::Button("start"))
 				game.Go(items[player1], items[player2], gameModes[gameModeId]);
 
-			if (game.state_ == Gomoku::Game::State::GameInProcess)
-			{
-				ImGui::PopItemFlag();
-				ImGui::PopStyleVar();
-			}
+			if (tmp == Gomoku::Game::State::GameInProcess)
+				MakeNextObjectActive();
 
 
 			ImGui::SameLine();
+
+			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause)
+				MakeNextObjectInActive();
+
 			if (ImGui::Button("pause"))
 			{
 				game.Pause();
 			}
+
+			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause)
+				MakeNextObjectActive();
+
 			ImGui::SameLine();
+			if (tmp == Gomoku::Game::State::Main)
+				MakeNextObjectInActive();
+
 			if (ImGui::Button("stop"))
 			{
 				game.Stop();
 			}
+			if (tmp == Gomoku::Game::State::Main)
+				MakeNextObjectActive();
+
 
 			ImGui::SameLine();
 			if (ImGui::Button("restart"))
@@ -623,18 +644,12 @@ namespace GomokuDraw
 		static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
 		ImGui::PushItemWidth(100);
 		if (game.state_ != Gomoku::Game::State::Main)
-		{
-			ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
-			ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
-		}
+			MakeNextObjectInActive();
 
 		ImGui::Combo("Game mode", &gameModeId, gameModes, IM_ARRAYSIZE(gameModes));
 
 		if (game.state_ != Gomoku::Game::State::Main)
-		{
-			ImGui::PopItemFlag();
-			ImGui::PopStyleVar();
-		}
+			MakeNextObjectActive();
 
 		ImGui::Dummy(ImVec2(15.0f, 15.0f));
 		ImGui::BeginGroup();
