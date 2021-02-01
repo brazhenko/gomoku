@@ -35,7 +35,10 @@ namespace Gomoku
 			Start = 0,
 			Main,
 			GameInProcess,
-			GameInPause
+			GameInPause,
+			GameEndedWhiteWin,
+			GameEndedBlackWin,
+			GameEndedDraw
 		};
 		State state_ = State::Main;
 		Gomoku::ChessClock clock_;
@@ -78,9 +81,8 @@ namespace Gomoku
 					std::thread t(
 							[this, row, col]()
 							{
-								this->blackPlayer->YourTurn(row, col,
-										this->board_.GetAvailableMoves());
 								this->clock_.ChangeMove();
+								this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 							});
 					t.detach();
 				}
@@ -92,8 +94,8 @@ namespace Gomoku
 					this->board_.MakeMove(row, col);
 					std::thread t(
 							[this, row, col](){
-								this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 								this->clock_.ChangeMove();
+								this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 							});
 					t.detach();
 				}

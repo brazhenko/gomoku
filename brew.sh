@@ -1,3 +1,4 @@
+#!/bin/bash
 
       #########.
      ########",#:
@@ -9,7 +10,7 @@
       ## ## ##."
 
 
-export OWN_DIR="/goinfre/lreznak-"
+export OWN_DIR="/goinfre/$HOME"
 # Delete and reinstall Homebrew from Github repo
 rm -rf $OWN_DIR/.brew
 git clone --depth=1 https://github.com/Homebrew/brew $OWN_DIR/.brew

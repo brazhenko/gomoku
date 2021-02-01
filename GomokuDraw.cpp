@@ -430,7 +430,10 @@ namespace GomokuDraw
 			marker_max = ImVec2(pos.x + wrap_width, pos.y + 15);
 			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
 			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
-			ImGui::Text(" %d", 77777);
+			if (isWhite)
+				ImGui::Text("%s", game.clock_.GetTimeSpentWhite().c_str());
+			else
+				ImGui::Text("%s", game.clock_.GetTimeSpentBlack().c_str());
 
 			ImGui::PopTextWrapPos();
 		}

@@ -24,7 +24,32 @@ namespace Gomoku
 		std::chrono::milliseconds whiteTimeLeft{};
 		std::chrono::milliseconds blackTimeLeft{};
 
+		std::chrono::milliseconds whiteTimeSpentForLastMove{};
+		std::chrono::milliseconds blackTimeSpentForLastMove{};
+
 	public:
+		static std::string DurationToString(const std::chrono::duration<double> &duration)
+		{
+			std::stringstream ss;
+
+			if (duration <= std::chrono::milliseconds(0))
+				return "00:00.0";
+
+			const auto hours = std::chrono::duration_cast<std::chrono::hours>(duration).count();
+			if (hours)
+				ss << std::setw(2) << std::setfill('0') << hours << ":";
+
+			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(duration).count();
+
+			ss << std::setw(2) << std::setfill('0') << minutes % 60 << ":";
+			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(duration).count() % 60;
+
+			if (minutes == 0)
+				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(duration).count() % 1000 / 100;
+
+			return ss.str();
+		}
+
 		ChessClock() = delete;
 
 		ChessClock(int whiteSeconds, int blackSeconds)
@@ -36,8 +61,6 @@ namespace Gomoku
 
 		void Start()
 		{
-//			whiteTimeLeft = std::chrono::milliseconds(whiteSeconds * 1000);
-//			blackTimeLeft = std::chrono::milliseconds(blackSeconds * 1000);
 			PauseOn = false;
 
 			startWhite = std::chrono::system_clock::now();
@@ -72,6 +95,9 @@ namespace Gomoku
 			whiteTimeLeft = std::chrono::milliseconds(1000 * 20);
 			blackTimeLeft = std::chrono::milliseconds(1000 * 20);
 
+			whiteTimeSpentForLastMove = {};
+			blackTimeSpentForLastMove = {};
+			
 			WhiteMove = true;
 			PauseOn = true;
 		}
@@ -83,14 +109,18 @@ namespace Gomoku
 				// Refreshing clock values
 				if (WhiteMove)
 				{
-					whiteTimeLeft
-							= std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
+					auto tmp =  std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
+					this->whiteTimeSpentForLastMove = whiteTimeLeft - tmp;
+
+					whiteTimeLeft = tmp;
 					startBlack = std::chrono::system_clock::now();
 				}
 				else
 				{
-					blackTimeLeft
-							= std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+					auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+					this->blackTimeSpentForLastMove = blackTimeLeft - tmp;
+
+					blackTimeLeft = tmp;
 					startWhite =  std::chrono::system_clock::now();
 				}
 			}
@@ -100,8 +130,6 @@ namespace Gomoku
 
 		[[nodiscard]] std::string GetTimeLeftWhite() const
 		{
-			std::stringstream ss;
-
 			auto nw = std::chrono::system_clock::now();
 
 			std::chrono::duration<double> timeLeft{};
@@ -110,28 +138,11 @@ namespace Gomoku
 			else
 				timeLeft = whiteTimeLeft - (nw - startWhite);
 
-			if (timeLeft <= std::chrono::milliseconds(0))
-				return "00:00.0";
-
-			const auto hours = std::chrono::duration_cast<std::chrono::hours>(timeLeft).count();
-			if (hours)
-				ss << std::setw(2) << std::setfill('0') << hours << ":";
-
-			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(timeLeft).count();
-
-			ss << std::setw(2) << std::setfill('0') << minutes % 60 << ":";
-			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(timeLeft).count() % 60;
-
-			if (minutes == 0)
-				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(timeLeft).count() % 1000 / 100;
-
-			return ss.str();
+			return DurationToString(timeLeft);
 		}
 
 		[[nodiscard]] std::string GetTimeLeftBlack() const
 		{
-			std::stringstream ss;
-
 			auto nw = std::chrono::system_clock::now();
 
 			std::chrono::duration<double> timeLeft{};
@@ -141,22 +152,17 @@ namespace Gomoku
 			else
 				timeLeft = blackTimeLeft - (nw - startBlack);
 
-			if (timeLeft <= std::chrono::milliseconds(0))
-				return "00:00.0";
+			return DurationToString(timeLeft);
+		}
 
-			const auto hours = std::chrono::duration_cast<std::chrono::hours>(timeLeft).count();
-			if (hours)
-				ss << std::setw(2) << std::setfill('0') <<  hours << ":";
-
-			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(timeLeft).count();
-
-			ss << std::setw(2) << std::setfill('0') << minutes % 60 << ":";
-			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(timeLeft).count() % 60;
-
-			if (minutes == 0)
-				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(timeLeft).count() % 1000 / 100;
-
-			return ss.str();
+		// These methods return time spent for last move
+		[[nodiscard]] std::string GetTimeSpentWhite() const
+		{
+			return DurationToString(whiteTimeSpentForLastMove);
+		}
+		[[nodiscard]] std::string GetTimeSpentBlack() const
+		{
+			return DurationToString(blackTimeSpentForLastMove);
 		}
 	};
 }
