@@ -50,13 +50,20 @@ Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
 	auto t1 = std::chrono::high_resolution_clock::now();
 
 	for (const auto &move : moves)
-		if (!this->MakeMove(move.first, move.second))
+	{
+		if (GetAvailableMoves().find(move) == GetAvailableMoves().end()) // if move is not available
 		{
 			std::stringstream ss;
 
 			ss << "Trying to construct board with wrong move: " << move.first << " " << move.second;
 			throw std::runtime_error(ss.str());
 		}
+
+		this->MakeMove(move.first, move.second);
+	}
+
+
+
 
 
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -387,7 +394,7 @@ std::vector<std::pair<int, int>> Gomoku::BoardState::MakeCapture(int row, int co
 	return capturedStones;
 }
 
-bool Gomoku::BoardState::MakeMove(int row, int col)
+Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMove(int row, int col)
 {
 	// Add to move history
 	moves_.emplace_back(row, col);
@@ -401,9 +408,9 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 	available_moves = {};
 
 	if (WhiteMove() && WhiteCapturePoints >= 5)
-		return true;
+		return MoveResult::WhiteWin;
 	if (!WhiteMove() && BlackCapturePoints >= 5)
-		return true;
+		return MoveResult::BlackWin;
 	int fifthCount = 0;
 
 	const auto &upC = _cToUpLines.at({row, col});
@@ -437,7 +444,13 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 
 
 		std::cout << std::endl;
-		return true;
+		if (available_moves.empty())
+		{
+			if (WhiteMove())
+				return MoveResult::BlackWin;
+			return MoveResult::WhiteWin;
+		}
+		return MoveResult::Default;
 	}
 
 
@@ -476,7 +489,10 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 		}
 	}
 
-	return true;
+	if (available_moves.empty())
+		return MoveResult::Draw;
+
+	return MoveResult::Default;
 }
 
 std::string Gomoku::BoardState::ToPgnString() const

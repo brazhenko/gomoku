@@ -59,8 +59,47 @@ int main()
 
 			GomokuDraw::DrawStones(game.board_);
 
-			game.whitePlayer->Ping();
-			game.blackPlayer->Ping();
+			auto w = game.whitePlayer->Ping();
+			auto b = game.blackPlayer->Ping();
+			bool wt = game.clock_.WhiteTimeLeft();
+			bool bt = game.clock_.BlackTimeLeft();
+
+			if (Gomoku::BoardState::MoveResult::WhiteWin == w
+				|| !bt)
+			{
+				game.state_ = Gomoku::Game::State::GameEndedWhiteWin;
+				game.clock_.Pause();
+			}
+			else if (Gomoku::BoardState::MoveResult::Draw == w)
+			{
+				game.state_ = Gomoku::Game::State::GameEndedDraw;
+				game.clock_.Pause();
+			}
+
+
+			if (Gomoku::BoardState::MoveResult::BlackWin == b
+				|| !wt)
+			{
+				game.state_ = Gomoku::Game::State::GameEndedBlackWin;
+				game.clock_.Pause();
+			}
+			else if (Gomoku::BoardState::MoveResult::Draw == b)
+			{
+				game.state_ = Gomoku::Game::State::GameEndedDraw;
+				game.clock_.Pause();
+			}
+
+			GomokuDraw::DrawGameMenu(game);
+			GomokuDraw::DrawGameMoves(game.board_);
+
+			ImGui::End();
+		}
+		else if (game.state_ == Gomoku::Game::State::GameEndedWhiteWin
+				|| game.state_ == Gomoku::Game::State::GameEndedBlackWin
+				|| game.state_ == Gomoku::Game::State::GameEndedDraw)
+		{
+			GomokuDraw::DrawSome();
+			GomokuDraw::DrawStones(game.board_);
 
 			GomokuDraw::DrawGameMenu(game);
 			GomokuDraw::DrawGameMoves(game.board_);

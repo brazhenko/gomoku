@@ -152,8 +152,16 @@ namespace Gomoku
 
 		int CountFreeThrees(Side side, std::pair<int, int> lastMove) const;
 
+
 		// Move from GetAvailableMoves() MUST be passed
-		bool MakeMove(int row, int col);
+		enum class MoveResult
+		{
+			Default,
+			WhiteWin,
+			BlackWin,
+			Draw
+		};
+		MoveResult MakeMove(int row, int col);
 
 		bool TakeBackMove();
 

@@ -128,12 +128,43 @@ namespace Gomoku
 					startWhite =  std::chrono::system_clock::now();
 				}
 			}
-
 			WhiteMove ^= true;
+		}
+
+		[[nodiscard]] bool WhiteTimeLeft() const
+		{
+			auto nw = std::chrono::system_clock::now();
+
+			std::chrono::duration<double> timeLeft{};
+			if (!WhiteMove || PauseOn)
+				timeLeft = whiteTimeLeft;
+			else
+				timeLeft = whiteTimeLeft - (nw - startWhite);
+
+			if (timeLeft <= std::chrono::milliseconds(0))
+				return false;
+			return true;
+		}
+
+		[[nodiscard]] bool BlackTimeLeft() const
+		{
+			auto nw = std::chrono::system_clock::now();
+
+			std::chrono::duration<double> timeLeft{};
+
+			if (WhiteMove || PauseOn)
+				timeLeft = blackTimeLeft;
+			else
+				timeLeft = blackTimeLeft - (nw - startBlack);
+
+			if (timeLeft <= std::chrono::milliseconds(0))
+				return false;
+			return true;
 		}
 
 		[[nodiscard]] std::string GetTimeLeftWhite() const
 		{
+
 			auto nw = std::chrono::system_clock::now();
 
 			std::chrono::duration<double> timeLeft{};

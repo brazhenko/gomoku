@@ -77,28 +77,23 @@ namespace Gomoku
 			Gomoku::MakeMove_t MakeMoveWhite = [this](int row, int col) {
 				if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
 				{
-					this->board_.MakeMove(row, col);
-					std::thread t(
-							[this, row, col]()
-							{
-								this->clock_.ChangeMove();
-								this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
-							});
-					t.detach();
+					auto ret = this->board_.MakeMove(row, col);
+					this->clock_.ChangeMove();
+					this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
+					return ret;
 				}
+				return BoardState::MoveResult::Default;
 			};
 
 			Gomoku::MakeMove_t MakeMoveBlack = [this](int row, int col) {
 				if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
 				{
-					this->board_.MakeMove(row, col);
-					std::thread t(
-							[this, row, col](){
-								this->clock_.ChangeMove();
-								this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
-							});
-					t.detach();
+					auto ret = this->board_.MakeMove(row, col);
+					this->clock_.ChangeMove();
+					this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
+					return ret;
 				}
+				return BoardState::MoveResult::Default;
 			};
 
 			whitePlayer = PlayerFactory(player1, BoardState::Side::White, MakeMoveWhite);

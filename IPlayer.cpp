@@ -4,6 +4,7 @@
 
 #include "IPlayer.h"
 #include "GomokuDraw.h"
+#include "Board.h"
 #include <string>
 
 std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
@@ -24,9 +25,9 @@ std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 	return nullptr;
 }
 
-void Gomoku::Human::Ping()
+Gomoku::BoardState::MoveResult Gomoku::Human::Ping()
 {
-	if (!myMove) return;
+	if (!myMove) return Gomoku::BoardState::MoveResult::Default;
 
 	if (GomokuDraw::MouseInsideBoard()) // && !game.fileDialogGame.IsOpened() && !game.fileDialogBoardPos.IsOpened())
 	{
@@ -44,10 +45,11 @@ void Gomoku::Human::Ping()
 			{
 				myMove = false;
 				availableMoves_ = {};
-				MakeMove_(stone.first, stone.second);
+				return MakeMove_(stone.first, stone.second);
 			}
 		}
 		else
 			GomokuDraw::ForbiddenCursor();
 	}
+	return Gomoku::BoardState::MoveResult::Default;
 }
