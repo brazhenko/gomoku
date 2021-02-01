@@ -87,6 +87,10 @@ namespace Gomoku
 
 		void Continue()
 		{
+			auto tmp = std::chrono::system_clock::now();
+
+			startWhite = tmp;
+			startBlack = tmp;
 			PauseOn = false;
 		}
 

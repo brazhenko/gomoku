@@ -435,6 +435,7 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 		for (const auto &move: available_moves)
 			std::cout << Gomoku::BoardState::MoveToString(move) << ";  ";
 
+
 		std::cout << std::endl;
 		return true;
 	}
