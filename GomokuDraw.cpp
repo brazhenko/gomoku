@@ -399,7 +399,9 @@ namespace GomokuDraw
 			ImVec2 marker_min = ImVec2(pos.x, pos.y);
 			ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
 			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
-			if (isWhite && game.board_.WhiteMove() || !isWhite && !game.board_.WhiteMove())
+
+			// TODO проверить, что тут нормальное условие в ифе
+			if ((isWhite && game.board_.WhiteMove()) || (!isWhite && !game.board_.WhiteMove()))
 				draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
 			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
 			ImGui::Dummy(ImVec2(15.0f, 4.0f));
