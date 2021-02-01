@@ -34,7 +34,8 @@ namespace Gomoku
 		{
 			Start = 0,
 			Main,
-			GameInProcess
+			GameInProcess,
+			GameInPause
 		};
 		State state_ = State::Main;
 		Gomoku::ChessClock clock_;
@@ -53,12 +54,23 @@ namespace Gomoku
 
 		}
 
-		void Start(
+		void Go(
 				const std::string &player1,
 				const std::string &player2,
 				const std::string &gameVersion
 				)
 		{
+			if (this->state_ == State::GameInProcess)
+			{
+				return;
+			}
+			else if (this->state_ == State::GameInPause)
+			{
+				clock_.Continue();
+				state_ = State::GameInProcess;
+				return;
+			}
+
 			Gomoku::MakeMove_t MakeMoveWhite = [this](int row, int col) {
 				if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
 				{
@@ -93,6 +105,12 @@ namespace Gomoku
 			state_ = State::GameInProcess;
 			whitePlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
 			clock_.Start();
+		}
+
+		void Pause()
+		{
+			state_ = State::GameInPause;
+			clock_.Pause();
 		}
 
 		void TakeBack()

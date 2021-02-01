@@ -40,7 +40,8 @@ int main()
 			// Отрисовать какие-то менюшки, туториалы и прочее.
 		}
 		// Экран ожидания
-		else if (game.state_ == Gomoku::Game::State::Main)
+		else if (game.state_ == Gomoku::Game::State::Main
+				 || game.state_ == Gomoku::Game::State::GameInPause)
 		{
 			GomokuDraw::DrawSome();
 

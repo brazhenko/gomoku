@@ -452,10 +452,12 @@ namespace GomokuDraw
 		ImGui::BeginGroup();
 		{
 			if (ImGui::Button("start"))
-				game.Start(items[player1], items[player2], gameModes[gameModeId]);
+				game.Go(items[player1], items[player2], gameModes[gameModeId]);
 			ImGui::SameLine();
 			if (ImGui::Button("pause"))
-				game.clock_.Pause();
+			{
+				game.Pause();
+			}
 			ImGui::SameLine();
 			if (ImGui::Button("stop"))
 				game.clock_.Stop();

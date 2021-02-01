@@ -482,7 +482,6 @@ std::string Gomoku::BoardState::ToPgnString() const
 {
 	std::stringstream ss;
 
-
 	pgn::TagList tl;
 
 	tl.insert(pgn::Tag("Game", "Gomoku"));
