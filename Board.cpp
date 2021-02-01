@@ -18,7 +18,7 @@ Gomoku::BoardState::BoardState()
 	// Vertical lines ||||
 	for (int j = 0; j < cells_in_line; j++)
 		for (int i = 0; i < cells_in_line; i++)
-			__cToVerticles.insert({{i, j}, {j, i}});
+			_cToVerticles.insert({{i, j}, {j, i}});
 
 	// Up Lines ////
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
@@ -28,7 +28,7 @@ Gomoku::BoardState::BoardState()
 		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
 
 		for (int j = 0; j < count; j++)
-			__cToUpLines.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
+			_cToUpLines.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
 	}
 
 	// Down Lines \\\\  |f
@@ -38,7 +38,7 @@ Gomoku::BoardState::BoardState()
 		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
 
 		for (int j = 0; j < count; j++)
-			__cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
+			_cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
 	}
 
 
@@ -123,8 +123,8 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side, std::pair
 	const auto& row = lastMove.first;
 	const auto& col = lastMove.second;
 
-	const auto &upC = __cToUpLines.at({row, col});
-	const auto &downC = __cToDownLines.at({row, col});
+	const auto &upC = _cToUpLines.at({row, col});
+	const auto &downC = _cToDownLines.at({row, col});
 
 	if (WhiteMove())
 	{
@@ -186,9 +186,9 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side, std::pair
 
 void Gomoku::BoardState::FindMovesBreaksFifth()
 {
-	for (int i = 0; i < 19; i++)
+	for (int i = 0; i < cells_in_line; i++)
 	{
-		for (int j = 0; j < 19; j++)
+		for (int j = 0; j < cells_in_line; j++)
 		{
 			if (Side::None == At(i, j))
 			{
@@ -406,8 +406,8 @@ bool Gomoku::BoardState::MakeMove(int row, int col)
 		return true;
 	int fifthCount = 0;
 
-	const auto &upC = __cToUpLines.at({row, col});
-	const auto &downC = __cToDownLines.at({row, col});
+	const auto &upC = _cToUpLines.at({row, col});
+	const auto &downC = _cToDownLines.at({row, col});
 
 	if (WhiteMove())
 	{

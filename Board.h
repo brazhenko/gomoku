@@ -60,9 +60,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
 
-		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> __cToVerticles;
-		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> __cToUpLines;
-		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> __cToDownLines;
+		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
+		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
+		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
 
 		std::unordered_set<std::pair<int, int>, pairhash> available_moves;
 
@@ -226,9 +226,9 @@ namespace Gomoku
 
 		void Set(int row, int col, Side s)
 		{
-			const auto &verticle = __cToVerticles.at({row, col});
-			const auto &upline = __cToUpLines.at({row, col});
-			const auto &downline = __cToDownLines.at({row, col});
+			const auto &verticle = _cToVerticles.at({row, col});
+			const auto &upline = _cToUpLines.at({row, col});
+			const auto &downline = _cToDownLines.at({row, col});
 
 			board_[row][col * 2] = unsigned(s)&1U;
 			board_[row][col * 2 + 1] = (unsigned(s)>>1U)&1U;

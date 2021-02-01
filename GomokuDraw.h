@@ -31,10 +31,10 @@ namespace GomokuDraw
 
 	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isDisable, bool isWhite);
 	void DrawSteps(Gomoku::Game &game);
-	void DrawButtons(Gomoku::Game &game, Gomoku::ChessClock &clock);
+	void DrawButtons(Gomoku::Game &game);
 
 	void DrawFilesButtons(Gomoku::Game &game);
-	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock);
+	void DrawGameMenu(Gomoku::Game &game);
 
 	void DrawGameMoves(const Gomoku::BoardState &bs);
 

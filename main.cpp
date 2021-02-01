@@ -24,8 +24,6 @@ int main()
 #endif
 
 	Gomoku::Game game{};
-	Gomoku::ChessClock clock(20, 20);
-	clock.Start();
 
 
 	if (!GomokuDraw::Init())
@@ -48,7 +46,7 @@ int main()
 
 			GomokuDraw::DrawStones(game.board_);
 
-			GomokuDraw::DrawGameMenu(game, clock);
+			GomokuDraw::DrawGameMenu(game);
 			GomokuDraw::DrawGameMoves(game.board_);
 
 			ImGui::End();
@@ -63,7 +61,7 @@ int main()
 			game.whitePlayer->Ping();
 			game.blackPlayer->Ping();
 
-			GomokuDraw::DrawGameMenu(game, clock);
+			GomokuDraw::DrawGameMenu(game);
 			GomokuDraw::DrawGameMoves(game.board_);
 
 			ImGui::End();

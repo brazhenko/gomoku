@@ -15,14 +15,14 @@ namespace Gomoku
 {
 	class ChessClock
 	{
-		bool WhiteMove;
-		bool PauseOn;
+		bool WhiteMove = true;
+		bool PauseOn = true;
 
 		std::chrono::system_clock::time_point startWhite{};
 		std::chrono::system_clock::time_point startBlack{};
 
-		std::chrono::milliseconds whiteTimeLeft;
-		std::chrono::milliseconds blackTimeLeft;
+		std::chrono::milliseconds whiteTimeLeft{};
+		std::chrono::milliseconds blackTimeLeft{};
 
 	public:
 		ChessClock() = delete;
@@ -36,11 +36,29 @@ namespace Gomoku
 
 		void Start()
 		{
+//			whiteTimeLeft = std::chrono::milliseconds(whiteSeconds * 1000);
+//			blackTimeLeft = std::chrono::milliseconds(blackSeconds * 1000);
+			PauseOn = false;
+
 			startWhite = std::chrono::system_clock::now();
+			startBlack = std::chrono::system_clock::now();
 		}
 
 		void Pause()
 		{
+			if (PauseOn) return;
+
+			if (WhiteMove)
+			{
+				whiteTimeLeft
+						= std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
+			}
+			else
+			{
+				blackTimeLeft
+						= std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+			}
+
 			PauseOn = true;
 		}
 
@@ -51,82 +69,96 @@ namespace Gomoku
 
 		void Stop()
 		{
+			whiteTimeLeft = std::chrono::milliseconds(1000 * 20);
+			blackTimeLeft = std::chrono::milliseconds(1000 * 20);
 
+			WhiteMove = true;
+			PauseOn = true;
 		}
 
 		void ChangeMove()
 		{
-			if (WhiteMove)
-				whiteTimeLeft = std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
-			else
-				blackTimeLeft = std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+			if (!PauseOn)
+			{
+				// Refreshing clock values
+				if (WhiteMove)
+				{
+					whiteTimeLeft
+							= std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
+					startBlack = std::chrono::system_clock::now();
+				}
+				else
+				{
+					blackTimeLeft
+							= std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+					startWhite =  std::chrono::system_clock::now();
+				}
+			}
 
 			WhiteMove ^= true;
 		}
 
-		[[nodiscard]] std::string GetTimeLeftWhite()
+		[[nodiscard]] std::string GetTimeLeftWhite() const
 		{
 			std::stringstream ss;
 
 			auto nw = std::chrono::system_clock::now();
 
-			if (WhiteMove)
-				startBlack = nw;
+			std::chrono::duration<double> timeLeft{};
+			if (!WhiteMove || PauseOn)
+				timeLeft = whiteTimeLeft;
+			else
+				timeLeft = whiteTimeLeft - (nw - startWhite);
 
-			if (whiteTimeLeft <= (nw - startWhite))
-				return "00:00";
+			if (timeLeft <= std::chrono::milliseconds(0))
+				return "00:00.0";
 
-			std::chrono::duration<double> diff = whiteTimeLeft - (nw - startWhite);
-
-
-			const auto hours = std::chrono::duration_cast<std::chrono::hours>(diff).count();
+			const auto hours = std::chrono::duration_cast<std::chrono::hours>(timeLeft).count();
 			if (hours)
 				ss << std::setw(2) << std::setfill('0') << hours << ":";
 
-			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(diff).count();
+			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(timeLeft).count();
 
 			ss << std::setw(2) << std::setfill('0') << minutes % 60 << ":";
-			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(diff).count() % 60;
+			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(timeLeft).count() % 60;
 
 			if (minutes == 0)
-				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() % 1000 / 100;
+				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(timeLeft).count() % 1000 / 100;
 
 			return ss.str();
 		}
 
-		[[nodiscard]] std::string GetTimeLeftBlack()
+		[[nodiscard]] std::string GetTimeLeftBlack() const
 		{
 			std::stringstream ss;
 
 			auto nw = std::chrono::system_clock::now();
 
-			if (!WhiteMove)
-				startWhite = nw;
+			std::chrono::duration<double> timeLeft{};
 
-			if (blackTimeLeft <= (nw - startBlack))
-				return "00:00";
+			if (WhiteMove || PauseOn)
+				timeLeft = blackTimeLeft;
+			else
+				timeLeft = blackTimeLeft - (nw - startBlack);
 
-			std::chrono::duration<double> diff = blackTimeLeft - (nw - startBlack);
+			if (timeLeft <= std::chrono::milliseconds(0))
+				return "00:00.0";
 
-			const auto hours = std::chrono::duration_cast<std::chrono::hours>(diff).count();
+			const auto hours = std::chrono::duration_cast<std::chrono::hours>(timeLeft).count();
 			if (hours)
 				ss << std::setw(2) << std::setfill('0') <<  hours << ":";
 
-			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(diff).count();
+			const auto minutes = std::chrono::duration_cast<std::chrono::minutes>(timeLeft).count();
 
 			ss << std::setw(2) << std::setfill('0') << minutes % 60 << ":";
-
-			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(diff).count() % 60;
+			ss << std::setw(2) << std::setfill('0') << std::chrono::duration_cast<std::chrono::seconds>(timeLeft).count() % 60;
 
 			if (minutes == 0)
-				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(diff).count() % 1000 / 100;
+				ss << "." << std::chrono::duration_cast<std::chrono::milliseconds>(timeLeft).count() % 1000 / 100;
 
 			return ss.str();
 		}
 	};
 }
-
-
-
 
 #endif //GOMOKU_CHESSCLOCK_H

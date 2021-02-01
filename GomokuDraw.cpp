@@ -445,7 +445,7 @@ namespace GomokuDraw
 		}
 	}
 
-	void DrawButtons(Gomoku::Game &game, Gomoku::ChessClock &clock)
+	void DrawButtons(Gomoku::Game &game)
 	{
 		ImGui::BeginGroup();
 		{
@@ -453,10 +453,10 @@ namespace GomokuDraw
 				game.Start(items[player1], items[player2], gameModes[gameModeId]);
 			ImGui::SameLine();
 			if (ImGui::Button("pause"))
-				clock.Pause();
+				game.clock_.Pause();
 			ImGui::SameLine();
 			if (ImGui::Button("stop"))
-				;
+				game.clock_.Stop();
 			ImGui::SameLine();
 			if (ImGui::Button("restart"))
 				game.Reset();
@@ -570,7 +570,7 @@ namespace GomokuDraw
 		ImGui::EndGroup();
 	}
 
-	void DrawGameMenu(Gomoku::Game &game, Gomoku::ChessClock &clock)
+	void DrawGameMenu(Gomoku::Game &game)
 	{
 		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 349 - 40});
 		ImGui::SetNextWindowPos(ImVec2{660, 40});
@@ -596,13 +596,13 @@ namespace GomokuDraw
 		ImGui::Dummy(ImVec2(15.0f, 15.0f));
 		ImGui::BeginGroup();
 		{
-			GomokuDraw::DrawPlayer(game, clock.GetTimeLeftWhite().c_str(), 77777, isDisable, true);
+			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftWhite().c_str(), 77777, isDisable, true);
 			ImGui::SameLine();
-			GomokuDraw::DrawPlayer(game, clock.GetTimeLeftBlack().c_str(), 13, isDisable, false);
+			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack().c_str(), 13, isDisable, false);
 			ImGui::Dummy(ImVec2(110.0f, 20.0f));
 			GomokuDraw::DrawSteps(game);
 			ImGui::Dummy(ImVec2(130.0f, 20.0f));
-			GomokuDraw::DrawButtons(game, clock);
+			GomokuDraw::DrawButtons(game);
 		}
 		ImGui::EndGroup();
 		ImGui::SameLine();
