@@ -444,26 +444,21 @@ namespace GomokuDraw
 		ImGui::EndGroup();
 	}
 
-	void DrawSteps(Gomoku::Game &game)
-	{
-		static int counter = 0;
-		float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
-		ImGui::Text("not work");
-		ImGui::SameLine();
-		ImGui::PushButtonRepeat(true);
-		if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { counter++; }
-		ImGui::SameLine(0.0f, spacing);
-		if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { counter > 0 ? counter-- : counter; }
-		ImGui::PopButtonRepeat();
-		ImGui::SameLine();
-		ImGui::Text("%d", counter);
-		ImGui::SameLine();
-		if (ImGui::Button("takeback"))
-		{
-			if (counter > 0) counter--;
-			game.TakeBack();
-		}
-	}
+	// void DrawSteps(Gomoku::Game &game)
+	// {
+	// 	static int counter = 0;
+	// 	float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
+	// 	ImGui::Text("not work");
+	// 	ImGui::SameLine();
+	// 	ImGui::PushButtonRepeat(true);
+	// 	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { counter++; }
+	// 	ImGui::SameLine(0.0f, spacing);
+	// 	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { counter > 0 ? counter-- : counter; }
+	// 	ImGui::PopButtonRepeat();
+	// 	ImGui::SameLine();
+	// 	ImGui::Text("%d", counter);
+
+	// }
 
 
 
@@ -519,13 +514,16 @@ namespace GomokuDraw
 			}
 			if (tmp == Gomoku::Game::State::Main)
 				MakeNextObjectActive();
-
-
 			ImGui::SameLine();
 			if (ImGui::Button("restart"))
 			{
 				game.Stop();
 				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("takeback"))
+			{
+				game.TakeBack();
 			}
 
 		}
@@ -682,8 +680,33 @@ namespace GomokuDraw
 			ImGui::SameLine();
 			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack().c_str(), 13, false);
 			ImGui::Dummy(ImVec2(110.0f, 20.0f));
-			GomokuDraw::DrawSteps(game);
-			ImGui::Dummy(ImVec2(130.0f, 20.0f));
+
+			// GomokuDraw::DrawSteps(game);
+			// ImGui::Dummy(ImVec2(130.0f, 20.0f));
+			ImGui::Text("Games status: ");
+			ImGui::SameLine();
+
+			if (game.state_ == Gomoku::Game::State::Main)
+			{
+				ImGui::Text("Not started");
+			}
+			else if (game.state_ == Gomoku::Game::State::GameEndedWhiteWin)
+			{
+				ImGui::TextColored(ImVec4(0.75f, 0.0f, 0.0f, 1.0f), "Red Win");
+			}
+			else if (game.state_ == Gomoku::Game::State::GameEndedBlackWin)
+			{
+				ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Blue Win");
+			}
+			else if (game.state_ == Gomoku::Game::State::GameEndedDraw)
+			{
+				ImGui::TextColored(ImVec4(1.0f, 0.0f, 1.0f, 1.0f), "Draw");
+			}
+			else
+			{
+				ImGui::Text("In progress");
+			}
+			ImGui::Text("");
 			GomokuDraw::DrawButtons(game);
 		}
 		ImGui::EndGroup();
