@@ -72,7 +72,18 @@ namespace Gomoku
 				return;
 			}
 
-			clock_ = {std::stoi(gameTime), std::stoi(gameTime)};
+			if (gameTime == "1 minute")
+				clock_ = {60, 60};
+			else if (gameTime == "3 minutes")
+				clock_ = {180, 180};
+			else if (gameTime == "5 minutes")
+				clock_ = {300, 300};
+			else if (gameTime == "10 minutes")
+				clock_ = {600, 600};
+			else if (gameTime == "15 minutes")
+				clock_ = {900, 900};
+			else
+				clock_ = {100, 100};
 
 			Gomoku::MakeMove_t MakeMoveWhite = [this](int row, int col) {
 				if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
