@@ -115,7 +115,7 @@ namespace GomokuDraw
 	static const char* gameModes[] = { "42", "Classic", "Omok" };
 	static int gameModeId = 0;
 
-	static const char* gameTimes[] = { "30", "60", "120", "180", "300", "600" };
+	static const char* gameTimes[] = { "1 minute", "3 minutes", "5 minutes", "10 minutes", "15 minutes" };
 	static int gameTimeId = 0;
 
 	bool Init()
@@ -467,19 +467,29 @@ namespace GomokuDraw
 		ImGui::BeginGroup();
 		{
 			auto tmp = game.state_;
-			if (tmp == Gomoku::Game::State::GameInProcess)
+			if (tmp == Gomoku::Game::State::GameInProcess
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+			   	|| tmp == Gomoku::Game::State::GameEndedBlackWin
+			  	|| tmp == Gomoku::Game::State::GameEndedDraw
+			  	)
 				MakeNextObjectInActive();
 
 			if (ImGui::Button("start"))
 				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
 
-			if (tmp == Gomoku::Game::State::GameInProcess)
+			if (tmp == Gomoku::Game::State::GameInProcess
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw)
 				MakeNextObjectActive();
 
 
 			ImGui::SameLine();
 
-			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause)
+			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw)
 				MakeNextObjectInActive();
 
 			if (ImGui::Button("pause"))
@@ -487,7 +497,10 @@ namespace GomokuDraw
 				game.Pause();
 			}
 
-			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause)
+			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw)
 				MakeNextObjectActive();
 
 			ImGui::SameLine();

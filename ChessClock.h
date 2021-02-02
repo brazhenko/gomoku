@@ -96,8 +96,8 @@ namespace Gomoku
 
 		void Stop()
 		{
-			whiteTimeLeft = std::chrono::milliseconds(1000 * 20);
-			blackTimeLeft = std::chrono::milliseconds(1000 * 20);
+			whiteTimeLeft = std::chrono::milliseconds(0);
+			blackTimeLeft = std::chrono::milliseconds(0);
 
 			whiteTimeSpentForLastMove = {};
 			blackTimeSpentForLastMove = {};
