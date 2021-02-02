@@ -65,8 +65,14 @@ namespace Gomoku
 		}
 		BoardState::MoveResult Ping() override
 		{
+			if (!myMove) return {};
+
 			if (!availableMoves_.empty())
+			{
+				myMove = false;
 				return MakeMove_(availableMoves_.begin()->first, availableMoves_.begin()->second);
+			}
+
 
 			return {};
 		}
