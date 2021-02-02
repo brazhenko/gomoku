@@ -130,7 +130,39 @@ namespace Gomoku
 		void TakeBack()
 		{
 			board_.TakeBackMove();
-		}
+			clock_.ChangeMove();
+
+			const auto &tmp = board_.GetMovesList();
+
+			if (tmp.empty())
+			{
+				if (board_.WhiteMove())
+				{
+					this->whitePlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
+					this->blackPlayer->NotYourTurn();
+				}
+				else
+				{
+					this->blackPlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
+					this->whitePlayer->NotYourTurn();
+				}
+					
+			}
+			else
+			{
+				if (board_.WhiteMove())
+				{
+					this->whitePlayer->YourTurn(tmp.back().first, tmp.back().second, board_.GetAvailableMoves());
+					this->blackPlayer->NotYourTurn();
+				}
+				else
+				{
+					this->blackPlayer->YourTurn(tmp.back().first, tmp.back().second, board_.GetAvailableMoves());
+					this->whitePlayer->NotYourTurn();
+				}
+					
+			}
+		}			
 
 		void Reset()
 		{

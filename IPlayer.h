@@ -29,6 +29,8 @@ namespace Gomoku
 		{}
 		virtual ~IPlayer() = default;
 		virtual void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) = 0;
+		virtual void NotYourTurn() = 0;
+	
 		virtual BoardState::MoveResult Ping() = 0;
 	};
 
@@ -47,6 +49,12 @@ namespace Gomoku
 			myMove = true;
 			availableMoves_ = availableMoves;
 		}
+		void NotYourTurn() override
+		{
+			myMove = false;
+		}
+
+
 		BoardState::MoveResult Ping() override;
 	};
 
@@ -62,6 +70,11 @@ namespace Gomoku
 		{
 			myMove = true;
 			availableMoves_ = availableMoves;
+		}
+
+		void NotYourTurn() override
+		{
+			myMove = false;
 		}
 		BoardState::MoveResult Ping() override
 		{
@@ -89,6 +102,10 @@ namespace Gomoku
 		{
 
 		}
+		void NotYourTurn() override
+		{
+			myMove = false;
+		}
 		BoardState::MoveResult Ping() override
 		{
 			return {};
@@ -106,6 +123,10 @@ namespace Gomoku
 		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override
 		{
 
+		}
+		void NotYourTurn() override
+		{
+			myMove = false;
 		}
 		BoardState::MoveResult Ping() override
 		{

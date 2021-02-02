@@ -103,6 +103,8 @@ namespace Gomoku
 		explicit BoardState(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
 
+		
+
 		template<typename B>
 		int CountFigures(const B &lines, const GomokuShape &shape) const
 		{
