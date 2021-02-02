@@ -52,6 +52,7 @@ namespace Gomoku
 
 	class AI1 : public IPlayer
 	{
+		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 	public:
 		explicit AI1(BoardState::Side side, MakeMove_t MakeMove)
 		: IPlayer(side, std::move(MakeMove))
@@ -59,11 +60,14 @@ namespace Gomoku
 
 		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override
 		{
-			if (!availableMoves.empty())
-				MakeMove_(availableMoves.begin()->first, availableMoves.begin()->second);
+			myMove = true;
+			availableMoves_ = availableMoves;
 		}
 		BoardState::MoveResult Ping() override
 		{
+			if (!availableMoves_.empty())
+				return MakeMove_(availableMoves_.begin()->first, availableMoves_.begin()->second);
+
 			return {};
 		}
 	};
