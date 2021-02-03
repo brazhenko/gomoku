@@ -63,9 +63,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
 
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
-		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
-		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
-		std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
 
 		std::unordered_set<std::pair<int, int>, pairhash> available_moves;
 
@@ -76,9 +76,9 @@ namespace Gomoku
 		// Normal board: array of rows, board_[1][2] == board["c2"]
 		std::array<board_line, 19> board_{};
 		// Twisted lines of board
-		mutable std::array<board_line, 19> vertical_{};
-		mutable std::array<board_line, 38> up_lines_{};
-		mutable std::array<board_line, 38> down_lines_{};
+		std::array<board_line, 19> vertical_{};
+		std::array<board_line, 38> up_lines_{};
+		std::array<board_line, 38> down_lines_{};
 
 		// Pattern of current move stone to put on board
 		board_line movePattern { 0b01 };
@@ -89,6 +89,50 @@ namespace Gomoku
 		void FindMovesBreaksFifth();
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
 	public:
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitVerticles()
+		{
+			std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+
+			// Vertical lines ||||
+			for (int j = 0; j < cells_in_line; j++)
+				for (int i = 0; i < cells_in_line; i++)
+					ret.insert({{i, j}, {j, i}});
+
+			return ret;
+		}
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitUpLines()
+		{
+			std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+
+			constexpr int diagonal_count = cells_in_line * 2 - 1;
+			for (int line = 1; line <= diagonal_count; line++)
+			{
+				int start_col = std::max(0, line - cells_in_line);
+				int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+				for (int j = 0; j < count; j++)
+					ret.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
+			}
+
+			return ret;
+		}
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitDownLines()
+		{
+			std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+
+			constexpr int diagonal_count = cells_in_line * 2 - 1;
+			for (int line = 1; line <= diagonal_count; line++)
+			{
+				int start_col = std::max(0, line - cells_in_line);
+				int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+				for (int j = 0; j < count; j++)
+					_cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
+			}
+
+			return ret;
+		}
+
 		static std::string MoveToString(const std::pair<int, int> &move);
 		static std::pair<int, int> StringToMove(const std::string &s);
 
@@ -103,6 +147,12 @@ namespace Gomoku
 		explicit BoardState(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
 
+
+		bool operator==(const BoardState& other)
+		{
+			return this->board_ == other.board_;
+		}
+
 		template<typename B>
 		int CountFigures(const B &lines, const GomokuShape &shape) const
 		{
@@ -116,9 +166,7 @@ namespace Gomoku
 							<< ((cells_in_line - i - shape.size) * bits_per_cell)
 							>> ((cells_in_line - i - shape.size) * bits_per_cell)
 							>> (i * bits_per_cell));
-					if (copy
-						== shape.data
-							)
+					if (copy == shape.data)
 						// shape in a row found!
 						ret++;
 				}
@@ -148,10 +196,8 @@ namespace Gomoku
 			return ret;
 		}
 
-		bool IsMoveCapture(int row, int col) const;
-
-		int CountFreeThrees(Side side, std::pair<int, int> lastMove) const;
-
+		[[nodiscard]] bool IsMoveCapture(int row, int col) const;
+		[[nodiscard]] int CountFreeThrees(Side side, std::pair<int, int> lastMove) const;
 
 		// Move from GetAvailableMoves() MUST be passed
 		enum class MoveResult
@@ -161,6 +207,7 @@ namespace Gomoku
 			BlackWin,
 			Draw
 		};
+
 		MoveResult MakeMove(int row, int col);
 
 		bool TakeBackMove();
@@ -170,10 +217,10 @@ namespace Gomoku
 		[[nodiscard]] const std::vector<std::pair<int, int>>& GetMovesList() const;
 		[[nodiscard]] size_t hash() const;
 		[[nodiscard]] bool WhiteMove() const;
-		Side At(int row, int col) const;
-		int GetCapturePoints(Side side) const;
-		const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
-		std::string ToPgnString() const;
+		[[nodiscard]] Side At(int row, int col) const;
+		[[nodiscard]] int GetCapturePoints(Side side) const;
+		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
+		[[nodiscard]] std::string ToPgnString() const;
 
 		// I/O of board
 		friend std::ostream& operator<<(std::ostream& os, const BoardState& bs);

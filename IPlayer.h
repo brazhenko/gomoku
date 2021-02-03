@@ -32,8 +32,6 @@ namespace Gomoku
 		virtual BoardState::MoveResult Ping() = 0;
 	};
 
-
-
 	class Human : public IPlayer
 	{
 		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
@@ -58,10 +56,51 @@ namespace Gomoku
 		: IPlayer(side, std::move(MakeMove))
 		{}
 
+		struct CalcNode
+		{
+			CalcNode() = delete;
+			explicit CalcNode(const BoardState& bs)
+			{
+				state_ = bs;
+			}
+
+			int positionScore = 0;
+			BoardState state_;
+			std::vector<std::unique_ptr<CalcNode>> children;
+		};
+
+		std::unique_ptr<CalcNode> tree = std::make_unique<CalcNode>(BoardState{});
+		BoardState currentBoard{};
+
+		bool FindNext()
+		{
+			for (int i = 0; i < tree->children.size(); i++)
+			{
+				if (tree->children[i]->state_ == currentBoard)
+				{
+					tree = std::move(tree->children[i]);
+					return true;
+				}
+			}
+			return false;
+		}
+
 		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override
 		{
 			myMove = true;
 			availableMoves_ = availableMoves;
+
+			currentBoard.MakeMove(row, col);
+			if (!FindNext())
+				tree = std::make_unique<CalcNode>(currentBoard);
+
+			for (const auto &move: availableMoves)
+			{
+				auto copy = currentBoard;
+				currentBoard.MakeMove(move.first, move.second);
+				tree->children.emplace_back(std::make_unique<CalcNode>(std::move(copy)));
+			}
+
 		}
 		BoardState::MoveResult Ping() override
 		{
@@ -72,7 +111,6 @@ namespace Gomoku
 				myMove = false;
 				return MakeMove_(availableMoves_.begin()->first, availableMoves_.begin()->second);
 			}
-
 
 			return {};
 		}

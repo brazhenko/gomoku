@@ -25,6 +25,7 @@ int main()
 
 	Gomoku::Game game{};
 
+	std::cout << sizeof(game.board_) << std::endl;
 
 	if (!GomokuDraw::Init())
 	{

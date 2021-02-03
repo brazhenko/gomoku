@@ -6,42 +6,16 @@
 #include <vector>
 #include "PGNGame.h"
 
+// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToVerticles = Gomoku::BoardState::InitVerticles();
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToUpLines = Gomoku::BoardState::InitUpLines();
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToDownLines = Gomoku::BoardState::InitDownLines();
+
 Gomoku::BoardState::BoardState()
 {
 	for (int i = 0; i < 19; i++)
 		for (int j = 0; j < 19; j++)
 			this->available_moves.emplace(i, j);
-
-	// Initialize mappings
-	// Normal coordinates to projectcions
-
-	// Vertical lines ||||
-	for (int j = 0; j < cells_in_line; j++)
-		for (int i = 0; i < cells_in_line; i++)
-			_cToVerticles.insert({{i, j}, {j, i}});
-
-	// Up Lines ////
-	constexpr int diagonal_count = cells_in_line * 2 - 1;
-	for (int line = 1; line <= diagonal_count; line++)
-	{
-		int start_col = std::max(0, line - cells_in_line);
-		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
-
-		for (int j = 0; j < count; j++)
-			_cToUpLines.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
-	}
-
-	// Down Lines \\\\  |f
-	for (int line = 1; line <= diagonal_count; line++)
-	{
-		int start_col = std::max(0, line - cells_in_line);
-		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
-
-		for (int j = 0; j < count; j++)
-			_cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
-	}
-
-
 }
 
 Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
@@ -61,10 +35,6 @@ Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
 
 		this->MakeMove(move.first, move.second);
 	}
-
-
-
-
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
