@@ -430,13 +430,14 @@ namespace GomokuDraw
 			ImGui::Text("Move ms:");
 			pos = ImGui::GetCursorScreenPos();
 			marker_min = ImVec2(pos.x, pos.y);
-			marker_max = ImVec2(pos.x + wrap_width, pos.y + 15);
+			marker_max = ImVec2(pos.x + wrap_width, pos.y + 25);
 			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
+			ImGui::Dummy(ImVec2(15.0f, 2.0f));
 			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
 			if (isWhite)
-				ImGui::Text("%s", game.clock_.GetTimeSpentWhite().c_str());
+				ImGui::Text(" %s", game.clock_.GetTimeSpentWhite().c_str());
 			else
-				ImGui::Text("%s", game.clock_.GetTimeSpentBlack().c_str());
+				ImGui::Text(" %s", game.clock_.GetTimeSpentBlack().c_str());
 
 			ImGui::PopTextWrapPos();
 		}

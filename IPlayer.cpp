@@ -3,6 +3,7 @@
 //
 
 #include "IPlayer.h"
+#include "AI1.h"
 #include "GomokuDraw.h"
 #include "Board.h"
 #include <string>

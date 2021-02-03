@@ -11,6 +11,50 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToUpLines = Gomoku::BoardState::InitUpLines();
 std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToDownLines = Gomoku::BoardState::InitDownLines();
 
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::InitVerticles()
+{
+	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+
+	// Vertical lines ||||
+	for (int j = 0; j < cells_in_line; j++)
+		for (int i = 0; i < cells_in_line; i++)
+			ret.insert({{i, j}, {j, i}});
+
+	return ret;
+}
+
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::InitUpLines()
+{
+	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+
+	constexpr int diagonal_count = cells_in_line * 2 - 1;
+	for (int line = 1; line <= diagonal_count; line++)
+	{
+		int start_col = std::max(0, line - cells_in_line);
+		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+		for (int j = 0; j < count; j++)
+			ret.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
+	}
+	return ret;
+}
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::InitDownLines()
+{
+	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+
+	constexpr int diagonal_count = cells_in_line * 2 - 1;
+	for (int line = 1; line <= diagonal_count; line++)
+	{
+		int start_col = std::max(0, line - cells_in_line);
+		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
+
+		for (int j = 0; j < count; j++)
+			_cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
+	}
+	return ret;
+}
+
+
 Gomoku::BoardState::BoardState()
 {
 	for (int i = 0; i < 19; i++)

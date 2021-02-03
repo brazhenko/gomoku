@@ -31,7 +31,6 @@ namespace Gomoku
 	{
 		// Global constants
 		static constexpr int bits_per_cell = 2;
-
 		static constexpr int cells_in_line = 19;
 		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
@@ -47,11 +46,15 @@ namespace Gomoku
 		// White shapes
 		constexpr static GomokuShape figure_five_w {0b0101010101, 5};				// XXXXX
 
+		constexpr static GomokuShape figure_four_w {0b00'01010101'00, 5};				// _XXXX_
+
 		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
 		constexpr static GomokuShape figure_free_three2_w { 0b0000'010101'0010, 7 };	// __XXX_O
 		constexpr static GomokuShape figure_free_three3_w { 0b1000'010101'0000, 7 };	// O_XXX__
 		constexpr static GomokuShape figure_free_three4_w { 0b00'01000101'00, 6 };	// _X_XX_
 		constexpr static GomokuShape figure_free_three5_w { 0b00'01010001'00, 6 };	// _XX_X_
+
+		constexpr static GomokuShape figure_free_two_w { 0b0000'0101'0000, 6 };	// __XX__
 
 		// Black shapes
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};				// OOOOO
@@ -61,6 +64,11 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three3_b { 0b0100'101010'0000, 7 };	// X_OOO__
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
+
+		constexpr static GomokuShape figure_free_two_b { 0b0000'1010'0000, 6 };	// __OO__
+
+
+
 
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
 		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
@@ -89,49 +97,9 @@ namespace Gomoku
 		void FindMovesBreaksFifth();
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
 	public:
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitVerticles()
-		{
-			std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
-
-			// Vertical lines ||||
-			for (int j = 0; j < cells_in_line; j++)
-				for (int i = 0; i < cells_in_line; i++)
-					ret.insert({{i, j}, {j, i}});
-
-			return ret;
-		}
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitUpLines()
-		{
-			std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
-
-			constexpr int diagonal_count = cells_in_line * 2 - 1;
-			for (int line = 1; line <= diagonal_count; line++)
-			{
-				int start_col = std::max(0, line - cells_in_line);
-				int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
-
-				for (int j = 0; j < count; j++)
-					ret.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
-			}
-
-			return ret;
-		}
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitDownLines()
-		{
-			std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
-
-			constexpr int diagonal_count = cells_in_line * 2 - 1;
-			for (int line = 1; line <= diagonal_count; line++)
-			{
-				int start_col = std::max(0, line - cells_in_line);
-				int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
-
-				for (int j = 0; j < count; j++)
-					_cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
-			}
-
-			return ret;
-		}
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitVerticles();
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitUpLines();
+		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitDownLines();
 
 		static std::string MoveToString(const std::pair<int, int> &move);
 		static std::pair<int, int> StringToMove(const std::string &s);
@@ -146,7 +114,6 @@ namespace Gomoku
 		BoardState();
 		explicit BoardState(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
-
 
 		bool operator==(const BoardState& other)
 		{

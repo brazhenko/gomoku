@@ -44,3 +44,4 @@ imgui.ini
 cmake-build-debug/
 imgui/
 cmake-build-release/
+cmake-build-relwithdebinfo/
