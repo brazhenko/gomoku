@@ -1,30 +1,10 @@
 //
-// Created by 17641238 on 30.01.2021.
+// Created by Lommy Reznak on 2/4/21.
 //
 
-#include "IPlayer.h"
-#include "AI1.h"
-#include "GomokuDraw.h"
-#include "Board.h"
-#include <string>
+#include "Human.h"
 
-std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
-		const std::string& name,
-		Gomoku::BoardState::Side side,
-		const Gomoku::MakeMove_t& MakeMove
-		)
-{
-	if (name == "Human")
-		return std::make_unique<Gomoku::Human>(side, MakeMove);
-	if (name == "AI1")
-		return std::make_unique<Gomoku::AI1>(side, MakeMove);
-	if (name == "AI2")
-		return std::make_unique<Gomoku::AI2>(side, MakeMove);
-	if (name == "AI3")
-		return std::make_unique<Gomoku::AI3>(side, MakeMove);
-
-	return nullptr;
-}
+#include "../GomokuDraw.h"
 
 Gomoku::BoardState::MoveResult Gomoku::Human::Ping()
 {

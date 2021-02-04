@@ -6,7 +6,7 @@
 #include <vector>
 #include "PGNGame.h"
 
-// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
+// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal2 lines x, y respectively)
 std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToVerticles = Gomoku::BoardState::InitVerticles();
 std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToUpLines = Gomoku::BoardState::InitUpLines();
 std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToDownLines = Gomoku::BoardState::InitDownLines();
@@ -15,7 +15,6 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 {
 	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
 
-	// Vertical lines ||||
 	for (int j = 0; j < cells_in_line; j++)
 		for (int i = 0; i < cells_in_line; i++)
 			ret.insert({{i, j}, {j, i}});
@@ -57,8 +56,8 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 
 Gomoku::BoardState::BoardState()
 {
-	for (int i = 0; i < 19; i++)
-		for (int j = 0; j < 19; j++)
+	for (int i = 0; i < cells_in_line; i++)
+		for (int j = 0; j < cells_in_line; j++)
 			this->available_moves.emplace(i, j);
 }
 
@@ -408,7 +407,7 @@ std::vector<std::pair<int, int>> Gomoku::BoardState::MakeCapture(int row, int co
 	return capturedStones;
 }
 
-Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMove(int row, int col)
+Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMove(int row, int col)
 {
 	// Add to move history
 	moves_.emplace_back(row, col);

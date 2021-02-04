@@ -29,12 +29,13 @@ namespace Gomoku
 {
 	class BoardState
 	{
+	public:
 		// Global constants
 		static constexpr int bits_per_cell = 2;
 		static constexpr int cells_in_line = 19;
 		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
-
+	private:
 		using board_line = std::bitset<bits_per_line>;
 		struct GomokuShape
 		{

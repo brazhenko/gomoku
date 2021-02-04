@@ -38,8 +38,9 @@ void Gomoku::ChessClock::Start()
 {
 	PauseOn = false;
 
-	startWhite = std::chrono::system_clock::now();
-	startBlack = std::chrono::system_clock::now();
+	auto tmp = std::chrono::system_clock::now();
+	startWhite = tmp;
+	startBlack = tmp;
 }
 
 void Gomoku::ChessClock::Pause()
@@ -85,22 +86,24 @@ void Gomoku::ChessClock::ChangeMove()
 {
 	if (!PauseOn)
 	{
+		auto now = std::chrono::system_clock::now();
+
 		// Refreshing clock values
 		if (WhiteMove)
 		{
-			auto tmp =  std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
+			auto tmp =  std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (now - startWhite));
 			this->whiteTimeSpentForLastMove = whiteTimeLeft - tmp;
 
 			whiteTimeLeft = tmp;
-			startBlack = std::chrono::system_clock::now();
+			startBlack = now;
 		}
 		else
 		{
-			auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+			auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (now - startBlack));
 			this->blackTimeSpentForLastMove = blackTimeLeft - tmp;
 
 			blackTimeLeft = tmp;
-			startWhite =  std::chrono::system_clock::now();
+			startWhite =  now;
 		}
 	}
 	WhiteMove ^= true;

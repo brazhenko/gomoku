@@ -107,7 +107,6 @@ void Gomoku::Game::TakeBack()
 			this->blackPlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
 			this->whitePlayer->NotYourTurn();
 		}
-
 	}
 	else
 	{
@@ -121,7 +120,6 @@ void Gomoku::Game::TakeBack()
 			this->blackPlayer->YourTurn(tmp.back().first, tmp.back().second, board_.GetAvailableMoves());
 			this->whitePlayer->NotYourTurn();
 		}
-
 	}
 }
 

@@ -11,8 +11,8 @@
 #include <iostream>
 #include <optional>
 #include "TextWithColors.hpp"
-#include <limits.h>
-#include <NSSystemDirectories.h>
+#include <climits>
+
 // About Desktop OpenGL function loaders:
 //  Modern desktop OpenGL doesn't have a standard portable header file to load OpenGL function pointers.
 //  Helper libraries are often used for this purpose! Here we are supporting a few common ones (gl3w, glew, glad).
@@ -89,7 +89,7 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 
 struct textureHelper
 {
-	textureHelper() = default;
+	textureHelper() = delete;
 
 	explicit textureHelper(const std::string &path)
 	{
@@ -188,15 +188,14 @@ namespace GomokuDraw
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
-		textures["background"] = textureHelper("textures/main.png");
+		textures.emplace("background", "textures/main.png");
 
-		textures["fantom_stone_blue"] = textureHelper("textures/light_blue.png");
-		textures["fantom_stone_red"] = textureHelper("textures/light_red.png");
+		textures.emplace("fantom_stone_blue", "textures/light_blue.png");
+		textures.emplace("fantom_stone_red", "textures/light_red.png");
 
-		textures["stone_blue"] = textureHelper("textures/blue.png");
-		textures["stone_red"] = textureHelper("textures/red.png");
-
-		textures["forbidden"] = textureHelper("textures/forbidden.png");
+		textures.emplace("stone_blue", "textures/blue.png");
+		textures.emplace("stone_red", "textures/red.png");
+		textures.emplace("forbidden", "textures/forbidden.png");
 
 		return true;
 	}
@@ -241,7 +240,7 @@ namespace GomokuDraw
 						| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 
-		ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures["background"].my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
+		ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures.at("background").my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
 
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
 	}
@@ -328,8 +327,8 @@ namespace GomokuDraw
 	void DrawStones(const Gomoku::BoardState &bs)
 	{
 		// Draw all stones on the board
-		for (int row = 0; row < 19; row++)
-			for (int col = 0; col < 19; col++)
+		for (int row = 0; row < Gomoku::BoardState::cells_in_line; row++)
+			for (int col = 0; col < Gomoku::BoardState::cells_in_line; col++)
 			{
 				auto stoneType = bs.At(row, col);
 
@@ -444,24 +443,6 @@ namespace GomokuDraw
 		ImGui::EndGroup();
 	}
 
-	// void DrawSteps(Gomoku::Game &game)
-	// {
-	// 	static int counter = 0;
-	// 	float spacing = ImGui::GetStyle().ItemInnerSpacing.x;
-	// 	ImGui::Text("not work");
-	// 	ImGui::SameLine();
-	// 	ImGui::PushButtonRepeat(true);
-	// 	if (ImGui::ArrowButton("##left", ImGuiDir_Left)) { counter++; }
-	// 	ImGui::SameLine(0.0f, spacing);
-	// 	if (ImGui::ArrowButton("##right", ImGuiDir_Right)) { counter > 0 ? counter-- : counter; }
-	// 	ImGui::PopButtonRepeat();
-	// 	ImGui::SameLine();
-	// 	ImGui::Text("%d", counter);
-
-	// }
-
-
-
 
 	void DrawButtons(Gomoku::Game &game)
 	{
@@ -554,7 +535,9 @@ namespace GomokuDraw
 			auto tm = *std::localtime(&t);
 
 			fn << path2desktop()
-			 << "/gomoku_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".gg";
+				 << "/gomoku_"
+				 << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
+				 << ".gg";
 
 			std::cerr << "path: " << fn.str() << std::endl;
 
@@ -591,6 +574,7 @@ namespace GomokuDraw
 		ImGui::Dummy(ImVec2(20.0f, 1.0f));
 		ImGui::SameLine();
 		ImGui::BeginGroup();
+
 		if (ImGui::Button("save pgn"))
 		{
 			try

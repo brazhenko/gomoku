@@ -20,10 +20,7 @@ if (GLEW_FOUND)
 endif()
 
 include_directories(imgui/examples/libs/gl3w)
-#include_directories(/usr/local/include)
-#include_directories(/opt/local/include)
 include_directories(little_imgui)
-
 
 
 SET(IMGUI_SOURCES
@@ -86,7 +83,7 @@ file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINAR
 add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
         ${IMGUI_SOURCES}
         ${PGNLIB_SRC}
-        Board.cpp Board.h tests.cpp ChessClock.cpp ChessClock.h IPlayer.cpp IPlayer.h AI1.cpp AI1.h)
+        Board.cpp Board.h tests.cpp ChessClock.cpp ChessClock.h Players/IPlayer.cpp Players/IPlayer.h Players/AI1.cpp Players/AI1.h Players/Human.cpp Players/Human.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
 

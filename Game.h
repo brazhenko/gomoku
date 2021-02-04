@@ -9,7 +9,7 @@
 #include "Board.h"
 #include "imgui.h"
 #include "imfilebrowser.hpp"
-#include "IPlayer.h"
+#include "Players/IPlayer.h"
 #include <utility>
 #include <memory>
 #include <thread>
