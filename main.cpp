@@ -23,7 +23,6 @@ int main()
 #endif
 
 	Gomoku::Game game{};
-	Gomoku::Engine engine{};
 
 	std::cout << sizeof(game.board_) << std::endl;
 

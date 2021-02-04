@@ -43,6 +43,7 @@ namespace Gomoku
 			int			size{};
 		};
 
+	public:
 		// Shapes to find
 		// White shapes
 		constexpr static GomokuShape figure_five_w {0b0101010101, 5};				// XXXXX
@@ -57,8 +58,11 @@ namespace Gomoku
 
 		constexpr static GomokuShape figure_free_two_w { 0b0000'0101'0000, 6 };	// __XX__
 
+
 		// Black shapes
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};				// OOOOO
+
+		constexpr static GomokuShape figure_four_b {0b00'10101010'00, 5};				// _XXXX_
 
 		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
 		constexpr static GomokuShape figure_free_three2_b { 0b0000'101010'0001, 7 };	// __OOO_X
@@ -69,7 +73,7 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_two_b { 0b0000'1010'0000, 6 };	// __OO__
 
 
-
+	private:
 
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
 		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
@@ -139,9 +143,13 @@ namespace Gomoku
 						ret++;
 				}
 			}
-
 			return ret;
 		}
+
+
+		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
+		[[nodiscard]] bool IsThereFigureOnBoard(const GomokuShape &shape) const;
+
 
 		template<typename B>
 		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int x, int y) const

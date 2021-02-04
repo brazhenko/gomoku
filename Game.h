@@ -14,6 +14,7 @@
 #include <memory>
 #include <thread>
 #include "ChessClock.h"
+#include "Engine.h"
 
 namespace Gomoku
 {
@@ -24,6 +25,8 @@ namespace Gomoku
 		std::unique_ptr<Gomoku::IPlayer> blackPlayer;
 
 		Gomoku::BoardState board_;
+		Gomoku::Engine engine;
+
 		enum class State
 		{
 			Start = 0,

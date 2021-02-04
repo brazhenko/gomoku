@@ -708,3 +708,34 @@ std::string Gomoku::BoardState::MoveToString(const std::pair<int, int> &move)
 
 	return ss.str();
 }
+
+int Gomoku::BoardState::CountFigureOverBoard(const Gomoku::BoardState::GomokuShape &shape) const
+{
+	int ret = 0;
+
+	ret += CountFigures(board_, shape);
+	ret += CountFigures(vertical_, shape);
+	ret += CountFigures(up_lines_, shape);
+	ret += CountFigures(down_lines_, shape);
+
+	return ret;
+}
+
+bool Gomoku::BoardState::IsThereFigureOnBoard(const Gomoku::BoardState::GomokuShape &shape) const
+{
+	int ret = 0;
+
+	ret += CountFigures(board_, shape);
+	if (ret) return true;
+
+	ret += CountFigures(vertical_, shape);
+	if (ret) return true;
+
+	ret += CountFigures(up_lines_, shape);
+	if (ret) return true;
+
+	ret += CountFigures(down_lines_, shape);
+	if (ret) return true;
+
+	return false;
+}

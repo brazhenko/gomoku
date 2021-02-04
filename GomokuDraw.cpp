@@ -303,25 +303,25 @@ namespace GomokuDraw
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 2)
 			ImGui::GetWindowDrawList()->AddImage(
-					(void*)(intptr_t)textures.at("stone_red").my_image_texture,
-					// Координата верхнего левого угла
-					ImVec2{xCoordinate, yCoordinate},
-					// Координата нижнего правого угла
-					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
+				(void*)(intptr_t)textures.at("stone_red").my_image_texture,
+				// Координата верхнего левого угла
+				ImVec2{xCoordinate, yCoordinate},
+				// Координата нижнего правого угла
+				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 3)
 			ImGui::GetWindowDrawList()->AddImage(
-					(void*)(intptr_t)textures.at("fantom_stone_blue").my_image_texture,
-					// Координата верхнего левого угла
-					ImVec2{xCoordinate, yCoordinate},
-					// Координата нижнего правого угла
-					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
+				(void*)(intptr_t)textures.at("fantom_stone_blue").my_image_texture,
+				// Координата верхнего левого угла
+				ImVec2{xCoordinate, yCoordinate},
+				// Координата нижнего правого угла
+				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 4)
 			ImGui::GetWindowDrawList()->AddImage(
-					(void*)(intptr_t)textures.at("stone_blue").my_image_texture,
-					// Координата верхнего левого угла
-					ImVec2{xCoordinate, yCoordinate},
-					// Координата нижнего правого угла
-					ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
+				(void*)(intptr_t)textures.at("stone_blue").my_image_texture,
+				// Координата верхнего левого угла
+				ImVec2{xCoordinate, yCoordinate},
+				// Координата нижнего правого угла
+				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 	}
 
 	void ForbiddenCursor()
@@ -386,6 +386,7 @@ namespace GomokuDraw
 	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
 	static int player1 = 0;
 	static int player2 = 0;
+	static bool enableEngine = false;
 
 	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite)
 	{
@@ -527,7 +528,8 @@ namespace GomokuDraw
 	/**
 	 * Returns the path to the current user's desktop.
 	 */
-	static char *path2desktop(void) {
+	static char *path2desktop()
+	{
 		static char real_public_path[PATH_MAX + 1] = {0};
 		if (real_public_path[0])
 			return real_public_path;
@@ -595,8 +597,10 @@ namespace GomokuDraw
 				auto t = std::time(nullptr);
 				auto tm = *std::localtime(&t);
 
-				fn << path2desktop()
-					<< "/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S") << ".pgn";
+				fn
+					<< path2desktop()
+					<< "/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
+					<< ".pgn";
 
 				std::ofstream ofs { fn.str() };
 
@@ -653,7 +657,6 @@ namespace GomokuDraw
 		ImGui::SetNextWindowPos(ImVec2{660, 40});
 		ImGui::Begin("Game2", nullptr);
 
-		static bool enableEngine = false;
 		// static bool isDisable = false;
 		static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
 		ImGui::PushItemWidth(100);
@@ -672,9 +675,9 @@ namespace GomokuDraw
 		ImGui::Dummy(ImVec2(15.0f, 15.0f));
 		ImGui::BeginGroup();
 		{
-			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftWhite().c_str(), 77777, true);
+			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftWhite(), 77777, true);
 			ImGui::SameLine();
-			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack().c_str(), 13, false);
+			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack(), 13, false);
 			ImGui::Dummy(ImVec2(110.0f, 20.0f));
 
 			// GomokuDraw::DrawSteps(game);
@@ -712,8 +715,17 @@ namespace GomokuDraw
 		ImGui::BeginGroup();
 		{
 			// Arrow buttons with Repeater
-			ImGui::Checkbox("Analysis", &enableEngine);
-			// ImGui::Checkbox("Disable", &isDisable);
+			if (ImGui::Checkbox("Analysis", &enableEngine))
+			{
+				if (enableEngine) // Engine enabled
+				{
+
+				}
+				else
+				{
+
+				}x
+			}
 
 			GomokuDraw::DrawFilesButtons(game);
 		}
