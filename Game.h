@@ -45,7 +45,6 @@ namespace Gomoku
 		void Pause();
 		void Stop();
 		void TakeBack();
-		void Reset();
 	};
 }
 

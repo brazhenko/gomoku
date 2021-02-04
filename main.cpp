@@ -11,6 +11,7 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 
 
 #include "Game.h"
+#include "Engine.h"
 #include "ChessClock.h"
 #include "gtest/gtest.h"
 
@@ -22,6 +23,7 @@ int main()
 #endif
 
 	Gomoku::Game game{};
+	Gomoku::Engine engine{};
 
 	std::cout << sizeof(game.board_) << std::endl;
 
