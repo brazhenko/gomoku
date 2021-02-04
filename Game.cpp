@@ -6,17 +6,7 @@
 
 Gomoku::Game::Game()
 : clock_(0, 0)
-{
-	// (optional) set browser properties
-	fileDialogGame.SetTitle("Select game file...");
-	fileDialogGame.SetTypeFilters({ ".pgn" });
-	fileDialogGame.SetPwd(getenv("HOME"));
-
-	fileDialogBoardPos.SetTitle("Select game position file...");
-	fileDialogBoardPos.SetTypeFilters({ ".gg" });
-	fileDialogBoardPos.SetPwd(getenv("HOME"));
-
-}
+{}
 
 void Gomoku::Game::Go(const std::string &player1, const std::string &player2, const std::string &gameVersion,
 					  const std::string &gameTime)

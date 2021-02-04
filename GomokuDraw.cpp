@@ -104,6 +104,8 @@ struct textureHelper
 
 GLFWwindow* window;
 std::unordered_map<std::string, textureHelper> textures;
+ImGui::FileBrowser fileDialogBoardPos;
+ImGui::FileBrowser fileDialogGame;
 
 namespace GomokuDraw
 {
@@ -196,6 +198,16 @@ namespace GomokuDraw
 		textures.emplace("stone_blue", "textures/blue.png");
 		textures.emplace("stone_red", "textures/red.png");
 		textures.emplace("forbidden", "textures/forbidden.png");
+
+		// (optional) set browser properties
+		fileDialogGame.SetTitle("Select game file...");
+		fileDialogGame.SetTypeFilters({ ".pgn" });
+		fileDialogGame.SetPwd(getenv("HOME"));
+
+		fileDialogBoardPos.SetTitle("Select game position file...");
+		fileDialogBoardPos.SetTypeFilters({ ".gg" });
+		fileDialogBoardPos.SetPwd(getenv("HOME"));
+
 
 		return true;
 	}
@@ -552,20 +564,20 @@ namespace GomokuDraw
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
 
 		if (ImGui::Button("load fen"))
-			game.fileDialogBoardPos.Open();
+			fileDialogBoardPos.Open();
 
-		game.fileDialogBoardPos.Display();
+		fileDialogBoardPos.Display();
 
-		if(game.fileDialogBoardPos.HasSelected())
+		if(fileDialogBoardPos.HasSelected())
 		{
-			std::ifstream ifs { game.fileDialogBoardPos.GetSelected().string() };
+			std::ifstream ifs { fileDialogBoardPos.GetSelected().string() };
 
 			if (ifs.is_open())
 				ifs >> game.board_;
 			else
-				std::cerr << "Cannot open file: " << game.fileDialogBoardPos.GetSelected().string() <<  std::endl;
+				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
 
-			game.fileDialogBoardPos.ClearSelected();
+			fileDialogBoardPos.ClearSelected();
 		}
 
 
@@ -601,12 +613,12 @@ namespace GomokuDraw
 
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
 		if (ImGui::Button("load pgn"))
-			game.fileDialogGame.Open();
-		game.fileDialogGame.Display();
+			fileDialogGame.Open();
+		fileDialogGame.Display();
 
-		if(game.fileDialogGame.HasSelected())
+		if(fileDialogGame.HasSelected())
 		{
-			std::ifstream ifs { game.fileDialogGame.GetSelected().string() };
+			std::ifstream ifs { fileDialogGame.GetSelected().string() };
 
 			if (ifs.is_open())
 			{
@@ -628,9 +640,9 @@ namespace GomokuDraw
 				game.board_ = Gomoku::BoardState(moves);
 			}
 			else
-				std::cerr << "Cannot open file: " << game.fileDialogBoardPos.GetSelected().string() <<  std::endl;
+				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
 
-			game.fileDialogGame.ClearSelected();
+			fileDialogGame.ClearSelected();
 		}
 		ImGui::EndGroup();
 	}
@@ -742,5 +754,4 @@ namespace GomokuDraw
 
 		ImGui::End();
 	}
-
 }

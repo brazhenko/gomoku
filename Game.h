@@ -20,9 +20,6 @@ namespace Gomoku
 	class Game
 	{
 	public:
-		ImGui::FileBrowser fileDialogBoardPos;
-		ImGui::FileBrowser fileDialogGame;
-
 		std::unique_ptr<Gomoku::IPlayer> whitePlayer;
 		std::unique_ptr<Gomoku::IPlayer> blackPlayer;
 

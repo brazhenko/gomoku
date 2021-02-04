@@ -3,7 +3,6 @@
 
 #include "GomokuDraw.h"
 #include "imgui_little/imgui.h"
-#include <unordered_map>
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 #include <iostream>
@@ -14,7 +13,6 @@ bool LoadTextureFromFile(const char* filename, GLuint* out_texture, int* out_wid
 #include "Game.h"
 #include "ChessClock.h"
 #include "gtest/gtest.h"
-
 
 int main()
 {

@@ -142,7 +142,6 @@ void Gomoku::ChessClock::ChangeMove()
 
 [[nodiscard]] std::string Gomoku::ChessClock::GetTimeLeftWhite() const
 {
-
 	auto nw = std::chrono::system_clock::now();
 
 	std::chrono::duration<double> timeLeft{};
