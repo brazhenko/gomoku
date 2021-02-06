@@ -102,6 +102,7 @@ struct textureHelper
 	GLuint my_image_texture = 0;
 };
 
+// Global GomokuDraw context variables
 GLFWwindow* window;
 std::unordered_map<std::string, textureHelper> textures;
 ImGui::FileBrowser fileDialogBoardPos;
@@ -183,6 +184,7 @@ namespace GomokuDraw
 		ImGuiIO& io = ImGui::GetIO();
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
 		// Setup Dear ImGui style
 		ImGui::StyleColorsDark();
 
@@ -190,16 +192,15 @@ namespace GomokuDraw
 		ImGui_ImplGlfw_InitForOpenGL(window, true);
 		ImGui_ImplOpenGL3_Init(glsl_version);
 
+		// Prepare textures
 		textures.emplace("background", "textures/main.png");
-
 		textures.emplace("fantom_stone_blue", "textures/light_blue.png");
 		textures.emplace("fantom_stone_red", "textures/light_red.png");
-
 		textures.emplace("stone_blue", "textures/blue.png");
 		textures.emplace("stone_red", "textures/red.png");
 		textures.emplace("forbidden", "textures/forbidden.png");
 
-		// (optional) set browser properties
+		// Set default filedialog parameters
 		fileDialogGame.SetTitle("Select game file...");
 		fileDialogGame.SetTypeFilters({ ".pgn" });
 		fileDialogGame.SetPwd(getenv("HOME"));
@@ -208,17 +209,16 @@ namespace GomokuDraw
 		fileDialogBoardPos.SetTypeFilters({ ".gg" });
 		fileDialogBoardPos.SetPwd(getenv("HOME"));
 
-
 		return true;
 	}
 
-	void MakeNextObjectInActive()
+	static void MakeNextObjectInActive()
 	{
 		ImGui::PushItemFlag(ImGuiItemFlags_Disabled, true);
 		ImGui::PushStyleVar(ImGuiStyleVar_Alpha, ImGui::GetStyle().Alpha * 0.5f);
 	}
 
-	void MakeNextObjectActive()
+	static void MakeNextObjectActive()
 	{
 		ImGui::PopItemFlag();
 		ImGui::PopStyleVar();
@@ -297,30 +297,24 @@ namespace GomokuDraw
 		if (type == 1)
 			ImGui::GetWindowDrawList()->AddImage(
 				(void*)(intptr_t)textures.at("fantom_stone_red").my_image_texture,
-				// Координата верхнего левого угла
+                // Координата верхнего левого угла
 				ImVec2{ xCoordinate, yCoordinate },
-				// Координата нижнего правого угла
+                // Координата нижнего правого угла
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 2)
 			ImGui::GetWindowDrawList()->AddImage(
 				(void*)(intptr_t)textures.at("stone_red").my_image_texture,
-				// Координата верхнего левого угла
 				ImVec2{xCoordinate, yCoordinate},
-				// Координата нижнего правого угла
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 3)
 			ImGui::GetWindowDrawList()->AddImage(
 				(void*)(intptr_t)textures.at("fantom_stone_blue").my_image_texture,
-				// Координата верхнего левого угла
 				ImVec2{xCoordinate, yCoordinate},
-				// Координата нижнего правого угла
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 4)
 			ImGui::GetWindowDrawList()->AddImage(
 				(void*)(intptr_t)textures.at("stone_blue").my_image_texture,
-				// Координата верхнего левого угла
 				ImVec2{xCoordinate, yCoordinate},
-				// Координата нижнего правого угла
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 	}
 
@@ -357,7 +351,6 @@ namespace GomokuDraw
 			}
 	}
 
-
 	void Render()
 	{
 		const ImVec4 clear_color = ImVec4(1.45f, 0.55f, 0.60f, 1.00f);
@@ -386,9 +379,9 @@ namespace GomokuDraw
 	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
 	static int player1 = 0;
 	static int player2 = 0;
-	static bool enableEngine = false;
+	static bool enableEngine = true;
 
-	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite)
+	void DrawPlayer(const Gomoku::Game &game, bool isWhite)
 	{
 		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
 		ImGui::BeginGroup();
@@ -434,7 +427,10 @@ namespace GomokuDraw
 			// ImGui::Dummy(ImVec2(15.0f, 1.0f));
 			// ImGui::SameLine();
 
-			ImGui::Text(" %s", timeLeft.c_str());
+			if (isWhite)
+			    ImGui::Text(" %s", game.clock_.GetTimeLeftWhite().c_str());
+            else
+                ImGui::Text(" %s", game.clock_.GetTimeLeftBlack().c_str());
 
 			ImGui::PopTextWrapPos();
 			ImGui::Dummy(ImVec2(15.0f, 10.0f));
@@ -461,6 +457,7 @@ namespace GomokuDraw
 	{
 		ImGui::BeginGroup();
 		{
+		    // Start button
 			auto tmp = game.state_;
 			if (tmp == Gomoku::Game::State::GameInProcess
 				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
@@ -468,57 +465,50 @@ namespace GomokuDraw
 			  	|| tmp == Gomoku::Game::State::GameEndedDraw
 			  	)
 				MakeNextObjectInActive();
-
 			if (ImGui::Button("start"))
 				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
-
 			if (tmp == Gomoku::Game::State::GameInProcess
 				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
 				|| tmp == Gomoku::Game::State::GameEndedBlackWin
 				|| tmp == Gomoku::Game::State::GameEndedDraw)
 				MakeNextObjectActive();
 
-
+            // Pause button
 			ImGui::SameLine();
-
 			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
 				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
 				|| tmp == Gomoku::Game::State::GameEndedBlackWin
 				|| tmp == Gomoku::Game::State::GameEndedDraw)
 				MakeNextObjectInActive();
-
 			if (ImGui::Button("pause"))
-			{
 				game.Pause();
-			}
-
 			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
 				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
 				|| tmp == Gomoku::Game::State::GameEndedBlackWin
 				|| tmp == Gomoku::Game::State::GameEndedDraw)
 				MakeNextObjectActive();
 
+			// Stop button
 			ImGui::SameLine();
 			if (tmp == Gomoku::Game::State::Main)
 				MakeNextObjectInActive();
-
 			if (ImGui::Button("stop"))
-			{
 				game.Stop();
-			}
 			if (tmp == Gomoku::Game::State::Main)
 				MakeNextObjectActive();
+
+			// Restart button
 			ImGui::SameLine();
 			if (ImGui::Button("restart"))
 			{
 				game.Stop();
 				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
 			}
+
+			// Takeback button
 			ImGui::SameLine();
 			if (ImGui::Button("takeback"))
-			{
 				game.TakeBack();
-			}
 
 		}
 		ImGui::EndGroup();
@@ -675,9 +665,9 @@ namespace GomokuDraw
 		ImGui::Dummy(ImVec2(15.0f, 15.0f));
 		ImGui::BeginGroup();
 		{
-			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftWhite(), 77777, true);
+			GomokuDraw::DrawPlayer(game, true);
 			ImGui::SameLine();
-			GomokuDraw::DrawPlayer(game, game.clock_.GetTimeLeftBlack(), 13, false);
+			GomokuDraw::DrawPlayer(game,false);
 			ImGui::Dummy(ImVec2(110.0f, 20.0f));
 
 			// GomokuDraw::DrawSteps(game);
@@ -691,11 +681,11 @@ namespace GomokuDraw
 			}
 			else if (game.state_ == Gomoku::Game::State::GameEndedWhiteWin)
 			{
-				ImGui::TextColored(ImVec4(0.75f, 0.0f, 0.0f, 1.0f), "Red Win");
+				ImGui::TextColored(ImVec4(0.75f, 0.0f, 0.0f, 1.0f), "Red Wins");
 			}
 			else if (game.state_ == Gomoku::Game::State::GameEndedBlackWin)
 			{
-				ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Blue Win");
+				ImGui::TextColored(ImVec4(0.0f, 0.0f, 1.0f, 1.0f), "Blue Wins");
 			}
 			else if (game.state_ == Gomoku::Game::State::GameEndedDraw)
 			{
@@ -724,8 +714,18 @@ namespace GomokuDraw
 				else
 				{
 
-				}x
+				}
 			}
+			if (enableEngine)
+            {
+                if (game.state_ == Gomoku::Game::State::GameEndedBlackWin
+                    || game.state_ == Gomoku::Game::State::GameEndedWhiteWin
+                    || game.state_ == Gomoku::Game::State::GameEndedDraw)
+                    ImGui::Text("-");
+                else
+                    ImGui::Text("%d", game.engine.StaticPositionAnalize(game.board_));
+            }
+
 
 			GomokuDraw::DrawFilesButtons(game);
 		}

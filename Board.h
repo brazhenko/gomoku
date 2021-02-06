@@ -120,11 +120,6 @@ namespace Gomoku
 		explicit BoardState(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
 
-		bool operator==(const BoardState& other)
-		{
-			return this->board_ == other.board_;
-		}
-
 		template<typename B>
 		int CountFigures(const B &lines, const GomokuShape &shape) const
 		{
@@ -201,6 +196,8 @@ namespace Gomoku
 		// I/O of board
 		friend std::ostream& operator<<(std::ostream& os, const BoardState& bs);
 		friend std::istream& operator>>(std::istream& is, BoardState& bs);
+
+        friend bool operator==(const Gomoku::BoardState& left, const Gomoku::BoardState& right);
 	};
 }
 
@@ -213,6 +210,7 @@ namespace std {
 		}
 	};
 }
+
 
 
 #endif //GOMOKU_BOARD_H

@@ -739,3 +739,8 @@ bool Gomoku::BoardState::IsThereFigureOnBoard(const Gomoku::BoardState::GomokuSh
 
 	return false;
 }
+
+bool Gomoku::operator==(const Gomoku::BoardState &left, const Gomoku::BoardState &right)
+{
+    return left.board_ == right.board_;
+}
