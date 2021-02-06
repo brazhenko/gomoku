@@ -72,7 +72,13 @@ namespace Gomoku
 
 		constexpr static GomokuShape figure_free_two_b { 0b0000'1010'0000, 6 };	// __OO__
 
-
+		enum class MoveResult
+		{
+			Default,
+			WhiteWin,
+			BlackWin,
+			Draw
+		};
 	private:
 
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
@@ -101,6 +107,9 @@ namespace Gomoku
 
 		void FindMovesBreaksFifth();
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
+		MoveResult MakeMoveInternal(int row, int col);
+		MoveResult lastMoveResult_ = MoveResult::Default;
+
 	public:
 		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitVerticles();
 		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitUpLines();
@@ -170,15 +179,6 @@ namespace Gomoku
 		[[nodiscard]] bool IsMoveCapture(int row, int col) const;
 		[[nodiscard]] int CountFreeThrees(Side side, std::pair<int, int> lastMove) const;
 
-		// Move from GetAvailableMoves() MUST be passed
-		enum class MoveResult
-		{
-			Default,
-			WhiteWin,
-			BlackWin,
-			Draw
-		};
-
 		MoveResult MakeMove(int row, int col);
 
 		bool TakeBackMove();
@@ -190,6 +190,7 @@ namespace Gomoku
 		[[nodiscard]] bool WhiteMove() const;
 		[[nodiscard]] Side At(int row, int col) const;
 		[[nodiscard]] int GetCapturePoints(Side side) const;
+		[[nodiscard]] MoveResult GetLastMoveResult() const;
 		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
 		[[nodiscard]] std::string ToPgnString() const;
 

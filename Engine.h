@@ -13,7 +13,7 @@ namespace Gomoku
 	public:
 		std::unordered_map<Gomoku::BoardState, int> m;
 
-		int StaticPositionAnalize(const Gomoku::BoardState& bs);
+		static int StaticPositionAnalize(const Gomoku::BoardState& bs);
 	};
 }
 

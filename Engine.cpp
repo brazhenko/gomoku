@@ -6,17 +6,20 @@
 
 int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 {
-	auto t = this->m.find(bs);
-	if (t != this->m.end())
-		return t->second;
-
 	int ret = 0;
 
 	// Edge cases
-//
+	if (bs.GetLastMoveResult() == BoardState::MoveResult::Draw)
+		return 0;
+	if (bs.GetLastMoveResult() == BoardState::MoveResult::WhiteWin)
+		return +100;
+	if (bs.GetLastMoveResult() == BoardState::MoveResult::BlackWin)
+		return -100;
+
+
 	auto b1 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_w);
 	auto b2 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_b);
-//
+
     if (b1 && b2)
     {
 	    if (bs.WhiteMove())
@@ -25,6 +28,8 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
     }
     if (b1) return +10;
     if (b2) return -10;
+
+
 
 
     return ret;

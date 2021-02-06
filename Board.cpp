@@ -409,6 +409,13 @@ std::vector<std::pair<int, int>> Gomoku::BoardState::MakeCapture(int row, int co
 
 Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMove(int row, int col)
 {
+	auto ret = MakeMoveInternal(row, col);
+	this->lastMoveResult_ = ret;
+	return ret;
+}
+
+Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, int col)
+{
 	// Add to move history
 	moves_.emplace_back(row, col);
 	// Put stone on board
@@ -743,4 +750,9 @@ bool Gomoku::BoardState::IsThereFigureOnBoard(const Gomoku::BoardState::GomokuSh
 bool Gomoku::operator==(const Gomoku::BoardState &left, const Gomoku::BoardState &right)
 {
     return left.board_ == right.board_;
+}
+
+Gomoku::BoardState::MoveResult Gomoku::BoardState::GetLastMoveResult() const
+{
+	return this->lastMoveResult_;
 }
