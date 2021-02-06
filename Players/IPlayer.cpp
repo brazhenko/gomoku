@@ -4,6 +4,7 @@
 
 #include "IPlayer.h"
 #include "AI1.h"
+#include "AI2.h"
 #include "Human.h"
 
 #include <string>
@@ -18,8 +19,8 @@ std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 		return std::make_unique<Gomoku::Human>(side, MakeMove);
 	if (name == "AI1")
 		return std::make_unique<Gomoku::AI1>(side, MakeMove);
-//	if (name == "AI2")
-//		return std::make_unique<Gomoku::AI2>(side, MakeMove);
+	if (name == "AI2")
+		return std::make_unique<Gomoku::AI2>(side, MakeMove);
 //	if (name == "AI3")
 //		return std::make_unique<Gomoku::AI3>(side, MakeMove);
 
