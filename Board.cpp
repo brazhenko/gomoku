@@ -136,7 +136,7 @@ bool Gomoku::BoardState::IsMoveCapture(int row, int col) const
 			);
 }
 
-int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side, std::pair<int, int> lastMove) const
+int Gomoku::BoardState::CountFreeThreesLastMove(Gomoku::BoardState::Side side, std::pair<int, int> lastMove) const
 {
 	int freeThreesCount = 0;
 
@@ -494,9 +494,9 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, in
 				Set(i, j, Side(movePattern.to_ulong()));
 
 				if (WhiteMove())
-					newFreeThreesCount = CountFreeThrees(Side::White, {i, j});
+					newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});
 				else
-					newFreeThreesCount = CountFreeThrees(Side::Black, {i, j});
+					newFreeThreesCount = CountFreeThreesLastMove(Side::Black, {i, j});
 
 				// Two or more free threes NOT produced
 				// if (!(newFreeThreesCount > freeThreesCount + 1))

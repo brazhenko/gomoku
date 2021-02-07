@@ -19,29 +19,41 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 
 
 	if (!FindNext())
+	{
 		tree = std::make_unique<CalcNode>(currentBoard);
+	}
+
 
 	for (const auto &move: availableMoves)
 	{
 		auto copy = currentBoard;
 		copy.MakeMove(move.first, move.second);
-		tree->children.emplace_back(std::make_unique<CalcNode>(std::move(copy)));
+		std::cout << copy.GetAvailableMoves().size() << std::endl;
+
+		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
 	}
 
+	std::cout << tree->children.size() << std::endl;
+
+
 	int  i = 0;
+	int maxEval = -1000;
+
 	for (const auto &node: tree->children)
 	{
-		for (const auto &move: node->state_.GetMovesList())
+		for (const auto &move: node->state_.GetAvailableMoves())
 		{
+
 			decltype(node->state_) copy;
 			copy = node->state_;
 			copy.MakeMove(move.first, move.second);
-			tree->children.emplace_back(std::make_unique<CalcNode>(std::move(copy)));
+			node->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
+
+//			i++;
 		}
-		i++;
-		if (i == 77)
-			break;
+
 	}
+	std::cout << i << std::endl;
 }
 
 Gomoku::BoardState::MoveResult Gomoku::AI1::Ping()
@@ -59,13 +71,14 @@ Gomoku::BoardState::MoveResult Gomoku::AI1::Ping()
 
 bool Gomoku::AI1::FindNext()
 {
-	for (int i = 0; i < tree->children.size(); i++)
+	for (auto it = tree->children.begin(); it != tree->children.end(); it++)
 	{
-		if (tree->children[i]->state_ == currentBoard)
+		if ((*it)->state_ == currentBoard)
 		{
-			tree = std::move(tree->children[i]);
+			tree = std::move(tree->children.extract(it).value());
 			return true;
 		}
 	}
+
 	return false;
 }

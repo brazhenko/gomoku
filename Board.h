@@ -177,7 +177,7 @@ namespace Gomoku
 		}
 
 		[[nodiscard]] bool IsMoveCapture(int row, int col) const;
-		[[nodiscard]] int CountFreeThrees(Side side, std::pair<int, int> lastMove) const;
+		[[nodiscard]] int CountFreeThreesLastMove(Side side, std::pair<int, int> lastMove) const;
 
 		MoveResult MakeMove(int row, int col);
 
@@ -199,6 +199,10 @@ namespace Gomoku
 		friend std::istream& operator>>(std::istream& is, BoardState& bs);
 
         friend bool operator==(const Gomoku::BoardState& left, const Gomoku::BoardState& right);
+
+//        ~BoardState(){
+//        	std::cout << __FUNCTION__  << std::endl;
+//        }
 	};
 }
 
