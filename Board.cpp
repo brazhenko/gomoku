@@ -87,52 +87,52 @@ Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
 
 }
 
-bool Gomoku::BoardState::IsMoveCapture(int row, int col) const
+bool Gomoku::BoardState::IsMoveCapture(int row, int col, Gomoku::BoardState::board_line mvPtrn) const
 {
 	return
 			(row + 3 < 19
-			 && int(this->At(row + 1, col)) == (movePattern.to_ulong() ^ 0b11U)
-			 && int(this->At(row + 2, col)) == (movePattern.to_ulong() ^ 0b11U)
-			 && int(this->At(row + 3, col)) == (movePattern.to_ulong())
+			 && int(this->At(row + 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+			 && int(this->At(row + 2, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+			 && int(this->At(row + 3, col)) == (mvPtrn.to_ulong())
 			)
 			|| (row + 3 < 19
 				&& col + 3 < 19
-				&& int(this->At(row + 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 3, col + 3)) == (movePattern.to_ulong())
+				&& int(this->At(row + 1, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 2, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 3, col + 3)) == (mvPtrn.to_ulong())
 			)
 			|| (col + 3 < 19
-				&& int(this->At(row, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col + 3)) == (movePattern.to_ulong())
+				&& int(this->At(row, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col + 3)) == (mvPtrn.to_ulong())
 			)
 			|| (row - 3 >= 0
 				&& col + 3 < 19
-				&& int(this->At(row - 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 3, col + 3)) == (movePattern.to_ulong())
+				&& int(this->At(row - 1, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 2, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 3, col + 3)) == (mvPtrn.to_ulong())
 			)
 			||  (row - 3 >= 0
-				 && int(this->At(row - 1, col)) == (movePattern.to_ulong() ^ 0b11U)
-				 && int(this->At(row - 2, col)) == (movePattern.to_ulong() ^ 0b11U)
-				 && int(this->At(row - 3, col)) == (movePattern.to_ulong())
+				 && int(this->At(row - 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+				 && int(this->At(row - 2, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+				 && int(this->At(row - 3, col)) == (mvPtrn.to_ulong())
 			)
 			|| (row - 3 >= 0
 				&& col - 3 >= 0
-				&& int(this->At(row - 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 3, col - 3)) == (movePattern.to_ulong())
+				&& int(this->At(row - 1, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 2, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row - 3, col - 3)) == (mvPtrn.to_ulong())
 			)
 			|| (col - 3 >= 0
-				&& int(this->At(row, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col - 3)) == (movePattern.to_ulong())
+				&& int(this->At(row, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row, col - 3)) == (mvPtrn.to_ulong())
 			)
 			|| (row + 3 < 19
 				&& col - 3 >= 0
-				&& int(this->At(row + 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 3, col - 3)) == (movePattern.to_ulong())
+				&& int(this->At(row + 1, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 2, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+				&& int(this->At(row + 3, col - 3)) == (mvPtrn.to_ulong())
 			);
 }
 
@@ -213,7 +213,7 @@ void Gomoku::BoardState::FindMovesBreaksFifth()
 			if (Side::None == At(i, j))
 			{
 				// Check if move valid
-				if (IsMoveCapture(i, j))
+				if (IsMoveCapture(i, j, movePattern))
 				{
 					auto captured = MakeCapture(i, j);
 					int fifthCount = 0;
@@ -482,7 +482,7 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, in
 			if (Side::None == At(i, j))
 			{
 				// Check if move valid
-				if (IsMoveCapture(i, j))
+				if (IsMoveCapture(i, j, movePattern))
 				{
 					// Captures always valid
 					available_moves.emplace(i, j);

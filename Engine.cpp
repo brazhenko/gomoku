@@ -38,9 +38,10 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
     const auto& avm = bs.GetAvailableMoves();
 	for (const auto &move : avm)
 	{
-		if (bs.IsMoveCapture(move.first, move.second))
+		if (bs.IsMoveCapture(move.first, move.second, 0b01))
 			;
 	}
+
 
     // Captures
     auto t = bs.GetCapturePoints(Gomoku::BoardState::Side::White);

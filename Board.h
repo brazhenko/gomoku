@@ -176,7 +176,7 @@ namespace Gomoku
 			return ret;
 		}
 
-		[[nodiscard]] bool IsMoveCapture(int row, int col) const;
+		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
 		[[nodiscard]] int CountFreeThreesLastMove(Side side, std::pair<int, int> lastMove) const;
 
 		MoveResult MakeMove(int row, int col);
