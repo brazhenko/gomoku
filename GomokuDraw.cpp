@@ -413,12 +413,12 @@ namespace GomokuDraw
 
 			ImDrawList* draw_list = ImGui::GetWindowDrawList();
 			static float wrap_width = 70.0f;
-			ImGui::Text("Seconds left");
+			ImGui::Text("Time left");
 			ImVec2 pos = ImGui::GetCursorScreenPos();
 			ImVec2 marker_min = ImVec2(pos.x, pos.y);
 			ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
 			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
-
+пше
 			// TODO проверить, что тут нормальное условие в ифе
 			if ((isWhite && game.board_.WhiteMove()) || (!isWhite && !game.board_.WhiteMove()))
 				draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
@@ -435,7 +435,7 @@ namespace GomokuDraw
 			ImGui::PopTextWrapPos();
 			ImGui::Dummy(ImVec2(15.0f, 10.0f));
 
-			ImGui::Text("Move ms:");
+			ImGui::Text("Last move time:");
 			pos = ImGui::GetCursorScreenPos();
 			marker_min = ImVec2(pos.x, pos.y);
 			marker_max = ImVec2(pos.x + wrap_width, pos.y + 25);
