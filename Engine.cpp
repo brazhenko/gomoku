@@ -6,6 +6,8 @@
 
 int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 {
+	auto t1 = std::chrono::high_resolution_clock::now();
+
 	int ret = 0;
 
 	// Edge cases
@@ -34,13 +36,19 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 
 
 	{
-		// Threes
+		// free threes
+		auto t1 = bs.CountFreeThrees(BoardState::Side::White);
+		auto t2 = bs.CountFreeThrees(BoardState::Side::Black);
 
-
-
-
+		ret += (t1 - t2) * freeThreeCoef;
 	}
-
+	{
+		// flanked
+//		auto t1 = bs.CountFreeThrees(BoardState::Side::White);
+//		auto t2 = bs.CountFreeThrees(BoardState::Side::Black);
+//
+//		ret += (t1 - t2) * freeThreeCoef;
+	}
 
 
 	{
@@ -78,6 +86,11 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 		ret += (t1 - t2) * 	captureCoef;
 	}
 
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+
+	std::cout << duration << std::endl;
 
     return ret;
 }

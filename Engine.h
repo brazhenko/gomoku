@@ -13,6 +13,7 @@ namespace Gomoku
 	public:
 		static constexpr int potentialCaptureCoef = 1;
 		static constexpr int captureCoef = 1;
+		static constexpr int freeThreeCoef = 1;
 
 		static int StaticPositionAnalize(const Gomoku::BoardState& bs);
 	};

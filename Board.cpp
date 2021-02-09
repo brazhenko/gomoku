@@ -136,6 +136,7 @@ bool Gomoku::BoardState::IsMoveCapture(int row, int col, Gomoku::BoardState::boa
 			);
 }
 
+// TODO Gomoku::BoardState::Side side не нужен тут походу
 int Gomoku::BoardState::CountFreeThreesLastMove(Gomoku::BoardState::Side side, std::pair<int, int> lastMove) const
 {
 	int freeThreesCount = 0;
@@ -764,7 +765,7 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
 {
 	int freeThreesCount = 0;
 
-	if (WhiteMove())
+	if (side == Side::White)
 	{
 		freeThreesCount += CountFigures(board_, figure_free_three1_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three1_w);
