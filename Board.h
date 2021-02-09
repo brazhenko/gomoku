@@ -48,6 +48,8 @@ namespace Gomoku
 		// White shapes
 		constexpr static GomokuShape figure_five_w {0b0101010101, 5};				// XXXXX
 
+		//
+		// Fours
 		constexpr static GomokuShape figure_free_four_w {0b00'01010101'00, 6};				// _XXXX_
 
 		constexpr static GomokuShape figure_half_four1_w {0b00'01010101'10, 6};				// OXXXX_
@@ -56,51 +58,62 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_four4_w {0b0101'00'0101, 5};				// XX_XX
 		constexpr static GomokuShape figure_half_four5_w {0b01'00'010101, 5};				// XXX_X
 
+		constexpr static GomokuShape figure_half_four6_special_w { 0b0001010101, 5 };	// |XXXX_
+		constexpr static GomokuShape figure_half_four7_special_w { 0b0101010100, 5 };	// _XXXX|
 
+		//
+		// Threes
 		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
 		constexpr static GomokuShape figure_free_three2_w { 0b0000'010101'0010, 7 };	// __XXX_O
 		constexpr static GomokuShape figure_free_three3_w { 0b1000'010101'0000, 7 };	// O_XXX__
 		constexpr static GomokuShape figure_free_three4_w { 0b00'01000101'00, 6 };	// _X_XX_
 		constexpr static GomokuShape figure_free_three5_w { 0b00'01010001'00, 6 };	// _XX_X_
 
-		constexpr static GomokuShape figure_half_three1_w { 0b0000'010101'10, 6 };	// 0XXX__
+		constexpr static GomokuShape figure_half_three1_w { 0b0000'010101'10, 6 };	// OXXX__
 		constexpr static GomokuShape figure_half_three2_w { 0b10'010101'0000, 6 };	// __XXX0
 
-		constexpr static GomokuShape figure_half_three3_w { 0b00'01000101'10, 6 };	// 0XX_X_
+		constexpr static GomokuShape figure_half_three3_w { 0b00'01000101'10, 6 };	// OXX_X_
 		constexpr static GomokuShape figure_half_three4_w { 0b10'01010001'00, 6 };	// _X_XXO
 
-		constexpr static GomokuShape figure_half_three5_w { 0b00'01010001'10, 6 };	// 0X_XX_
+		constexpr static GomokuShape figure_half_three5_w { 0b00'01010001'10, 6 };	// OX_XX_
 		constexpr static GomokuShape figure_half_three6_w { 0b10'01000101'00, 6 };	// _XX_XO
-
-
-		constexpr static GomokuShape figure_free_two_w { 0b0000'0101'0000, 6 };	// __XX__
-
 
 		// Black shapes
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};				// OOOOO
 
+		//
+		// Fours
 		constexpr static GomokuShape figure_free_four_b { 0b00'10101010'00, 6};		// _OOOO_
 
 		constexpr static GomokuShape figure_half_four1_b { 0b011010101000, 6};		// _OOOOX
 		constexpr static GomokuShape figure_half_four2_b { 0b001010101001, 6};		// XOOOO_
-		constexpr static GomokuShape figure_half_four3_b { 0b10'00'101010, 5};		// 000_0
-		constexpr static GomokuShape figure_half_four4_b { 0b1010'00'1010, 5};		// 00_00
-		constexpr static GomokuShape figure_half_four5_b { 0b101010'00'10, 5};		// 0_000
+		constexpr static GomokuShape figure_half_four3_b { 0b10'00'101010, 5};		// OOO_O
+		constexpr static GomokuShape figure_half_four4_b { 0b1010'00'1010, 5};		// OO_OO
+		constexpr static GomokuShape figure_half_four5_b { 0b101010'00'10, 5};		// O_OOO
 
+		constexpr static GomokuShape figure_half_three7_special_b { 0b0010101010, 5 };	// |OOOO_
+		constexpr static GomokuShape figure_half_three8_special_b { 0b1010101000, 5 };	// _OOOO|
+
+
+		//
+		// Threes
 		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
 		constexpr static GomokuShape figure_free_three2_b { 0b0000'101010'0001, 7 };	// __OOO_X
 		constexpr static GomokuShape figure_free_three3_b { 0b0100'101010'0000, 7 };	// X_OOO__
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
 
-		constexpr static GomokuShape figure_half_three1_b { 0b0000'1010'1001, 6 };	// X000__
-		constexpr static GomokuShape figure_half_three2_b { 0b0010'0010'1001, 6 };	// X00_0_
-		constexpr static GomokuShape figure_half_three3_b { 0b0010'1000'1001, 6 };	// X0_00_
-		constexpr static GomokuShape figure_half_three4_b { 0b0110'1010'0000, 6 };	// __OOOX
-		constexpr static GomokuShape figure_half_three5_b { 0b0110'1000'1000, 6 };	// _O_OOX
+		constexpr static GomokuShape figure_half_three1_b { 0b0000'1010'1001, 6 };	// XOOO__
+		constexpr static GomokuShape figure_half_three2_b { 0b0110'1010'0000, 6 };	// __OOOX
+
+		constexpr static GomokuShape figure_half_three3_b { 0b0010'0010'1001, 6 };	// XOO_O_
+		constexpr static GomokuShape figure_half_three4_b { 0b0110'1000'1000, 6 };	// _O_OOX
+
+		constexpr static GomokuShape figure_half_three5_b { 0b0010'1000'1001, 6 };	// XO_OO_
 		constexpr static GomokuShape figure_half_three6_b { 0b0110'0010'1000, 6 };	// _OO_OX
 
-		constexpr static GomokuShape figure_free_two_b { 0b0000'1010'0000, 6 };	// __OO__
+
+
 
 		enum class MoveResult
 		{
@@ -210,7 +223,10 @@ namespace Gomoku
 		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
 
 		[[nodiscard]] int CountFreeThrees(Side side) const;
+		[[nodiscard]] int CountHalfFreeThrees(Side side) const;
 		[[nodiscard]] int CountFreeThreesLastMove(Side side, std::pair<int, int> lastMove) const;
+
+		[[nodiscard]] int CountHalfFreeFours(Side side) const;
 
 		MoveResult MakeMove(int row, int col);
 

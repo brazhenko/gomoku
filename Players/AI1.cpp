@@ -24,35 +24,35 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 	}
 
 
-	for (const auto &move: availableMoves)
-	{
-		auto copy = currentBoard;
-		copy.MakeMove(move.first, move.second);
-		std::cout << copy.GetAvailableMoves().size() << std::endl;
+//	for (const auto &move: availableMoves)
+//	{
+//		auto copy = currentBoard;
+//		copy.MakeMove(move.first, move.second);
+//		std::cout << copy.GetAvailableMoves().size() << std::endl;
+//
+//		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
+//	}
 
-		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
-	}
-
-	std::cout << tree->children.size() << std::endl;
+//	std::cout << tree->children.size() << std::endl;
 
 
 	int  i = 0;
 	int maxEval = -1000;
 
-	for (const auto &node: tree->children)
-	{
-		for (const auto &move: node->state_.GetAvailableMoves())
-		{
-
-			decltype(node->state_) copy;
-			copy = node->state_;
-			copy.MakeMove(move.first, move.second);
-			node->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
-
-//			i++;
-		}
-
-	}
+//	for (const auto &node: tree->children)
+//	{
+//		for (const auto &move: node->state_.GetAvailableMoves())
+//		{
+//
+//			decltype(node->state_) copy;
+//			copy = node->state_;
+//			copy.MakeMove(move.first, move.second);
+//			node->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
+//
+////			i++;
+//		}
+//
+//	}
 	std::cout << i << std::endl;
 }
 

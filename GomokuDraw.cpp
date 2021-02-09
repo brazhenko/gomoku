@@ -725,7 +725,7 @@ namespace GomokuDraw
                     || game.state_ == Gomoku::Game::State::GameEndedDraw)
                     ImGui::Text("-");
                 else
-                    ImGui::Text("%d", game.engine.StaticPositionAnalize(game.board_));
+                    ImGui::Text("%d", Gomoku::Engine::StaticPositionAnalize(game.board_));
             }
 
 

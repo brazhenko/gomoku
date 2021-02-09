@@ -4,17 +4,26 @@
 
 #include "Engine.h"
 
-int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
+
+int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 {
-	auto t1 = std::chrono::high_resolution_clock::now();
+	auto time1 = std::chrono::high_resolution_clock::now();
+
+	PositionStats stats{};
 
 	int ret = 0;
+
+	std::stringstream ss;
+	ss << "////eval////" << std::endl;
 
 	// Edge cases
 
 	// Game ended (fifth)
 	if (bs.GetLastMoveResult() == BoardState::MoveResult::Draw)
+	{
+		ss << "Draw" << std::endl;
 		return 0;
+	}
 	if (bs.GetLastMoveResult() == BoardState::MoveResult::WhiteWin)
 		return +100;
 	if (bs.GetLastMoveResult() == BoardState::MoveResult::BlackWin)
@@ -34,22 +43,36 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 		if (b2) return -10;
 	}
 
+	{
+		// half free and flanked fours
+		auto t1 = bs.CountHalfFreeFours(BoardState::Side::White);
+		auto t2 = bs.CountHalfFreeFours(BoardState::Side::Black);
+
+		if (bs.WhiteMove() && t1)
+			return +10;
+		if (!bs.WhiteMove() && t2)
+			return -10;
+
+		ss << "half 4, white: " << t1 << " , black: " << t2 << std::endl;
+		ret += (t1 - t2) * halfFreeFourCoef;
+	}
 
 	{
 		// free threes
 		auto t1 = bs.CountFreeThrees(BoardState::Side::White);
 		auto t2 = bs.CountFreeThrees(BoardState::Side::Black);
 
+		ss << "free 3, white: " << t1 << " , black: " << t2 << std::endl;
 		ret += (t1 - t2) * freeThreeCoef;
 	}
 	{
-		// flanked
-//		auto t1 = bs.CountFreeThrees(BoardState::Side::White);
-//		auto t2 = bs.CountFreeThrees(BoardState::Side::Black);
-//
-//		ret += (t1 - t2) * freeThreeCoef;
-	}
+		// half free and flanked threes
+		auto t1 = bs.CountHalfFreeThrees(BoardState::Side::White);
+		auto t2 = bs.CountHalfFreeThrees(BoardState::Side::Black);
 
+		ss << "half 3, white: " << t1 << " , black: " << t2 << std::endl;
+		ret += (t1 - t2) * halfFreeThreeCoef;
+	}
 
 	{
 		// Potential captures
@@ -74,6 +97,7 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 				potentalBlackCaptures++;
 		}
 
+		ss << "potential captures, white: " << potentalWhiteCaptures << " , black: " << potentalBlackCaptures << std::endl;
 		ret += (potentalWhiteCaptures - potentalBlackCaptures) * potentialCaptureCoef;
 	}
 
@@ -83,14 +107,33 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 		auto t1 = bs.GetCapturePoints(Gomoku::BoardState::Side::White);
 		auto t2 = bs.GetCapturePoints(Gomoku::BoardState::Side::Black);
 
+		ss << "real captures, white: " << t1 << " , black: " << t2 << std::endl;
+		
 		ret += (t1 - t2) * 	captureCoef;
 	}
 
 
 	auto t2 = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - time1 ).count();
 
-	std::cout << duration << std::endl;
+	ss << "ms elapsed: " << duration << std::endl;
 
-    return ret;
+	std::cerr << ss.str();
+
+	return ret;
+}
+
+int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
+{
+	static std::unordered_map<Gomoku::BoardState, int> m;
+
+	if (m.find(bs) == m.end())
+	{
+		auto t = internal_(bs);
+
+		m[bs] = t;
+		return t;
+	}
+
+	return m.at(bs);
 }
