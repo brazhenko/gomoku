@@ -63,6 +63,16 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three4_w { 0b00'01000101'00, 6 };	// _X_XX_
 		constexpr static GomokuShape figure_free_three5_w { 0b00'01010001'00, 6 };	// _XX_X_
 
+		constexpr static GomokuShape figure_half_three1_w { 0b0000'010101'10, 6 };	// 0XXX__
+		constexpr static GomokuShape figure_half_three2_w { 0b10'010101'0000, 6 };	// __XXX0
+
+		constexpr static GomokuShape figure_half_three3_w { 0b00'01000101'10, 6 };	// 0XX_X_
+		constexpr static GomokuShape figure_half_three4_w { 0b10'01010001'00, 6 };	// _X_XXO
+
+		constexpr static GomokuShape figure_half_three5_w { 0b00'01010001'10, 6 };	// 0X_XX_
+		constexpr static GomokuShape figure_half_three6_w { 0b10'01000101'00, 6 };	// _XX_XO
+
+
 		constexpr static GomokuShape figure_free_two_w { 0b0000'0101'0000, 6 };	// __XX__
 
 
