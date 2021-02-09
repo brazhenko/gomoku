@@ -69,7 +69,11 @@ namespace Gomoku
 		// Black shapes
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};				// OOOOO
 
-		constexpr static GomokuShape figure_four_b {0b00'10101010'00, 5};				// _XXXX_
+		constexpr static GomokuShape figure_half_four1_b { 0b011010101000, 6};				// XOOOO_
+		constexpr static GomokuShape figure_half_four1_b { 0b001010101001, 6};				// _OOOOX
+		constexpr static GomokuShape figure_half_four1_b { 0b1000101010, 5};				// 0_000
+		constexpr static GomokuShape figure_half_four1_b { 0b1010001010, 5};				// 00_00
+		constexpr static GomokuShape figure_half_four1_b { 0b1010100010, 5};				// 000_0
 
 
 
