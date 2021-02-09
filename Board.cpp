@@ -414,8 +414,10 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMove(int row, int col)
 	return ret;
 }
 
-Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, int col)
+Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMoveInternal(int row, int col)
 {
+	MoveResult ret = MoveResult::Default;
+
 	// Add to move history
 	moves_.emplace_back(row, col);
 	// Put stone on board
@@ -423,7 +425,8 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, in
 	// Delete cell from available ones
 
 	// Make captures if exist
-	MakeCapture(row, col);
+	if (!MakeCapture(row, col).empty())
+		ret = MoveResult::Capture;
 
 	available_moves = {};
 
@@ -470,14 +473,14 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, in
 				return MoveResult::BlackWin;
 			return MoveResult::WhiteWin;
 		}
-		return MoveResult::Default;
+		return ret;
 	}
 
 
 	// Form available moves for next turn
-	for (int i = 0; i < 19; i++)
+	for (int i = 0; i < cells_in_line; i++)
 	{
-		for (int j = 0; j < 19; j++)
+		for (int j = 0; j < cells_in_line; j++)
 		{
 			if (Side::None == At(i, j))
 			{
@@ -512,7 +515,7 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMoveInternal(int row, in
 	if (available_moves.empty())
 		return MoveResult::Draw;
 
-	return MoveResult::Default;
+	return ret;
 }
 
 std::string Gomoku::BoardState::ToPgnString() const
@@ -755,4 +758,66 @@ bool Gomoku::operator==(const Gomoku::BoardState &left, const Gomoku::BoardState
 Gomoku::BoardState::MoveResult Gomoku::BoardState::GetLastMoveResult() const
 {
 	return this->lastMoveResult_;
+}
+
+int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
+{
+	int freeThreesCount = 0;
+
+	if (WhiteMove())
+	{
+		freeThreesCount += CountFigures(board_, figure_free_three1_w);
+		freeThreesCount += CountFigures(vertical_, figure_free_three1_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three1_w);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three1_w);
+
+		freeThreesCount += CountFigures(board_, figure_free_three2_w);
+		freeThreesCount += CountFigures(vertical_, figure_free_three2_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three2_w);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three2_w);
+
+		freeThreesCount += CountFigures(board_, figure_free_three3_w);
+		freeThreesCount += CountFigures(vertical_, figure_free_three3_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three3_w);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three3_w);
+
+		freeThreesCount += CountFigures(board_, figure_free_three4_w);
+		freeThreesCount += CountFigures(vertical_, figure_free_three4_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three4_w);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three4_w);
+
+		freeThreesCount += CountFigures(board_, figure_free_three5_w);
+		freeThreesCount += CountFigures(vertical_, figure_free_three5_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three5_w);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three5_w);
+	}
+	else
+	{
+		freeThreesCount += CountFigures(board_, figure_free_three1_b);
+		freeThreesCount += CountFigures(vertical_, figure_free_three1_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three1_b);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three1_b);
+
+		freeThreesCount += CountFigures(board_, figure_free_three2_b);
+		freeThreesCount += CountFigures(vertical_, figure_free_three2_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three2_b);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three2_b);
+
+		freeThreesCount += CountFigures(board_, figure_free_three3_b);
+		freeThreesCount += CountFigures(vertical_, figure_free_three3_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three3_b);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three3_b);
+
+		freeThreesCount += CountFigures(board_, figure_free_three4_b);
+		freeThreesCount += CountFigures(vertical_, figure_free_three4_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three4_b);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three4_b);
+
+		freeThreesCount += CountFigures(board_, figure_free_three5_b);
+		freeThreesCount += CountFigures(vertical_, figure_free_three5_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three5_b);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three5_b);
+	}
+
+	return freeThreesCount;
 }

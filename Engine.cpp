@@ -18,34 +18,66 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 	if (bs.GetLastMoveResult() == BoardState::MoveResult::BlackWin)
 		return -100;
 
-	// Fours
-	auto b1 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_w);
-	auto b2 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_b);
-    if (b1 && b2)
-    {
-	    if (bs.WhiteMove())
-	        return +10;
-	    return -10;
-    }
-    if (b1) return +10;
-    if (b2) return -10;
-
-    // Threes
-    b1 = false;
-    b2 = false;
-
-    // Potential captures
-    const auto& avm = bs.GetAvailableMoves();
-	for (const auto &move : avm)
 	{
-		if (bs.IsMoveCapture(move.first, move.second, 0b01))
-			;
+		// Fours
+		auto b1 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_w);
+		auto b2 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_b);
+		if (b1 && b2)
+		{
+			if (bs.WhiteMove())
+				return +10;
+			return -10;
+		}
+		if (b1) return +10;
+		if (b2) return -10;
 	}
 
 
-    // Captures
-    auto t = bs.GetCapturePoints(Gomoku::BoardState::Side::White);
-	auto t1 = bs.GetCapturePoints(Gomoku::BoardState::Side::Black);
+	{
+		// Threes
+
+
+
+
+	}
+
+
+
+	{
+		// Potential captures
+		int potentalWhiteCaptures = 0;
+		int potentalBlackCaptures = 0;
+		const auto& avm = bs.GetAvailableMoves();
+		for (const auto &move : avm)
+		{
+			bool t1 = bs.IsMoveCapture(move.first, move.second, 0b01);
+			bool t2 = bs.IsMoveCapture(move.first, move.second, 0b10);
+
+			if (t1 && t2)
+			{
+				if (bs.WhiteMove())
+					potentalWhiteCaptures++;
+				else
+					potentalBlackCaptures++;
+			}
+			else if (t1)
+				potentalWhiteCaptures++;
+			else if (t2)
+				potentalBlackCaptures++;
+		}
+
+		ret += (potentalWhiteCaptures - potentalBlackCaptures) * potentialCaptureCoef;
+	}
+
+
+	{
+		// Captures
+		auto t1 = bs.GetCapturePoints(Gomoku::BoardState::Side::White);
+		auto t2 = bs.GetCapturePoints(Gomoku::BoardState::Side::Black);
+
+		ret += (t1 - t2) * 	captureCoef;
+	}
+
 
     return ret;
 }

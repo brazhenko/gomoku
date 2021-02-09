@@ -75,6 +75,7 @@ namespace Gomoku
 		enum class MoveResult
 		{
 			Default,
+			Capture,
 			WhiteWin,
 			BlackWin,
 			Draw
@@ -177,6 +178,8 @@ namespace Gomoku
 		}
 
 		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
+
+		[[nodiscard]] int CountFreeThrees(Side side) const;
 		[[nodiscard]] int CountFreeThreesLastMove(Side side, std::pair<int, int> lastMove) const;
 
 		MoveResult MakeMove(int row, int col);

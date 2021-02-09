@@ -46,3 +46,4 @@ imgui/
 cmake-build-release/
 cmake-build-relwithdebinfo/
 googletest/
+.DS_Store

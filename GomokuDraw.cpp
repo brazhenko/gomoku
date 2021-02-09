@@ -254,7 +254,9 @@ namespace GomokuDraw
 
 		ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures.at("background").my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
 
+#if DEBUG
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
+#endif
 	}
 
 	constexpr float textureCellSide = 28.0;
@@ -418,7 +420,7 @@ namespace GomokuDraw
 			ImVec2 marker_min = ImVec2(pos.x, pos.y);
 			ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
 			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
-пше
+
 			// TODO проверить, что тут нормальное условие в ифе
 			if ((isWhite && game.board_.WhiteMove()) || (!isWhite && !game.board_.WhiteMove()))
 				draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));

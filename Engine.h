@@ -11,7 +11,8 @@ namespace Gomoku
 {
 	class Engine {
 	public:
-		std::unordered_map<Gomoku::BoardState, int> m;
+		static constexpr int potentialCaptureCoef = 1;
+		static constexpr int captureCoef = 1;
 
 		static int StaticPositionAnalize(const Gomoku::BoardState& bs);
 	};
