@@ -22,7 +22,7 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
 
 	{
 		// Fours
-		auto b1 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_w);
+		auto b1 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_free_four_w);
 		auto b2 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_four_b);
 		if (b1 && b2)
 		{

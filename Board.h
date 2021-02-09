@@ -48,7 +48,14 @@ namespace Gomoku
 		// White shapes
 		constexpr static GomokuShape figure_five_w {0b0101010101, 5};				// XXXXX
 
-		constexpr static GomokuShape figure_four_w {0b00'01010101'00, 5};				// _XXXX_
+		constexpr static GomokuShape figure_free_four_w {0b00'01010101'00, 6};				// _XXXX_
+
+		constexpr static GomokuShape figure_half_four1_w {0b00'01010101'10, 6};				// OXXXX_
+		constexpr static GomokuShape figure_half_four2_w {0b10'01010101'00, 6};				// _XXXXO
+		constexpr static GomokuShape figure_half_four3_w {0b010101'00'01, 5};				// X_XXX
+		constexpr static GomokuShape figure_half_four4_w {0b0101'00'0101, 5};				// XX_XX
+		constexpr static GomokuShape figure_half_four5_w {0b01'00'010101, 5};				// XXX_X
+
 
 		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
 		constexpr static GomokuShape figure_free_three2_w { 0b0000'010101'0010, 7 };	// __XXX_O
@@ -63,6 +70,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};				// OOOOO
 
 		constexpr static GomokuShape figure_four_b {0b00'10101010'00, 5};				// _XXXX_
+
+
+
 
 		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
 		constexpr static GomokuShape figure_free_three2_b { 0b0000'101010'0001, 7 };	// __OOO_X
