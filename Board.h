@@ -93,6 +93,13 @@ namespace Gomoku
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
 
+		constexpr static GomokuShape figure_half_three1_b { 0b0000'1010'1001, 6 };	// X000__
+		constexpr static GomokuShape figure_half_three2_b { 0b0010'0010'1001, 6 };	// X00_0_
+		constexpr static GomokuShape figure_half_three3_b { 0b0010'1000'1001, 6 };	// X0_00_
+		constexpr static GomokuShape figure_half_three4_b { 0b0110'1010'0000, 6 };	// __OOOX
+		constexpr static GomokuShape figure_half_three5_b { 0b0110'1000'1000, 6 };	// _O_OOX
+		constexpr static GomokuShape figure_half_three6_b { 0b0110'0010'1000, 6 };	// _OO_OX
+
 		constexpr static GomokuShape figure_free_two_b { 0b0000'1010'0000, 6 };	// __OO__
 
 		enum class MoveResult
