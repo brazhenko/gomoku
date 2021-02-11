@@ -201,23 +201,31 @@ namespace Gomoku
 
 				for (; len < 19; len++, i++)
 				{
-					auto copy = (lines[i]
-							<< ((cells_in_line - i - shape.size) * bits_per_cell)
-							>> ((cells_in_line - i - shape.size) * bits_per_cell)
-							>> (i * bits_per_cell));
+					for (int j = 0; j < len - shape.size; j++)
+					{
+						auto copy = (lines[i]
+								<< ((len - j - shape.size) * bits_per_cell)
+								>> ((len - j - shape.size) * bits_per_cell)
+								>> (j * bits_per_cell));
 
-					if (copy == shape.data)
-						ret++;
+
+						if (copy == shape.data)
+							ret++;
+					}
 				}
 				for (; len > shape.size - 1; len--, i++)
 				{
-					auto copy = (lines[i]
-							<< ((cells_in_line - i - shape.size) * bits_per_cell)
-							>> ((cells_in_line - i - shape.size) * bits_per_cell)
-							>> (i * bits_per_cell));
+					for (int j = 0; j < len - shape.size; j++)
+					{
+						auto copy = (lines[i]
+								<< ((len - j - shape.size) * bits_per_cell)
+								>> ((len - j - shape.size) * bits_per_cell)
+								>> (j * bits_per_cell));
 
-					if (copy == shape.data)
-						ret++;
+
+						if (copy == shape.data)
+							ret++;
+					}
 				}
 			}
 
@@ -248,8 +256,8 @@ namespace Gomoku
 				for (; len < 19; len++, i++)
 				{
 					auto copy = (lines[i]
-							<< ((cells_in_line - shape.size) * bits_per_cell)
-							>> ((cells_in_line - shape.size) * bits_per_cell));
+							<< ((len - shape.size) * bits_per_cell)
+							>> ((len - shape.size) * bits_per_cell));
 
 					if (copy == shape.data)
 						ret++;
@@ -257,8 +265,8 @@ namespace Gomoku
 				for (; len > shape.size - 1; len--, i++)
 				{
 					auto copy = (lines[i]
-							<< ((cells_in_line - shape.size) * bits_per_cell)
-							>> ((cells_in_line - shape.size) * bits_per_cell));
+							<< ((len - shape.size) * bits_per_cell)
+							>> ((len - shape.size) * bits_per_cell));
 
 					if (copy == shape.data)
 						ret++;
@@ -307,9 +315,6 @@ namespace Gomoku
 
 			return ret;
 		}
-
-
-
 
 
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
