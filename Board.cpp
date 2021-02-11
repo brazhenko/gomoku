@@ -1,3 +1,5 @@
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "hicpp-signed-bitwise"
 //
 // Created by 17641238 on 19.01.2021.
 //
@@ -59,7 +61,28 @@ Gomoku::BoardState::BoardState()
 	for (int i = 0; i < cells_in_line; i++)
 		for (int j = 0; j < cells_in_line; j++)
 			this->available_moves.emplace(i, j);
+
+//	for (auto &row : this->board_)
+//		row |= (0b11UL << (bits_per_line));
+//	for (auto &row : this->vertical_)
+//		row |= (0b11UL << (bits_per_line));
+//
+//
+//	int len = 1;
+//	int i = 0;
+//
+//	for (; len < 19; len++, i++)
+//	{
+//		this->up_lines_[i] |= (0b11U << (len * bits_per_cell));
+//		this->down_lines_[i] |= (0b11U << (len * bits_per_cell));
+//	}
+//	for (; len > -1; len--, i++)
+//	{
+//		this->up_lines_[i] |= (0b11U << (len * bits_per_cell));
+//		this->down_lines_[i] |= (0b11U << (len * bits_per_cell));
+//	}
 }
+
 
 Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
 	: BoardState()
@@ -225,16 +248,16 @@ void Gomoku::BoardState::FindMovesBreaksFifth()
 						{
 							fifthCount += CountFigures(board_, figure_five_w);
 							fifthCount += CountFigures(vertical_, figure_five_w);
-							fifthCount += CountFigures(up_lines_, figure_five_w);
-							fifthCount += CountFigures(down_lines_, figure_five_w);
+							fifthCount += CountFigures(up_lines_, figure_five_w, true);
+							fifthCount += CountFigures(down_lines_, figure_five_w, true);
 							WhiteCapturePoints -= (captured.size() / 2);
 						}
 						else
 						{
 							fifthCount += CountFigures(board_, figure_five_b);
 							fifthCount += CountFigures(vertical_, figure_five_b);
-							fifthCount += CountFigures(up_lines_, figure_five_b);
-							fifthCount += CountFigures(down_lines_, figure_five_b);
+							fifthCount += CountFigures(up_lines_, figure_five_b, true);
+							fifthCount += CountFigures(down_lines_, figure_five_b, true);
 
 							BlackCapturePoints -= (captured.size() / 2);
 						}
@@ -726,8 +749,8 @@ int Gomoku::BoardState::CountFigureOverBoard(const Gomoku::BoardState::GomokuSha
 
 	ret += CountFigures(board_, shape);
 	ret += CountFigures(vertical_, shape);
-	ret += CountFigures(up_lines_, shape);
-	ret += CountFigures(down_lines_, shape);
+	ret += CountFigures(up_lines_, shape, true);
+	ret += CountFigures(down_lines_, shape, true);
 
 	return ret;
 }
@@ -742,10 +765,10 @@ bool Gomoku::BoardState::IsThereFigureOnBoard(const Gomoku::BoardState::GomokuSh
 	ret += CountFigures(vertical_, shape);
 	if (ret) return true;
 
-	ret += CountFigures(up_lines_, shape);
+	ret += CountFigures(up_lines_, shape, true);
 	if (ret) return true;
 
-	ret += CountFigures(down_lines_, shape);
+	ret += CountFigures(down_lines_, shape, true);
 	if (ret) return true;
 
 	return false;
@@ -769,55 +792,56 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
 	{
 		freeThreesCount += CountFigures(board_, figure_free_three1_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three1_w);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three1_w);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three1_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three1_w, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three1_w, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three2_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three2_w);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three2_w);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three2_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three2_w, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three2_w, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three3_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three3_w);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three3_w);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three3_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three3_w, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three3_w, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three4_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three4_w);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three4_w);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three4_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three4_w, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three4_w, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three5_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three5_w);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three5_w);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three5_w);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three5_w, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three5_w, true);
 	}
 	else
 	{
 		freeThreesCount += CountFigures(board_, figure_free_three1_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three1_b);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three1_b);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three1_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three1_b, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three1_b, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three2_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three2_b);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three2_b);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three2_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three2_b, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three2_b, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three3_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three3_b);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three3_b);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three3_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three3_b, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three3_b, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three4_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three4_b);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three4_b);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three4_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three4_b, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three4_b, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three5_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three5_b);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three5_b);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three5_b);
+		freeThreesCount += CountFigures(up_lines_, figure_free_three5_b, true);
+		freeThreesCount += CountFigures(down_lines_, figure_free_three5_b, true);
+
 	}
 
 	return freeThreesCount;
@@ -832,55 +856,76 @@ int Gomoku::BoardState::CountHalfFreeFours(Gomoku::BoardState::Side side) const
 	{
 		halfFreeFoursCount += CountFigures(board_, figure_half_four1_w);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four1_w);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four1_w);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four1_w);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four1_w, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four1_w, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four2_w);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four2_w);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four2_w);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four2_w);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four2_w, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four2_w, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four3_w);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four3_w);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four3_w);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four3_w);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four3_w, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four3_w, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four4_w);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four4_w);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four4_w);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four4_w);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four4_w, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four4_w, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four5_w);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four5_w);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four5_w);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four5_w);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four5_w, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four5_w, true);
+
+		halfFreeFoursCount += CountFiguresBeginRow(board_, figure_half_four6_special_w);
+		halfFreeFoursCount += CountFiguresBeginRow(vertical_, figure_half_four6_special_w);
+		halfFreeFoursCount += CountFiguresBeginRow(up_lines_, figure_half_four6_special_w, true);
+		halfFreeFoursCount += CountFiguresBeginRow(down_lines_, figure_half_four6_special_w, true);
+
+		halfFreeFoursCount += CountFiguresEndRow(board_, figure_half_four7_special_w);
+		halfFreeFoursCount += CountFiguresEndRow(vertical_, figure_half_four7_special_w);
+		halfFreeFoursCount += CountFiguresEndRow(up_lines_, figure_half_four7_special_w, true);
+		halfFreeFoursCount += CountFiguresEndRow(down_lines_, figure_half_four7_special_w, true);
+
 	}
 	else
 	{
 		halfFreeFoursCount += CountFigures(board_, figure_half_four1_b);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four1_b);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four1_b);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four1_b);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four1_b, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four1_b, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four2_b);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four2_b);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four2_b);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four2_b);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four2_b, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four2_b, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four3_b);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four3_b);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four3_b);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four3_b);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four3_b, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four3_b, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four4_b);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four4_b);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four4_b);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four4_b);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four4_b, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four4_b, true);
 
 		halfFreeFoursCount += CountFigures(board_, figure_half_four5_b);
 		halfFreeFoursCount += CountFigures(vertical_, figure_half_four5_b);
-		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four5_b);
-		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four5_b);
+		halfFreeFoursCount += CountFigures(up_lines_, figure_half_four5_b, true);
+		halfFreeFoursCount += CountFigures(down_lines_, figure_half_four5_b, true);
+
+		halfFreeFoursCount += CountFiguresBeginRow(board_, figure_half_four6_special_b);
+		halfFreeFoursCount += CountFiguresBeginRow(vertical_, figure_half_four6_special_b);
+		halfFreeFoursCount += CountFiguresBeginRow(up_lines_, figure_half_four6_special_b, true);
+		halfFreeFoursCount += CountFiguresBeginRow(down_lines_, figure_half_four6_special_b, true);
+
+		halfFreeFoursCount += CountFiguresEndRow(board_, figure_half_four7_special_b);
+		halfFreeFoursCount += CountFiguresEndRow(vertical_, figure_half_four7_special_b);
+		halfFreeFoursCount += CountFiguresEndRow(up_lines_, figure_half_four7_special_b, true);
+		halfFreeFoursCount += CountFiguresEndRow(down_lines_, figure_half_four7_special_b, true);
 	}
 
 	return halfFreeFoursCount;
@@ -895,66 +940,68 @@ int Gomoku::BoardState::CountHalfFreeThrees(Gomoku::BoardState::Side side) const
 	{
 		halfFreeThreesCount += CountFigures(board_, figure_half_three1_w);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three1_w);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three1_w);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three1_w);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three1_w, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three1_w, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three2_w);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three2_w);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three2_w);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three2_w);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three2_w, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three2_w, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three3_w);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three3_w);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three3_w);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three3_w);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three3_w, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three3_w, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three4_w);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three4_w);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three4_w);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three4_w);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three4_w, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three4_w, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three5_w);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three5_w);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three5_w);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three5_w);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three5_w, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three5_w, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three6_w);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three6_w);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three6_w);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three6_w);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three6_w, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three6_w, true);
 	}
 	else
 	{
 		halfFreeThreesCount += CountFigures(board_, figure_half_three1_b);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three1_b);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three1_b);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three1_b);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three1_b, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three1_b, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three2_b);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three2_b);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three2_b);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three2_b);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three2_b, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three2_b, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three3_b);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three3_b);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three3_b);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three3_b);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three3_b, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three3_b, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three4_b);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three4_b);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three4_b);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three4_b);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three4_b, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three4_b, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three5_b);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three5_b);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three5_b);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three5_b);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three5_b, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three5_b, true);
 
 		halfFreeThreesCount += CountFigures(board_, figure_half_three6_b);
 		halfFreeThreesCount += CountFigures(vertical_, figure_half_three6_b);
-		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three6_b);
-		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three6_b);
+		halfFreeThreesCount += CountFigures(up_lines_, figure_half_three6_b, true);
+		halfFreeThreesCount += CountFigures(down_lines_, figure_half_three6_b, true);
 	}
 
 	return halfFreeThreesCount;
 }
+
+#pragma clang diagnostic pop

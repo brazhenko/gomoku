@@ -9,12 +9,13 @@ int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 {
 	auto time1 = std::chrono::high_resolution_clock::now();
 
+	static int c=0;
 	PositionStats stats{};
 
 	int ret = 0;
 
 	std::stringstream ss;
-	ss << "////eval////" << std::endl;
+	ss << "////eval:" << c++ << "////" << std::endl;
 
 	// Edge cases
 

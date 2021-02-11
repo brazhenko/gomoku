@@ -91,8 +91,8 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_four4_b { 0b1010'00'1010, 5};		// OO_OO
 		constexpr static GomokuShape figure_half_four5_b { 0b101010'00'10, 5};		// O_OOO
 
-		constexpr static GomokuShape figure_half_three7_special_b { 0b0010101010, 5 };	// |OOOO_
-		constexpr static GomokuShape figure_half_three8_special_b { 0b1010101000, 5 };	// _OOOO|
+		constexpr static GomokuShape figure_half_four6_special_b { 0b0010101010, 5 };	// |OOOO_
+		constexpr static GomokuShape figure_half_four7_special_b { 0b1010101000, 5 };	// _OOOO|
 
 
 		//
@@ -174,25 +174,142 @@ namespace Gomoku
 		void Reset();
 
 		template<typename B>
-		int CountFigures(const B &lines, const GomokuShape &shape) const
+		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal=false) const
 		{
 			int ret = 0;
 
-			for (const auto& row_ : lines)
+			if (!diagonal)
 			{
-				for (int i = 0; i < cells_in_line - shape.size; i++)
+				for (const auto& row_ : lines)
 				{
-					auto copy = (row_
+					for (int i = 0; i < cells_in_line - shape.size; i++)
+					{
+						auto copy = (row_
+								<< ((cells_in_line - i - shape.size) * bits_per_cell)
+								>> ((cells_in_line - i - shape.size) * bits_per_cell)
+								>> (i * bits_per_cell));
+						if (copy == shape.data)
+							// shape in a row found!
+							ret++;
+					}
+				}
+			}
+			else
+			{
+				int len = shape.size;
+				int i = len-1;
+
+				for (; len < 19; len++, i++)
+				{
+					auto copy = (lines[i]
 							<< ((cells_in_line - i - shape.size) * bits_per_cell)
 							>> ((cells_in_line - i - shape.size) * bits_per_cell)
 							>> (i * bits_per_cell));
+
+					if (copy == shape.data)
+						ret++;
+				}
+				for (; len > shape.size - 1; len--, i++)
+				{
+					auto copy = (lines[i]
+							<< ((cells_in_line - i - shape.size) * bits_per_cell)
+							>> ((cells_in_line - i - shape.size) * bits_per_cell)
+							>> (i * bits_per_cell));
+
+					if (copy == shape.data)
+						ret++;
+				}
+			}
+
+			return ret;
+		}
+		template<typename B>
+		int CountFiguresBeginRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const
+		{
+			int ret = 0;
+
+			if (!diagonal)
+			{
+				for (const auto& row_ : lines)
+				{
+					auto copy = (row_
+							<< ((cells_in_line - shape.size) * bits_per_cell)
+							>> ((cells_in_line - shape.size) * bits_per_cell));
 					if (copy == shape.data)
 						// shape in a row found!
 						ret++;
 				}
 			}
+			else
+			{
+				int len = shape.size;
+				int i = len-1;
+
+				for (; len < 19; len++, i++)
+				{
+					auto copy = (lines[i]
+							<< ((cells_in_line - shape.size) * bits_per_cell)
+							>> ((cells_in_line - shape.size) * bits_per_cell));
+
+					if (copy == shape.data)
+						ret++;
+				}
+				for (; len > shape.size - 1; len--, i++)
+				{
+					auto copy = (lines[i]
+							<< ((cells_in_line - shape.size) * bits_per_cell)
+							>> ((cells_in_line - shape.size) * bits_per_cell));
+
+					if (copy == shape.data)
+						ret++;
+				}
+			}
+
 			return ret;
 		}
+
+		template<typename B>
+		int CountFiguresEndRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const
+		{
+			int ret = 0;
+
+			if (!diagonal)
+			{
+				for (const auto& row_ : lines)
+				{
+					auto copy = row_ >> ((cells_in_line - shape.size) * bits_per_cell);
+
+					if (copy == shape.data)
+						// shape in a row found!
+						ret++;
+				}
+			}
+			else
+			{
+				int len = shape.size;
+				int i = len-1;
+
+				for (; len < 19; len++, i++)
+				{
+					auto copy = lines[i] >> ((len - shape.size) * bits_per_cell);
+
+					if (copy == shape.data)
+						ret++;
+				}
+				for (; len > shape.size - 1; len--, i++)
+				{
+					auto copy = lines[i] >> ((len - shape.size) * bits_per_cell);
+
+					if (copy == shape.data)
+						ret++;
+				}
+			}
+
+			return ret;
+		}
+
+
+
 
 
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
