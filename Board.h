@@ -63,9 +63,9 @@ namespace Gomoku
 
 		//
 		// Threes
-		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
-		constexpr static GomokuShape figure_free_three2_w { 0b0000'010101'0010, 7 };	// __XXX_O
-		constexpr static GomokuShape figure_free_three3_w { 0b1000'010101'0000, 7 };	// O_XXX__
+//		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
+		constexpr static GomokuShape figure_free_three2_w { 0b0000'010101'00, 6 };	// _XXX__
+		constexpr static GomokuShape figure_free_three3_w { 0b00'010101'0000, 6};	// __XXX_
 		constexpr static GomokuShape figure_free_three4_w { 0b00'01000101'00, 6 };	// _X_XX_
 		constexpr static GomokuShape figure_free_three5_w { 0b00'01010001'00, 6 };	// _XX_X_
 
@@ -97,9 +97,9 @@ namespace Gomoku
 
 		//
 		// Threes
-		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
-		constexpr static GomokuShape figure_free_three2_b { 0b0000'101010'0001, 7 };	// __OOO_X
-		constexpr static GomokuShape figure_free_three3_b { 0b0100'101010'0000, 7 };	// X_OOO__
+//		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
+		constexpr static GomokuShape figure_free_three2_b { 0b0000'101010'00, 6 };	// _OOO__
+		constexpr static GomokuShape figure_free_three3_b { 0b00'101010'0000, 6 };	// __OOO_
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_
 		constexpr static GomokuShape figure_free_three5_b { 0b00'10100010'00, 6 };	// _OO_O_
 
@@ -111,8 +111,6 @@ namespace Gomoku
 
 		constexpr static GomokuShape figure_half_three5_b { 0b0010'1000'1001, 6 };	// XO_OO_
 		constexpr static GomokuShape figure_half_three6_b { 0b0110'0010'1000, 6 };	// _OO_OX
-
-
 
 
 		enum class MoveResult
@@ -152,6 +150,8 @@ namespace Gomoku
 		void FindMovesBreaksFifth();
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
 		MoveResult MakeMoveInternal(int row, int col);
+		void GenerateAvailableMovesInternal();
+
 		MoveResult lastMoveResult_ = MoveResult::Default;
 
 	public:
@@ -204,8 +204,8 @@ namespace Gomoku
 					for (int j = 0; j < len - shape.size; j++)
 					{
 						auto copy = (lines[i]
-								<< ((len - j - shape.size) * bits_per_cell)
-								>> ((len - j - shape.size) * bits_per_cell)
+								<< ((cells_in_line - j - shape.size) * bits_per_cell)
+								>> ((cells_in_line - j - shape.size) * bits_per_cell)
 								>> (j * bits_per_cell));
 
 
@@ -218,8 +218,8 @@ namespace Gomoku
 					for (int j = 0; j < len - shape.size; j++)
 					{
 						auto copy = (lines[i]
-								<< ((len - j - shape.size) * bits_per_cell)
-								>> ((len - j - shape.size) * bits_per_cell)
+								<< ((cells_in_line - j - shape.size) * bits_per_cell)
+								>> ((cells_in_line - j - shape.size) * bits_per_cell)
 								>> (j * bits_per_cell));
 
 
@@ -243,6 +243,7 @@ namespace Gomoku
 					auto copy = (row_
 							<< ((cells_in_line - shape.size) * bits_per_cell)
 							>> ((cells_in_line - shape.size) * bits_per_cell));
+
 					if (copy == shape.data)
 						// shape in a row found!
 						ret++;
@@ -256,20 +257,28 @@ namespace Gomoku
 				for (; len < 19; len++, i++)
 				{
 					auto copy = (lines[i]
-							<< ((len - shape.size) * bits_per_cell)
-							>> ((len - shape.size) * bits_per_cell));
+							<< ((cells_in_line - shape.size) * bits_per_cell)
+							>> ((cells_in_line - shape.size) * bits_per_cell));
 
 					if (copy == shape.data)
+					{
+						std::cerr << "!!:" << i << std::endl;
 						ret++;
+					}
+
 				}
 				for (; len > shape.size - 1; len--, i++)
 				{
 					auto copy = (lines[i]
-							<< ((len - shape.size) * bits_per_cell)
-							>> ((len - shape.size) * bits_per_cell));
+							<< ((cells_in_line - shape.size) * bits_per_cell)
+							>> ((cells_in_line - shape.size) * bits_per_cell));
 
 					if (copy == shape.data)
+					{
+						std::cout << "!!:" << i << std::endl;
 						ret++;
+					}
+
 				}
 			}
 

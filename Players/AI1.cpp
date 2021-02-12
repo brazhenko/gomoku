@@ -3,14 +3,16 @@
 //
 
 #include "AI1.h"
+#include "../Engine.h"
+#include <map>
+#include <string>
+#include <set>
 
 void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash> &availableMoves)
 {
 	myMove = true;
 	availableMoves_ = availableMoves;
 
-	if (row != -1)
-		currentBoard.MakeMove(row, col);
 
 	// Add move to
 	meanStone = {(meanStone.first * float(stoneCount) + float(row)) / float(stoneCount + 1),
@@ -24,36 +26,44 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 	}
 
 
-//	for (const auto &move: availableMoves)
-//	{
-//		auto copy = currentBoard;
-//		copy.MakeMove(move.first, move.second);
-//		std::cout << copy.GetAvailableMoves().size() << std::endl;
-//
-//		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
-//	}
+	int bestMeasure;
+	if (this->side_ == BoardState::Side::White)
+		bestMeasure= -100;
+	else
+		bestMeasure= +100;
 
-//	std::cout << tree->children.size() << std::endl;
+	int c = 0;
+
+	std::cout << currentBoard << std::endl;
+
+	for (const auto &move: availableMoves)
+	{
+		auto copy = this->currentBoard;
+
+		copy.MakeMove(move.first, move.second);
+
+		auto val = Gomoku::Engine::StaticPositionAnalize(copy);
+
+		if (score1BetterThenScore2(val, bestMeasure))
+		{
+			bestMeasure = val;
+			this->nextMove = {move.first, move.second};
+		}
+
+		if (val != 0)
+		{
+			std::cerr  << "///////////////////" << Gomoku::BoardState::MoveToString(move) << ": " << val << "\n";
+			c ++;
+		}
 
 
-	int  i = 0;
-	int maxEval = -1000;
+		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
+	}
 
-//	for (const auto &node: tree->children)
-//	{
-//		for (const auto &move: node->state_.GetAvailableMoves())
-//		{
-//
-//			decltype(node->state_) copy;
-//			copy = node->state_;
-//			copy.MakeMove(move.first, move.second);
-//			node->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
-//
-////			i++;
-//		}
-//
-//	}
-	std::cout << i << std::endl;
+	std::cout << "BEST MOVE: " << Gomoku::BoardState::MoveToString(this->nextMove) << ", avail:" << c << std::endl;
+//	for (auto &a : s)
+//		std::cout << a << std::endl;
+	std::cout << "///////////////////" << std::endl;
 }
 
 Gomoku::BoardState::MoveResult Gomoku::AI1::Ping()
@@ -63,7 +73,7 @@ Gomoku::BoardState::MoveResult Gomoku::AI1::Ping()
 	if (!availableMoves_.empty())
 	{
 		myMove = false;
-		return MakeMove_(availableMoves_.begin()->first, availableMoves_.begin()->second);
+		return MakeMove_(nextMove.first, nextMove.second);
 	}
 
 	return {};

@@ -14,8 +14,8 @@ namespace Gomoku
 		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 
 	public:
-		explicit AI1(BoardState::Side side, MakeMove_t MakeMove)
-				: IPlayer(side, std::move(MakeMove))
+		explicit AI1(BoardState::Side side, MakeMove_t MakeMove, const Gomoku::BoardState &realBoard)
+				: IPlayer(side, std::move(MakeMove), realBoard)
 		{}
 
 		struct CalcNode
@@ -32,11 +32,12 @@ namespace Gomoku
 		};
 
 		std::unique_ptr<CalcNode> tree = std::make_unique<CalcNode>(BoardState{});
-		BoardState currentBoard{};
 
 		bool FindNext();
 
 		std::pair<float, float> meanStone;
+		std::pair<int, int> nextMove;
+
 		int stoneCount = 0;
 
 		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override;

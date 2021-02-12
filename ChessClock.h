@@ -31,9 +31,9 @@ namespace Gomoku
 		static std::string DurationToString(const std::chrono::duration<double> &duration);
 
 		ChessClock() = delete;
-		ChessClock(int whiteSeconds, int blackSeconds);
+		ChessClock(int whiteSeconds, int blackSeconds, bool whiteMove=true);
 
-		void Start();
+		void Start(bool WhiteTurn=true);
 		void Pause();
 		void Continue();
 		void Stop();

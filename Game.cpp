@@ -20,17 +20,17 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 	else if (this->state_ == State::Main)
 	{
 		if (gameTime == "1 minute")
-			clock_ = {60, 60};
+			clock_ = {60, 60, board_.WhiteMove()};
 		else if (gameTime == "3 minutes")
-			clock_ = {180, 180};
+			clock_ = {180, 180, board_.WhiteMove()};
 		else if (gameTime == "5 minutes")
-			clock_ = {300, 300};
+			clock_ = {300, 300, board_.WhiteMove()};
 		else if (gameTime == "10 minutes")
-			clock_ = {600, 600};
+			clock_ = {600, 600, board_.WhiteMove()};
 		else if (gameTime == "15 minutes")
-			clock_ = {900, 900};
+			clock_ = {900, 900, board_.WhiteMove()};
 		else
-			clock_ = {100, 100};
+			clock_ = {100, 100, board_.WhiteMove()};
 
 		Gomoku::MakeMove_t MakeMoveWhite = [this](int row, int col) {
 			if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
@@ -54,12 +54,17 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 			return BoardState::MoveResult::Default;
 		};
 
-		whitePlayer = PlayerFactory(player1, BoardState::Side::White, MakeMoveWhite);
-		blackPlayer = PlayerFactory(player2, BoardState::Side::Black, MakeMoveBlack);
+		whitePlayer = PlayerFactory(player1, BoardState::Side::White, MakeMoveWhite, board_);
+		blackPlayer = PlayerFactory(player2, BoardState::Side::Black, MakeMoveBlack, board_);
 
 		state_ = State::GameInProcess;
-		whitePlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
-		clock_.Start();
+
+		if (board_.WhiteMove())
+			whitePlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
+		else
+			blackPlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
+
+		clock_.Start(board_.WhiteMove());
 	}
 }
 

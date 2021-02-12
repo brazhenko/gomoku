@@ -172,10 +172,10 @@ int Gomoku::BoardState::CountFreeThreesLastMove(Gomoku::BoardState::Side side, s
 
 	if (WhiteMove())
 	{
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three1_w, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three1_w, col, row);
-		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three1_w, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three1_w, downC.first, downC.second);
+//		freeThreesCount += CountFiguresPoints(board_, figure_free_three1_w, row, col);
+//		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three1_w, col, row);
+//		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three1_w, upC.first, upC.second);
+//		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three1_w, downC.first, downC.second);
 
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_w, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_w, col, row);
@@ -199,10 +199,10 @@ int Gomoku::BoardState::CountFreeThreesLastMove(Gomoku::BoardState::Side side, s
 	}
 	else
 	{
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three1_b, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three1_b, col, row);
-		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three1_b, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three1_b, downC.first, downC.second);
+//		freeThreesCount += CountFiguresPoints(board_, figure_free_three1_b, row, col);
+//		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three1_b, col, row);
+//		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three1_b, upC.first, upC.second);
+//		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three1_b, downC.first, downC.second);
 
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_b, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_b, col, row);
@@ -500,41 +500,7 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMoveInternal(int row, int
 		return ret;
 	}
 
-
-	// Form available moves for next turn
-	for (int i = 0; i < cells_in_line; i++)
-	{
-		for (int j = 0; j < cells_in_line; j++)
-		{
-			if (Side::None == At(i, j))
-			{
-				// Check if move valid
-				if (IsMoveCapture(i, j, movePattern))
-				{
-					// Captures always valid
-					available_moves.emplace(i, j);
-					continue;
-				}
-				int freeThreesCount = 0, newFreeThreesCount = 0;
-
-				// Pretend to make move
-				Set(i, j, Side(movePattern.to_ulong()));
-
-				if (WhiteMove())
-					newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});
-				else
-					newFreeThreesCount = CountFreeThreesLastMove(Side::Black, {i, j});
-
-				// Two or more free threes NOT produced
-				// if (!(newFreeThreesCount > freeThreesCount + 1))
-				if (newFreeThreesCount < 2)
-					available_moves.emplace(i, j);
-
-				// Return back pretended move
-				Set(i, j, Side::None);
-			}
-		}
-	}
+	GenerateAvailableMovesInternal();
 
 	if (available_moves.empty())
 		return MoveResult::Draw;
@@ -664,10 +630,13 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::BoardState &bs)
 		>> bs.movePattern;
 
 	std::cout << bs.WhiteCapturePoints << bs.BlackCapturePoints << bs.movePattern;
-	for (int i = 18; i >= 0; i--) {
+
+	for (int i = 18; i >= 0; i--)
+	{
 		for (int j = 0; j < 19; j++) {
 			char kek;
 			is >> kek;
+
 			switch (kek) {
 				case '_':
 					bs.Set(i, j, Gomoku::BoardState::Side::None);
@@ -681,6 +650,9 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::BoardState &bs)
 			}
 		}
 	}
+
+	bs.GenerateAvailableMovesInternal();
+
 	return is;
 }
 
@@ -790,10 +762,10 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
 
 	if (side == Side::White)
 	{
-		freeThreesCount += CountFigures(board_, figure_free_three1_w);
-		freeThreesCount += CountFigures(vertical_, figure_free_three1_w);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three1_w, true);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three1_w, true);
+//		freeThreesCount += CountFigures(board_, figure_free_three1_w);
+//		freeThreesCount += CountFigures(vertical_, figure_free_three1_w);
+//		freeThreesCount += CountFigures(up_lines_, figure_free_three1_w, true);
+//		freeThreesCount += CountFigures(down_lines_, figure_free_three1_w, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three2_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three2_w);
@@ -817,10 +789,10 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
 	}
 	else
 	{
-		freeThreesCount += CountFigures(board_, figure_free_three1_b);
-		freeThreesCount += CountFigures(vertical_, figure_free_three1_b);
-		freeThreesCount += CountFigures(up_lines_, figure_free_three1_b, true);
-		freeThreesCount += CountFigures(down_lines_, figure_free_three1_b, true);
+//		freeThreesCount += CountFigures(board_, figure_free_three1_b);
+//		freeThreesCount += CountFigures(vertical_, figure_free_three1_b);
+//		freeThreesCount += CountFigures(up_lines_, figure_free_three1_b, true);
+//		freeThreesCount += CountFigures(down_lines_, figure_free_three1_b, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three2_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three2_b);
@@ -1002,6 +974,44 @@ int Gomoku::BoardState::CountHalfFreeThrees(Gomoku::BoardState::Side side) const
 	}
 
 	return halfFreeThreesCount;
+}
+
+void Gomoku::BoardState::GenerateAvailableMovesInternal()
+{
+	// Form available moves for next turn
+	for (int i = 0; i < cells_in_line; i++)
+	{
+		for (int j = 0; j < cells_in_line; j++)
+		{
+			if (Side::None == At(i, j))
+			{
+				// Check if move valid
+				if (IsMoveCapture(i, j, movePattern))
+				{
+					// Captures always valid
+					available_moves.emplace(i, j);
+					continue;
+				}
+				int freeThreesCount = 0, newFreeThreesCount = 0;
+
+				// Pretend to make move
+				Set(i, j, Side(movePattern.to_ulong()));
+
+				if (WhiteMove())
+					newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});
+				else
+					newFreeThreesCount = CountFreeThreesLastMove(Side::Black, {i, j});
+
+				// Two or more free threes NOT produced
+				// if (!(newFreeThreesCount > freeThreesCount + 1))
+				if (newFreeThreesCount < 2)
+					available_moves.emplace(i, j);
+
+				// Return back pretended move
+				Set(i, j, Side::None);
+			}
+		}
+	}
 }
 
 #pragma clang diagnostic pop

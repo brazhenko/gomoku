@@ -27,18 +27,19 @@ std::string Gomoku::ChessClock::DurationToString(const std::chrono::duration<dou
 }
 
 
-Gomoku::ChessClock::ChessClock(int whiteSeconds, int blackSeconds)
+Gomoku::ChessClock::ChessClock(int whiteSeconds, int blackSeconds, bool whiteMove)
 		: whiteTimeLeft{whiteSeconds * 1000 }
 		, blackTimeLeft{blackSeconds * 1000 }
-		, WhiteMove{ true }
+		, WhiteMove{ whiteMove }
 		, PauseOn { true }
 {}
 
-void Gomoku::ChessClock::Start()
+void Gomoku::ChessClock::Start(bool WhiteTurn)
 {
 	PauseOn = false;
 
 	auto tmp = std::chrono::system_clock::now();
+
 	startWhite = tmp;
 	startBlack = tmp;
 }
