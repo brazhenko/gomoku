@@ -27,7 +27,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 
 
 	int bestMeasure;
-	if (this->side_ == BoardState::Side::White)
+	if (this->side_ == Board::Side::White)
 		bestMeasure= -100;
 	else
 		bestMeasure= +100;
@@ -52,7 +52,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 
 		if (val != 0)
 		{
-			std::cerr  << "///////////////////" << Gomoku::BoardState::MoveToString(move) << ": " << val << "\n";
+			std::cerr << "///////////////////" << Gomoku::Board::MoveToString(move) << ": " << val << "\n";
 			c ++;
 		}
 
@@ -60,13 +60,13 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
 	}
 
-	std::cout << "BEST MOVE: " << Gomoku::BoardState::MoveToString(this->nextMove) << ", avail:" << c << std::endl;
+	std::cout << "BEST MOVE: " << Gomoku::Board::MoveToString(this->nextMove) << ", avail:" << c << std::endl;
 //	for (auto &a : s)
 //		std::cout << a << std::endl;
 	std::cout << "///////////////////" << std::endl;
 }
 
-Gomoku::BoardState::MoveResult Gomoku::AI1::Ping()
+Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 {
 	if (!myMove) return {};
 

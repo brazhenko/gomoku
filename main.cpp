@@ -64,26 +64,26 @@ int main()
 			bool wt = game.clock_.WhiteTimeLeft();
 			bool bt = game.clock_.BlackTimeLeft();
 
-			if (Gomoku::BoardState::MoveResult::WhiteWin == w
+			if (Gomoku::Board::MoveResult::WhiteWin == w
 				|| !bt)
 			{
 				game.state_ = Gomoku::Game::State::GameEndedWhiteWin;
 				game.clock_.Pause();
 			}
-			else if (Gomoku::BoardState::MoveResult::Draw == w)
+			else if (Gomoku::Board::MoveResult::Draw == w)
 			{
 				game.state_ = Gomoku::Game::State::GameEndedDraw;
 				game.clock_.Pause();
 			}
 
 
-			if (Gomoku::BoardState::MoveResult::BlackWin == b
+			if (Gomoku::Board::MoveResult::BlackWin == b
 				|| !wt)
 			{
 				game.state_ = Gomoku::Game::State::GameEndedBlackWin;
 				game.clock_.Pause();
 			}
-			else if (Gomoku::BoardState::MoveResult::Draw == b)
+			else if (Gomoku::Board::MoveResult::Draw == b)
 			{
 				game.state_ = Gomoku::Game::State::GameEndedDraw;
 				game.clock_.Pause();

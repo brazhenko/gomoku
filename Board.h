@@ -27,7 +27,7 @@ public:
 
 namespace Gomoku
 {
-	class BoardState
+	class Board
 	{
 	public:
 		// Global constants
@@ -169,8 +169,8 @@ namespace Gomoku
 			Black
 		};
 
-		BoardState();
-		explicit BoardState(const std::vector<std::pair<int, int>> &moves);
+		Board();
+		explicit Board(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
 
 		template<typename B>
@@ -375,12 +375,12 @@ namespace Gomoku
 		[[nodiscard]] std::string ToPgnString() const;
 
 		// I/O of board
-		friend std::ostream& operator<<(std::ostream& os, const BoardState& bs);
-		friend std::istream& operator>>(std::istream& is, BoardState& bs);
+		friend std::ostream& operator<<(std::ostream& os, const Board& bs);
+		friend std::istream& operator>>(std::istream& is, Board& bs);
 
-        friend bool operator==(const Gomoku::BoardState& left, const Gomoku::BoardState& right);
+        friend bool operator==(const Gomoku::Board& left, const Gomoku::Board& right);
 
-//        ~BoardState(){
+//        ~Board(){
 //        	std::cout << __FUNCTION__  << std::endl;
 //        }
 	};
@@ -389,8 +389,8 @@ namespace Gomoku
 // Helper
 namespace std {
 	template <>
-	struct hash<Gomoku::BoardState> {
-		std::size_t operator()(const Gomoku::BoardState& k) const {
+	struct hash<Gomoku::Board> {
+		std::size_t operator()(const Gomoku::Board& k) const {
 			return k.hash();
 		}
 	};

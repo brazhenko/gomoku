@@ -11,9 +11,9 @@
 
 std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 		const std::string& name,
-		Gomoku::BoardState::Side side,
+		Gomoku::Board::Side side,
 		const Gomoku::MakeMove_t& MakeMove,
-		const Gomoku::BoardState &bs
+		const Gomoku::Board &bs
 		)
 {
 	if (name == "Human")

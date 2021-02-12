@@ -26,8 +26,8 @@ namespace Gomoku
 		static constexpr int halfFreeThreeCoef = 1;
 
 
-		static int internal_(const Gomoku::BoardState &bs);
-		static int StaticPositionAnalize(const Gomoku::BoardState& bs);
+		static int internal_(const Gomoku::Board &bs);
+		static int StaticPositionAnalize(const Gomoku::Board& bs);
 	};
 }
 

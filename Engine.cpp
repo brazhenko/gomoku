@@ -5,7 +5,7 @@
 #include "Engine.h"
 
 
-int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
+int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 {
 	auto time1 = std::chrono::high_resolution_clock::now();
 
@@ -20,20 +20,20 @@ int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 	// Edge cases
 
 	// Game ended (fifth)
-	if (bs.GetLastMoveResult() == BoardState::MoveResult::Draw)
+	if (bs.GetLastMoveResult() == Board::MoveResult::Draw)
 	{
 		ss << "Draw" << std::endl;
 		return 0;
 	}
-	if (bs.GetLastMoveResult() == BoardState::MoveResult::WhiteWin)
+	if (bs.GetLastMoveResult() == Board::MoveResult::WhiteWin)
 		return +100;
-	if (bs.GetLastMoveResult() == BoardState::MoveResult::BlackWin)
+	if (bs.GetLastMoveResult() == Board::MoveResult::BlackWin)
 		return -100;
 
 	{
 		// Fours
-		auto b1 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_free_four_w);
-		auto b2 = bs.IsThereFigureOnBoard(Gomoku::BoardState::figure_free_four_b);
+		auto b1 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_w);
+		auto b2 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_b);
 		if (b1 && b2)
 		{
 			if (bs.WhiteMove())
@@ -46,8 +46,8 @@ int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 
 	{
 		// half free and flanked fours
-		auto t1 = bs.CountHalfFreeFours(BoardState::Side::White);
-		auto t2 = bs.CountHalfFreeFours(BoardState::Side::Black);
+		auto t1 = bs.CountHalfFreeFours(Board::Side::White);
+		auto t2 = bs.CountHalfFreeFours(Board::Side::Black);
 
 		if (bs.WhiteMove() && t1)
 			return +10;
@@ -60,16 +60,16 @@ int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 
 	{
 		// free threes
-		auto t1 = bs.CountFreeThrees(BoardState::Side::White);
-		auto t2 = bs.CountFreeThrees(BoardState::Side::Black);
+		auto t1 = bs.CountFreeThrees(Board::Side::White);
+		auto t2 = bs.CountFreeThrees(Board::Side::Black);
 
 		ss << "free 3, white: " << t1 << " , black: " << t2 << std::endl;
 		ret += (t1 - t2) * freeThreeCoef;
 	}
 	{
 		// half free and flanked threes
-		auto t1 = bs.CountHalfFreeThrees(BoardState::Side::White);
-		auto t2 = bs.CountHalfFreeThrees(BoardState::Side::Black);
+		auto t1 = bs.CountHalfFreeThrees(Board::Side::White);
+		auto t2 = bs.CountHalfFreeThrees(Board::Side::Black);
 
 		ss << "half 3, white: " << t1 << " , black: " << t2 << std::endl;
 		ret += (t1 - t2) * halfFreeThreeCoef;
@@ -105,8 +105,8 @@ int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 
 	{
 		// Captures
-		auto t1 = bs.GetCapturePoints(Gomoku::BoardState::Side::White);
-		auto t2 = bs.GetCapturePoints(Gomoku::BoardState::Side::Black);
+		auto t1 = bs.GetCapturePoints(Gomoku::Board::Side::White);
+		auto t2 = bs.GetCapturePoints(Gomoku::Board::Side::Black);
 
 		ss << "real captures, white: " << t1 << " , black: " << t2 << std::endl;
 		
@@ -124,9 +124,9 @@ int  Gomoku::Engine::internal_(const Gomoku::BoardState &bs)
 	return ret;
 }
 
-int Gomoku::Engine::StaticPositionAnalize(const Gomoku::BoardState &bs)
+int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 {
-	static std::unordered_map<Gomoku::BoardState, int> m;
+	static std::unordered_map<Gomoku::Board, int> m;
 
 	if (m.find(bs) == m.end())
 	{

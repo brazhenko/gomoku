@@ -40,7 +40,7 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 				this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 				return ret;
 			}
-			return BoardState::MoveResult::Default;
+			return Board::MoveResult::Default;
 		};
 
 		Gomoku::MakeMove_t MakeMoveBlack = [this](int row, int col) {
@@ -51,11 +51,11 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 				this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 				return ret;
 			}
-			return BoardState::MoveResult::Default;
+			return Board::MoveResult::Default;
 		};
 
-		whitePlayer = PlayerFactory(player1, BoardState::Side::White, MakeMoveWhite, board_);
-		blackPlayer = PlayerFactory(player2, BoardState::Side::Black, MakeMoveBlack, board_);
+		whitePlayer = PlayerFactory(player1, Board::Side::White, MakeMoveWhite, board_);
+		blackPlayer = PlayerFactory(player2, Board::Side::Black, MakeMoveBlack, board_);
 
 		state_ = State::GameInProcess;
 

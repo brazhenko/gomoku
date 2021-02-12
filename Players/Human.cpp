@@ -6,9 +6,9 @@
 
 #include "../GomokuDraw.h"
 
-Gomoku::BoardState::MoveResult Gomoku::Human::Ping()
+Gomoku::Board::MoveResult Gomoku::Human::Ping()
 {
-	if (!myMove) return Gomoku::BoardState::MoveResult::Default;
+	if (!myMove) return Gomoku::Board::MoveResult::Default;
 
 	if (GomokuDraw::MouseInsideBoard()) // && !game.fileDialogGame.IsOpened() && !game.fileDialogBoardPos.IsOpened())
 	{
@@ -20,7 +20,7 @@ Gomoku::BoardState::MoveResult Gomoku::Human::Ping()
 		{
 			auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates(stone);
 
-			GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, side_ == Gomoku::BoardState::Side::White ? 1 : 3);
+			GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, side_ == Gomoku::Board::Side::White ? 1 : 3);
 
 			if (ImGui::IsMouseClicked(0))
 			{
@@ -32,5 +32,5 @@ Gomoku::BoardState::MoveResult Gomoku::Human::Ping()
 		else
 			GomokuDraw::ForbiddenCursor();
 	}
-	return Gomoku::BoardState::MoveResult::Default;
+	return Gomoku::Board::MoveResult::Default;
 }

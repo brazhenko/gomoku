@@ -18,7 +18,7 @@ namespace Gomoku
 	{
 		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 	public:
-		explicit Human(BoardState::Side side, MakeMove_t MakeMove, const Gomoku::BoardState &realBoard)
+		explicit Human(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
 				: IPlayer(side, std::move(MakeMove), realBoard)
 		{}
 
@@ -28,7 +28,7 @@ namespace Gomoku
 			availableMoves_ = availableMoves;
 		}
 
-		BoardState::MoveResult Ping() override;
+		Board::MoveResult Ping() override;
 	};
 }
 

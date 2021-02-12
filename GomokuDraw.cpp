@@ -332,20 +332,20 @@ namespace GomokuDraw
 				ImVec2{ImGui::GetMousePos().x + 15, ImGui::GetMousePos().y + 15});
 	}
 
-	void DrawStones(const Gomoku::BoardState &bs)
+	void DrawStones(const Gomoku::Board &bs)
 	{
 		// Draw all stones on the board
-		for (int row = 0; row < Gomoku::BoardState::cells_in_line; row++)
-			for (int col = 0; col < Gomoku::BoardState::cells_in_line; col++)
+		for (int row = 0; row < Gomoku::Board::cells_in_line; row++)
+			for (int col = 0; col < Gomoku::Board::cells_in_line; col++)
 			{
 				auto stoneType = bs.At(row, col);
 
-				if (stoneType == Gomoku::BoardState::Side::White)
+				if (stoneType == Gomoku::Board::Side::White)
 				{
 					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
 					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, 2);
 				}
-				else if (bs.At(row, col) == Gomoku::BoardState::Side::Black)
+				else if (bs.At(row, col) == Gomoku::Board::Side::Black)
 				{
 					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
 					GomokuDraw::DrawStone(placeToDraw.first, placeToDraw.second, 4);
@@ -385,7 +385,7 @@ namespace GomokuDraw
 
 	void DrawPlayer(const Gomoku::Game &game, bool isWhite)
 	{
-		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::BoardState::Side::White : Gomoku::BoardState::Side::Black);
+		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::Board::Side::White : Gomoku::Board::Side::Black);
 		ImGui::BeginGroup();
 		{
 			{
@@ -628,12 +628,12 @@ namespace GomokuDraw
 				for (const auto & move: g.moves())
 				{
 					if (move.white().valid())
-						moves.push_back(Gomoku::BoardState::StringToMove(move.white().str()));
+						moves.push_back(Gomoku::Board::StringToMove(move.white().str()));
 					if (move.black().valid())
-						moves.push_back(Gomoku::BoardState::StringToMove(move.black().str()));
+						moves.push_back(Gomoku::Board::StringToMove(move.black().str()));
 				}
 
-				game.board_ = Gomoku::BoardState(moves);
+				game.board_ = Gomoku::Board(moves);
 			}
 			else
 				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
@@ -738,7 +738,7 @@ namespace GomokuDraw
 		ImGui::End();
 	}
 
-	void DrawGameMoves(const Gomoku::BoardState &bs)
+	void DrawGameMoves(const Gomoku::Board &bs)
 	{
 		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
 		ImGui::SetNextWindowPos(ImVec2{660, 370}); // 1259, 679
@@ -750,12 +750,12 @@ namespace GomokuDraw
 			if (i + 1 < bs.GetMovesList().size())
 				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s % 3s  ",
 						i/2 + 1,
-						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str(),
-						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i+1]).c_str());
+						Gomoku::Board::MoveToString(bs.GetMovesList()[i]).c_str(),
+						Gomoku::Board::MoveToString(bs.GetMovesList()[i + 1]).c_str());
 			else
 				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s ...",
 						i/2 + 1,
-						Gomoku::BoardState::MoveToString(bs.GetMovesList()[i]).c_str());
+						Gomoku::Board::MoveToString(bs.GetMovesList()[i]).c_str());
 
 			helper++;
 			ImGui::SameLine();

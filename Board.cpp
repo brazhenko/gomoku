@@ -9,11 +9,11 @@
 #include "PGNGame.h"
 
 // Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal2 lines x, y respectively)
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToVerticles = Gomoku::BoardState::InitVerticles();
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToUpLines = Gomoku::BoardState::InitUpLines();
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::_cToDownLines = Gomoku::BoardState::InitDownLines();
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToVerticles = Gomoku::Board::InitVerticles();
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToUpLines = Gomoku::Board::InitUpLines();
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToDownLines = Gomoku::Board::InitDownLines();
 
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::InitVerticles()
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::InitVerticles()
 {
 	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
 
@@ -24,7 +24,7 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 	return ret;
 }
 
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::InitUpLines()
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::InitUpLines()
 {
 	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
 
@@ -39,7 +39,7 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 	}
 	return ret;
 }
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::BoardState::InitDownLines()
+std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::InitDownLines()
 {
 	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
 
@@ -56,7 +56,7 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 }
 
 
-Gomoku::BoardState::BoardState()
+Gomoku::Board::Board()
 {
 	for (int i = 0; i < cells_in_line; i++)
 		for (int j = 0; j < cells_in_line; j++)
@@ -84,8 +84,8 @@ Gomoku::BoardState::BoardState()
 }
 
 
-Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
-	: BoardState()
+Gomoku::Board::Board(const std::vector<std::pair<int, int>> &moves)
+	: Board()
 {
 	auto t1 = std::chrono::high_resolution_clock::now();
 
@@ -110,7 +110,7 @@ Gomoku::BoardState::BoardState(const std::vector<std::pair<int, int>> &moves)
 
 }
 
-bool Gomoku::BoardState::IsMoveCapture(int row, int col, Gomoku::BoardState::board_line mvPtrn) const
+bool Gomoku::Board::IsMoveCapture(int row, int col, Gomoku::Board::board_line mvPtrn) const
 {
 	return
 			(row + 3 < 19
@@ -159,8 +159,8 @@ bool Gomoku::BoardState::IsMoveCapture(int row, int col, Gomoku::BoardState::boa
 			);
 }
 
-// TODO Gomoku::BoardState::Side side не нужен тут походу
-int Gomoku::BoardState::CountFreeThreesLastMove(Gomoku::BoardState::Side side, std::pair<int, int> lastMove) const
+// TODO Gomoku::Board::Side side не нужен тут походу
+int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<int, int> lastMove) const
 {
 	int freeThreesCount = 0;
 
@@ -228,7 +228,7 @@ int Gomoku::BoardState::CountFreeThreesLastMove(Gomoku::BoardState::Side side, s
 	return freeThreesCount;
 }
 
-void Gomoku::BoardState::FindMovesBreaksFifth()
+void Gomoku::Board::FindMovesBreaksFifth()
 {
 	for (int i = 0; i < cells_in_line; i++)
 	{
@@ -276,7 +276,7 @@ void Gomoku::BoardState::FindMovesBreaksFifth()
 	}
 }
 
-std::vector<std::pair<int, int>> Gomoku::BoardState::MakeCapture(int row, int col)
+std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 {
 	std::vector<std::pair<int, int>> capturedStones;
 
@@ -431,14 +431,14 @@ std::vector<std::pair<int, int>> Gomoku::BoardState::MakeCapture(int row, int co
 	return capturedStones;
 }
 
-Gomoku::BoardState::MoveResult Gomoku::BoardState:: MakeMove(int row, int col)
+Gomoku::Board::MoveResult Gomoku::Board:: MakeMove(int row, int col)
 {
 	auto ret = MakeMoveInternal(row, col);
 	this->lastMoveResult_ = ret;
 	return ret;
 }
 
-Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMoveInternal(int row, int col)
+Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 {
 	MoveResult ret = MoveResult::Default;
 
@@ -485,9 +485,9 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMoveInternal(int row, int
 	{
 		// Form avalable ending moves
 		FindMovesBreaksFifth();
-		std::cout << "move: " << Gomoku::BoardState::MoveToString({row, col}) << std::endl;
+		std::cout << "move: " << Gomoku::Board::MoveToString({row, col}) << std::endl;
 		for (const auto &move: available_moves)
-			std::cout << Gomoku::BoardState::MoveToString(move) << ";  ";
+			std::cout << Gomoku::Board::MoveToString(move) << ";  ";
 
 
 		std::cout << std::endl;
@@ -508,7 +508,7 @@ Gomoku::BoardState::MoveResult Gomoku::BoardState::MakeMoveInternal(int row, int
 	return ret;
 }
 
-std::string Gomoku::BoardState::ToPgnString() const
+std::string Gomoku::Board::ToPgnString() const
 {
 	std::stringstream ss;
 
@@ -527,16 +527,16 @@ std::string Gomoku::BoardState::ToPgnString() const
 	{
 
 		auto a = pgn::Move(
-				pgn::Ply(Gomoku::BoardState::MoveToString(moves[i])),
-				(i + 1 < moves.size()) ? pgn::Ply(Gomoku::BoardState::MoveToString(moves[i+1])) : pgn::Ply(""),
+				pgn::Ply(Gomoku::Board::MoveToString(moves[i])),
+                (i + 1 < moves.size()) ? pgn::Ply(Gomoku::Board::MoveToString(moves[i + 1])) : pgn::Ply(""),
 				(i/2) + 1);
 		ml.push_back(
 				a
 				);
 
 		// TODO delete
-		std::cout << Gomoku::BoardState::MoveToString(moves[i]) << ",  ";
-		std::cout << ((i + 1 < moves.size()) ? Gomoku::BoardState::MoveToString(moves[i+1]) : "" )<< std::endl;
+		std::cout << Gomoku::Board::MoveToString(moves[i]) << ",  ";
+		std::cout << ((i + 1 < moves.size()) ? Gomoku::Board::MoveToString(moves[i + 1]) : "" ) << std::endl;
 	}
 
 	ss << pgn::Game(tl, ml, gr) << std::endl;
@@ -544,7 +544,7 @@ std::string Gomoku::BoardState::ToPgnString() const
 	return ss.str();
 }
 
-size_t Gomoku::BoardState::hash() const
+size_t Gomoku::Board::hash() const
 {
 	std::size_t seed = board_.size();
 
@@ -554,21 +554,21 @@ size_t Gomoku::BoardState::hash() const
 	return seed;
 }
 
-bool Gomoku::BoardState::TakeBackMove()
+bool Gomoku::Board::TakeBackMove()
 {
 	if (moves_.empty()) return false;
 	moves_.pop_back();
 
-	*this = BoardState(moves_);
+	*this = Board(moves_);
 	return true;
 }
 
-void Gomoku::BoardState::Reset()
+void Gomoku::Board::Reset()
 {
-	*this = BoardState();
+	*this = Board();
 }
 
-void Gomoku::BoardState::Set(int row, int col, Gomoku::BoardState::Side s)
+void Gomoku::Board::Set(int row, int col, Gomoku::Board::Side s)
 {
 	const auto &verticle = _cToVerticles.at({row, col});
 	const auto &upline = _cToUpLines.at({row, col});
@@ -587,7 +587,7 @@ void Gomoku::BoardState::Set(int row, int col, Gomoku::BoardState::Side s)
 	down_lines_[downline.first][downline.second * 2 + 1] = (unsigned(s)>>1U)&1U;
 }
 
-Gomoku::BoardState::Side Gomoku::BoardState::At(int row, int col) const
+Gomoku::Board::Side Gomoku::Board::At(int row, int col) const
 {
 	switch (
 			int(board_[row][col * 2]) |
@@ -604,7 +604,7 @@ Gomoku::BoardState::Side Gomoku::BoardState::At(int row, int col) const
 	throw std::runtime_error("Unknown stone on board");
 }
 
-int Gomoku::BoardState::GetCapturePoints(Gomoku::BoardState::Side side) const
+int Gomoku::Board::GetCapturePoints(Gomoku::Board::Side side) const
 {
 	if (Side::White == side)
 		return WhiteCapturePoints;
@@ -613,15 +613,15 @@ int Gomoku::BoardState::GetCapturePoints(Gomoku::BoardState::Side side) const
 	return -1;
 }
 
-const std::unordered_set<std::pair<int, int>, pairhash> &Gomoku::BoardState::GetAvailableMoves() const
+const std::unordered_set<std::pair<int, int>, pairhash> &Gomoku::Board::GetAvailableMoves() const
 {
 	return available_moves;
 }
 
-std::istream &Gomoku::operator>>(std::istream &is, Gomoku::BoardState &bs)
+std::istream &Gomoku::operator>>(std::istream &is, Gomoku::Board &bs)
 
 {
-	bs = BoardState();
+	bs = Board();
 
 	int a, b;
 	is
@@ -639,13 +639,13 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::BoardState &bs)
 
 			switch (kek) {
 				case '_':
-					bs.Set(i, j, Gomoku::BoardState::Side::None);
+					bs.Set(i, j, Gomoku::Board::Side::None);
 					break;
 				case 'X':
-					bs.Set(i, j, Gomoku::BoardState::Side::White);
+					bs.Set(i, j, Gomoku::Board::Side::White);
 					break;
 				case 'O':
-					bs.Set(i, j, Gomoku::BoardState::Side::Black);
+					bs.Set(i, j, Gomoku::Board::Side::Black);
 					break;
 			}
 		}
@@ -656,11 +656,11 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::BoardState &bs)
 	return is;
 }
 
-std::ostream &Gomoku::operator<<(std::ostream &os, const Gomoku::BoardState &bs)
+std::ostream &Gomoku::operator<<(std::ostream &os, const Gomoku::Board &bs)
 {
 	os
-		<< bs.GetCapturePoints(Gomoku::BoardState::Side::White)
-		<< " " << bs.GetCapturePoints(Gomoku::BoardState::Side::Black)
+		<< bs.GetCapturePoints(Gomoku::Board::Side::White)
+		<< " " << bs.GetCapturePoints(Gomoku::Board::Side::Black)
 		<< " " << bs.movePattern << std::endl;
 
 	for (int i = 18; i >= 0; i--)
@@ -668,13 +668,13 @@ std::ostream &Gomoku::operator<<(std::ostream &os, const Gomoku::BoardState &bs)
 		for (int j = 0; j < 19; j++)
 		{
 			switch (bs.At(i, j)) {
-				case Gomoku::BoardState::Side::None:
+				case Gomoku::Board::Side::None:
 					os << "_";
 					break;
-				case Gomoku::BoardState::Side::White:
+				case Gomoku::Board::Side::White:
 					os << "X";
 					break;
-				case Gomoku::BoardState::Side::Black:
+				case Gomoku::Board::Side::Black:
 					os << "O";
 					break;
 			}
@@ -684,17 +684,17 @@ std::ostream &Gomoku::operator<<(std::ostream &os, const Gomoku::BoardState &bs)
 	return os;
 }
 
-bool Gomoku::BoardState::WhiteMove() const
+bool Gomoku::Board::WhiteMove() const
 {
 	return movePattern == 0b01;
 }
 
-const std::vector<std::pair<int, int>> &Gomoku::BoardState::GetMovesList() const
+const std::vector<std::pair<int, int>> &Gomoku::Board::GetMovesList() const
 {
 	return this->moves_;
 }
 
-std::pair<int, int> Gomoku::BoardState::StringToMove(const std::string &s)
+std::pair<int, int> Gomoku::Board::StringToMove(const std::string &s)
 {
 	std::pair<int, int> ret;
 
@@ -705,7 +705,7 @@ std::pair<int, int> Gomoku::BoardState::StringToMove(const std::string &s)
 	return ret;
 }
 
-std::string Gomoku::BoardState::MoveToString(const std::pair<int, int> &move)
+std::string Gomoku::Board::MoveToString(const std::pair<int, int> &move)
 {
 	std::stringstream ss;
 	static const char *letters = "abcdefghijklmnopqrs";
@@ -715,7 +715,7 @@ std::string Gomoku::BoardState::MoveToString(const std::pair<int, int> &move)
 	return ss.str();
 }
 
-int Gomoku::BoardState::CountFigureOverBoard(const Gomoku::BoardState::GomokuShape &shape) const
+int Gomoku::Board::CountFigureOverBoard(const Gomoku::Board::GomokuShape &shape) const
 {
 	int ret = 0;
 
@@ -727,7 +727,7 @@ int Gomoku::BoardState::CountFigureOverBoard(const Gomoku::BoardState::GomokuSha
 	return ret;
 }
 
-bool Gomoku::BoardState::IsThereFigureOnBoard(const Gomoku::BoardState::GomokuShape &shape) const
+bool Gomoku::Board::IsThereFigureOnBoard(const Gomoku::Board::GomokuShape &shape) const
 {
 	int ret = 0;
 
@@ -746,17 +746,17 @@ bool Gomoku::BoardState::IsThereFigureOnBoard(const Gomoku::BoardState::GomokuSh
 	return false;
 }
 
-bool Gomoku::operator==(const Gomoku::BoardState &left, const Gomoku::BoardState &right)
+bool Gomoku::operator==(const Gomoku::Board &left, const Gomoku::Board &right)
 {
     return left.board_ == right.board_;
 }
 
-Gomoku::BoardState::MoveResult Gomoku::BoardState::GetLastMoveResult() const
+Gomoku::Board::MoveResult Gomoku::Board::GetLastMoveResult() const
 {
 	return this->lastMoveResult_;
 }
 
-int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
+int Gomoku::Board::CountFreeThrees(Gomoku::Board::Side side) const
 {
 	int freeThreesCount = 0;
 
@@ -819,7 +819,7 @@ int Gomoku::BoardState::CountFreeThrees(Gomoku::BoardState::Side side) const
 	return freeThreesCount;
 }
 
-int Gomoku::BoardState::CountHalfFreeFours(Gomoku::BoardState::Side side) const
+int Gomoku::Board::CountHalfFreeFours(Gomoku::Board::Side side) const
 {
 	// TODO прижатые к стенке четверки надо сделать.
 	int halfFreeFoursCount = 0;
@@ -903,7 +903,7 @@ int Gomoku::BoardState::CountHalfFreeFours(Gomoku::BoardState::Side side) const
 	return halfFreeFoursCount;
 }
 
-int Gomoku::BoardState::CountHalfFreeThrees(Gomoku::BoardState::Side side) const
+int Gomoku::Board::CountHalfFreeThrees(Gomoku::Board::Side side) const
 {
 	// TODO прижатые к стенке четверки надо сделать.
 	int halfFreeThreesCount = 0;
@@ -976,7 +976,7 @@ int Gomoku::BoardState::CountHalfFreeThrees(Gomoku::BoardState::Side side) const
 	return halfFreeThreesCount;
 }
 
-void Gomoku::BoardState::GenerateAvailableMovesInternal()
+void Gomoku::Board::GenerateAvailableMovesInternal()
 {
 	// Form available moves for next turn
 	for (int i = 0; i < cells_in_line; i++)

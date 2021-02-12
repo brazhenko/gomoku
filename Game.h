@@ -24,7 +24,7 @@ namespace Gomoku
 		std::unique_ptr<Gomoku::IPlayer> whitePlayer;
 		std::unique_ptr<Gomoku::IPlayer> blackPlayer;
 
-		Gomoku::BoardState board_;
+		Gomoku::Board board_;
 		Gomoku::Engine engine;
 
 		enum class State

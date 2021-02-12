@@ -27,7 +27,7 @@ namespace GomokuDraw
 	void ForbiddenCursor();
 	void DrawStone(float x, float y, int type);
 
-	void DrawStones(const Gomoku::BoardState &bs);
+	void DrawStones(const Gomoku::Board &bs);
 
 	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite);
 	void DrawSteps(Gomoku::Game &game);
@@ -36,7 +36,7 @@ namespace GomokuDraw
 	void DrawFilesButtons(Gomoku::Game &game);
 	void DrawGameMenu(Gomoku::Game &game);
 
-	void DrawGameMoves(const Gomoku::BoardState &bs);
+	void DrawGameMoves(const Gomoku::Board &bs);
 
 	void Render();
 	void Cleanup();

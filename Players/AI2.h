@@ -15,14 +15,14 @@ namespace Gomoku
 		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 
 	public:
-		explicit AI2(BoardState::Side side, MakeMove_t MakeMove, const Gomoku::BoardState &realBoard)
+		explicit AI2(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
 				: IPlayer(side, std::move(MakeMove), realBoard)
 		{}
 
 
 		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override;
 
-		BoardState::MoveResult Ping() override;
+		Board::MoveResult Ping() override;
 	};
 }
 
