@@ -48,7 +48,6 @@ namespace Gomoku
 		// Shapes to find
 		// White shapes
 		constexpr static GomokuShape figure_five_w {0b0101010101, 5};				// XXXXX
-
 		//
 		// Fours
 		constexpr static GomokuShape figure_free_four_w {0b00'01010101'00, 6};				// _XXXX_
@@ -61,7 +60,6 @@ namespace Gomoku
 
 		constexpr static GomokuShape figure_half_four6_special_w { 0b0001010101, 5 };	// |XXXX_
 		constexpr static GomokuShape figure_half_four7_special_w { 0b0101010100, 5 };	// _XXXX|
-
 		//
 		// Threes
 		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
@@ -81,7 +79,6 @@ namespace Gomoku
 
 		// Black shapes
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};				// OOOOO
-
 		//
 		// Fours
 		constexpr static GomokuShape figure_free_four_b { 0b00'10101010'00, 6};		// _OOOO_
@@ -94,8 +91,6 @@ namespace Gomoku
 
 		constexpr static GomokuShape figure_half_four6_special_b { 0b0010101010, 5 };	// |OOOO_
 		constexpr static GomokuShape figure_half_four7_special_b { 0b1010101000, 5 };	// _OOOO|
-
-
 		//
 		// Threes
 		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
@@ -135,7 +130,7 @@ namespace Gomoku
 		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
 		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
 
-		std::unordered_set<std::pair<int, int>, pairhash> available_moves;
+		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 
 		// Capture points of
 		int WhiteCapturePoints = 0;
@@ -145,8 +140,8 @@ namespace Gomoku
 		std::array<board_line, 19> board_{};
 		// Twisted lines of board
 		std::array<board_line, 19> vertical_{};
-		std::array<board_line, 38> up_lines_{};
-		std::array<board_line, 38> down_lines_{};
+		std::array<board_line, 38> upLines_{};
+		std::array<board_line, 38> downLines_{};
 
 		// Pattern of current move stone to put on board
 		board_line movePattern { 0b01 };
@@ -167,8 +162,6 @@ namespace Gomoku
 	public:
 		static std::string MoveToString(const std::pair<int, int> &move);
 		static std::pair<int, int> StringToMove(const std::string &s);
-
-
 
 		Board();
 		explicit Board(const std::vector<std::pair<int, int>> &moves);
