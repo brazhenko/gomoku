@@ -16,6 +16,7 @@
 #include <fstream>
 #include <mutex>
 
+/// Description
 struct pairhash {
 public:
 	template <typename T, typename U>
@@ -63,7 +64,7 @@ namespace Gomoku
 
 		//
 		// Threes
-//		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
+		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };	// __XXX__
 		constexpr static GomokuShape figure_free_three2_w { 0b0000'010101'00, 6 };	// _XXX__
 		constexpr static GomokuShape figure_free_three3_w { 0b00'010101'0000, 6};	// __XXX_
 		constexpr static GomokuShape figure_free_three4_w { 0b00'01000101'00, 6 };	// _X_XX_
@@ -97,7 +98,7 @@ namespace Gomoku
 
 		//
 		// Threes
-//		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
+		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };	// __OOO__
 		constexpr static GomokuShape figure_free_three2_b { 0b0000'101010'00, 6 };	// _OOO__
 		constexpr static GomokuShape figure_free_three3_b { 0b00'101010'0000, 6 };	// __OOO_
 		constexpr static GomokuShape figure_free_three4_b { 0b00'10001010'00, 6 };	// _O_OO_

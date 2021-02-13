@@ -172,11 +172,6 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 
 	if (WhiteMove())
 	{
-//		freeThreesCount += CountFiguresPoints(board_, figure_free_three1_w, row, col);
-//		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three1_w, col, row);
-//		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three1_w, upC.first, upC.second);
-//		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three1_w, downC.first, downC.second);
-
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_w, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_w, col, row);
 		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three2_w, upC.first, upC.second);
@@ -186,6 +181,11 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_w, col, row);
 		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three3_w, upC.first, upC.second);
 		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three3_w, downC.first, downC.second);
+
+		freeThreesCount -= CountFiguresPoints(board_, figure_free_three1_w, row, col);
+		freeThreesCount -= CountFiguresPoints(vertical_, figure_free_three1_w, col, row);
+		freeThreesCount -= CountFiguresPoints(up_lines_, figure_free_three1_w, upC.first, upC.second);
+		freeThreesCount -= CountFiguresPoints(down_lines_, figure_free_three1_w, downC.first, downC.second);
 
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three4_w, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three4_w, col, row);
@@ -199,11 +199,6 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 	}
 	else
 	{
-//		freeThreesCount += CountFiguresPoints(board_, figure_free_three1_b, row, col);
-//		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three1_b, col, row);
-//		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three1_b, upC.first, upC.second);
-//		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three1_b, downC.first, downC.second);
-
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_b, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_b, col, row);
 		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three2_b, upC.first, upC.second);
@@ -213,6 +208,11 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_b, col, row);
 		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three3_b, upC.first, upC.second);
 		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three3_b, downC.first, downC.second);
+
+		freeThreesCount -= CountFiguresPoints(board_, figure_free_three1_b, row, col);
+		freeThreesCount -= CountFiguresPoints(vertical_, figure_free_three1_b, col, row);
+		freeThreesCount -= CountFiguresPoints(up_lines_, figure_free_three1_b, upC.first, upC.second);
+		freeThreesCount -= CountFiguresPoints(down_lines_, figure_free_three1_b, downC.first, downC.second);
 
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three4_b, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three4_b, col, row);
@@ -762,11 +762,6 @@ int Gomoku::Board::CountFreeThrees(Gomoku::Board::Side side) const
 
 	if (side == Side::White)
 	{
-//		freeThreesCount += CountFigures(board_, figure_free_three1_w);
-//		freeThreesCount += CountFigures(vertical_, figure_free_three1_w);
-//		freeThreesCount += CountFigures(up_lines_, figure_free_three1_w, true);
-//		freeThreesCount += CountFigures(down_lines_, figure_free_three1_w, true);
-
 		freeThreesCount += CountFigures(board_, figure_free_three2_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three2_w);
 		freeThreesCount += CountFigures(up_lines_, figure_free_three2_w, true);
@@ -776,6 +771,11 @@ int Gomoku::Board::CountFreeThrees(Gomoku::Board::Side side) const
 		freeThreesCount += CountFigures(vertical_, figure_free_three3_w);
 		freeThreesCount += CountFigures(up_lines_, figure_free_three3_w, true);
 		freeThreesCount += CountFigures(down_lines_, figure_free_three3_w, true);
+
+		freeThreesCount -= CountFigures(board_, figure_free_three1_w);
+		freeThreesCount -= CountFigures(vertical_, figure_free_three1_w);
+		freeThreesCount -= CountFigures(up_lines_, figure_free_three1_w, true);
+		freeThreesCount -= CountFigures(down_lines_, figure_free_three1_w, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three4_w);
 		freeThreesCount += CountFigures(vertical_, figure_free_three4_w);
@@ -789,11 +789,6 @@ int Gomoku::Board::CountFreeThrees(Gomoku::Board::Side side) const
 	}
 	else
 	{
-//		freeThreesCount += CountFigures(board_, figure_free_three1_b);
-//		freeThreesCount += CountFigures(vertical_, figure_free_three1_b);
-//		freeThreesCount += CountFigures(up_lines_, figure_free_three1_b, true);
-//		freeThreesCount += CountFigures(down_lines_, figure_free_three1_b, true);
-
 		freeThreesCount += CountFigures(board_, figure_free_three2_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three2_b);
 		freeThreesCount += CountFigures(up_lines_, figure_free_three2_b, true);
@@ -803,6 +798,11 @@ int Gomoku::Board::CountFreeThrees(Gomoku::Board::Side side) const
 		freeThreesCount += CountFigures(vertical_, figure_free_three3_b);
 		freeThreesCount += CountFigures(up_lines_, figure_free_three3_b, true);
 		freeThreesCount += CountFigures(down_lines_, figure_free_three3_b, true);
+
+		freeThreesCount -= CountFigures(board_, figure_free_three1_b);
+		freeThreesCount -= CountFigures(vertical_, figure_free_three1_b);
+		freeThreesCount -= CountFigures(up_lines_, figure_free_three1_b, true);
+		freeThreesCount -= CountFigures(down_lines_, figure_free_three1_b, true);
 
 		freeThreesCount += CountFigures(board_, figure_free_three4_b);
 		freeThreesCount += CountFigures(vertical_, figure_free_three4_b);
