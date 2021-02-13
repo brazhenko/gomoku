@@ -1,5 +1,6 @@
 #pragma clang diagnostic push
 #pragma ide diagnostic ignored "hicpp-signed-bitwise"
+
 //
 // Created by 17641238 on 19.01.2021.
 //
@@ -9,25 +10,17 @@
 #include "PGNGame.h"
 
 // Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal2 lines x, y respectively)
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToVerticles = Gomoku::Board::InitVerticles();
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToUpLines = Gomoku::Board::InitUpLines();
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToDownLines = Gomoku::Board::InitDownLines();
-
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::InitVerticles()
-{
+const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToVerticles = [](){
 	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
-
 	for (int j = 0; j < cells_in_line; j++)
 		for (int i = 0; i < cells_in_line; i++)
 			ret.insert({{i, j}, {j, i}});
 
 	return ret;
-}
+}();
 
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::InitUpLines()
-{
+const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToUpLines = [](){
 	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
-
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
 	for (int line = 1; line <= diagonal_count; line++)
 	{
@@ -38,11 +31,10 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 			ret.insert({{(std::min(cells_in_line, line)-j-1), (start_col+j)}, {(line - 1), j}});
 	}
 	return ret;
-}
-std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::InitDownLines()
-{
-	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+}();
 
+const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToDownLines = [](){
+	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
 	for (int line = 1; line <= diagonal_count; line++)
 	{
@@ -50,41 +42,27 @@ std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::B
 		int count = std::min(line, std::min((cells_in_line - start_col), cells_in_line));
 
 		for (int j = 0; j < count; j++)
-			_cToDownLines.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
+			ret.insert({{(std::min(cells_in_line, line)-j-1), (cells_in_line - 1 - (start_col + j))}, {(line - 1), j}});
 	}
 	return ret;
-}
-
+}();
 
 Gomoku::Board::Board()
 {
+// Выбрать какой способ генерации доступных ходов сделать.
+
+	// Этот
 	for (int i = 0; i < cells_in_line; i++)
 		for (int j = 0; j < cells_in_line; j++)
 			this->available_moves.emplace(i, j);
 
-//	for (auto &row : this->board_)
-//		row |= (0b11UL << (bits_per_line));
-//	for (auto &row : this->vertical_)
-//		row |= (0b11UL << (bits_per_line));
-//
-//
-//	int len = 1;
-//	int i = 0;
-//
-//	for (; len < 19; len++, i++)
-//	{
-//		this->up_lines_[i] |= (0b11U << (len * bits_per_cell));
-//		this->down_lines_[i] |= (0b11U << (len * bits_per_cell));
-//	}
-//	for (; len > -1; len--, i++)
-//	{
-//		this->up_lines_[i] |= (0b11U << (len * bits_per_cell));
-//		this->down_lines_[i] |= (0b11U << (len * bits_per_cell));
-//	}
+	// Или этот
+// 	GenerateAvailableMovesInternal();
 }
 
 
 Gomoku::Board::Board(const std::vector<std::pair<int, int>> &moves)
+	// Construct default board
 	: Board()
 {
 	auto t1 = std::chrono::high_resolution_clock::now();
@@ -95,7 +73,7 @@ Gomoku::Board::Board(const std::vector<std::pair<int, int>> &moves)
 		{
 			std::stringstream ss;
 
-			ss << "Trying to construct board with wrong move: " << move.first << " " << move.second;
+			ss << "Trying to construct board with wrong move: " << Board::MoveToString(move);
 			throw std::runtime_error(ss.str());
 		}
 
@@ -106,8 +84,6 @@ Gomoku::Board::Board(const std::vector<std::pair<int, int>> &moves)
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
 
 	std::cout << duration << std::endl;
-
-
 }
 
 bool Gomoku::Board::IsMoveCapture(int row, int col, Gomoku::Board::board_line mvPtrn) const
@@ -170,7 +146,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 	const auto &upC = _cToUpLines.at({row, col});
 	const auto &downC = _cToDownLines.at({row, col});
 
-	if (WhiteMove())
+	if (Board::Side::White == side)
 	{
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_w, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_w, col, row);
@@ -197,7 +173,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 		freeThreesCount += CountFiguresPoints(up_lines_, figure_free_three5_w, upC.first, upC.second);
 		freeThreesCount += CountFiguresPoints(down_lines_, figure_free_three5_w, downC.first, downC.second);
 	}
-	else
+	else if (Board::Side::Black == side)
 	{
 		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_b, row, col);
 		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_b, col, row);
@@ -228,7 +204,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 	return freeThreesCount;
 }
 
-void Gomoku::Board::FindMovesBreaksFifth()
+void Gomoku::Board::FindMovesBreaksFifthInternal()
 {
 	for (int i = 0; i < cells_in_line; i++)
 	{
@@ -267,7 +243,7 @@ void Gomoku::Board::FindMovesBreaksFifth()
 							available_moves.emplace(i, j);
 
 						for (const auto &c : captured)
-							Set(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11U));
+							SetStoneInternal(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11U));
 					}
 
 				}
@@ -287,9 +263,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row + 3, col)) == (movePattern.to_ulong())
 			) {
 
-		Set(row + 1, col, Side::None);
+		SetStoneInternal(row + 1, col, Side::None);
 		capturedStones.emplace_back(row + 1, col);
-		Set(row + 2, col, Side::None);
+		SetStoneInternal(row + 2, col, Side::None);
 		capturedStones.emplace_back(row + 2, col);
 
 		if (WhiteMove())
@@ -306,9 +282,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row + 3, col + 3)) == (movePattern.to_ulong())
 			) {
 
-		Set(row + 1, col + 1, Side::None);
+		SetStoneInternal(row + 1, col + 1, Side::None);
 		capturedStones.emplace_back(row + 1, col + 1);
-		Set(row + 2, col + 2, Side::None);
+		SetStoneInternal(row + 2, col + 2, Side::None);
 		capturedStones.emplace_back(row + 2, col + 2);
 
 		if (WhiteMove())
@@ -324,9 +300,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row, col + 3)) == (movePattern.to_ulong())
 			) {
 
-		Set(row, col + 1, Side::None);
+		SetStoneInternal(row, col + 1, Side::None);
 		capturedStones.emplace_back(row, col + 1);
-		Set(row, col + 2, Side::None);
+		SetStoneInternal(row, col + 2, Side::None);
 		capturedStones.emplace_back(row, col + 2);
 
 		if (WhiteMove())
@@ -343,9 +319,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row - 3, col + 3)) == (movePattern.to_ulong())
 			) {
 
-		Set(row - 1, col + 1, Side::None);
+		SetStoneInternal(row - 1, col + 1, Side::None);
 		capturedStones.emplace_back(row - 1, col + 1);
-		Set(row - 2, col + 2, Side::None);
+		SetStoneInternal(row - 2, col + 2, Side::None);
 		capturedStones.emplace_back(row - 2, col + 2);
 
 		if (WhiteMove())
@@ -361,9 +337,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row - 3, col)) == (movePattern.to_ulong())
 			) {
 
-		Set(row - 1, col, Side::None);
+		SetStoneInternal(row - 1, col, Side::None);
 		capturedStones.emplace_back(row - 1, col);
-		Set(row - 2, col, Side::None);
+		SetStoneInternal(row - 2, col, Side::None);
 		capturedStones.emplace_back(row - 2, col);
 
 		if (WhiteMove())
@@ -380,9 +356,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row - 3, col - 3)) == (movePattern.to_ulong())
 			) {
 
-		Set(row - 1, col - 1, Side::None);
+		SetStoneInternal(row - 1, col - 1, Side::None);
 		capturedStones.emplace_back(row - 1, col - 1);
-		Set(row - 2, col - 2, Side::None);
+		SetStoneInternal(row - 2, col - 2, Side::None);
 		capturedStones.emplace_back(row - 2, col - 2);
 
 		if (WhiteMove())
@@ -398,9 +374,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row, col - 3)) == (movePattern.to_ulong())
 			) {
 
-		Set(row, col - 1, Side::None);
+		SetStoneInternal(row, col - 1, Side::None);
 		capturedStones.emplace_back(row, col - 1);
-		Set(row, col - 2, Side::None);
+		SetStoneInternal(row, col - 2, Side::None);
 		capturedStones.emplace_back(row, col - 2);
 
 		if (WhiteMove())
@@ -417,9 +393,9 @@ std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
 		&& int(this->At(row + 3, col - 3)) == (movePattern.to_ulong())
 			) {
 
-		Set(row + 1, col - 1, Side::None);
+		SetStoneInternal(row + 1, col - 1, Side::None);
 		capturedStones.emplace_back(row + 1, col - 1);
-		Set(row + 2, col - 2, Side::None);
+		SetStoneInternal(row + 2, col - 2, Side::None);
 		capturedStones.emplace_back(row + 2, col - 2);
 
 		if (WhiteMove())
@@ -440,12 +416,14 @@ Gomoku::Board::MoveResult Gomoku::Board:: MakeMove(int row, int col)
 
 Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 {
-	MoveResult ret = MoveResult::Default;
+	if (available_moves.find({row, col}) == available_moves.end())
+		return Board::MoveResult::WrongMove;
 
+	MoveResult ret = MoveResult::Default;
 	// Add to move history
 	moves_.emplace_back(row, col);
 	// Put stone on board
-	Set(row, col, Side(movePattern.to_ulong()));
+	SetStoneInternal(row, col, Side(movePattern.to_ulong()));
 	// Delete cell from available ones
 
 	// Make captures if exist
@@ -484,7 +462,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	if (fifthCount > 0)
 	{
 		// Form avalable ending moves
-		FindMovesBreaksFifth();
+		FindMovesBreaksFifthInternal();
 		std::cout << "move: " << Gomoku::Board::MoveToString({row, col}) << std::endl;
 		for (const auto &move: available_moves)
 			std::cout << Gomoku::Board::MoveToString(move) << ";  ";
@@ -568,7 +546,7 @@ void Gomoku::Board::Reset()
 	*this = Board();
 }
 
-void Gomoku::Board::Set(int row, int col, Gomoku::Board::Side s)
+void Gomoku::Board::SetStoneInternal(int row, int col, Gomoku::Board::Side s)
 {
 	const auto &verticle = _cToVerticles.at({row, col});
 	const auto &upline = _cToUpLines.at({row, col});
@@ -639,13 +617,13 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::Board &bs)
 
 			switch (kek) {
 				case '_':
-					bs.Set(i, j, Gomoku::Board::Side::None);
+					bs.SetStoneInternal(i, j, Gomoku::Board::Side::None);
 					break;
 				case 'X':
-					bs.Set(i, j, Gomoku::Board::Side::White);
+					bs.SetStoneInternal(i, j, Gomoku::Board::Side::White);
 					break;
 				case 'O':
-					bs.Set(i, j, Gomoku::Board::Side::Black);
+					bs.SetStoneInternal(i, j, Gomoku::Board::Side::Black);
 					break;
 			}
 		}
@@ -995,7 +973,7 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
 				int freeThreesCount = 0, newFreeThreesCount = 0;
 
 				// Pretend to make move
-				Set(i, j, Side(movePattern.to_ulong()));
+				SetStoneInternal(i, j, Side(movePattern.to_ulong()));
 
 				if (WhiteMove())
 					newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});
@@ -1008,10 +986,188 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
 					available_moves.emplace(i, j);
 
 				// Return back pretended move
-				Set(i, j, Side::None);
+				SetStoneInternal(i, j, Side::None);
 			}
 		}
 	}
+}
+
+template<typename B>
+int Gomoku::Board::CountFiguresPoints(const B &lines, const Gomoku::Board::GomokuShape &shape, int x, int y) const {
+	int ret = 0;
+
+	const auto& row_ = lines[x];
+
+	for (int i = std::max(0, y - shape.size + 1); i <= y; i++) //std::min(y + shape.size, cells_in_line - shape.size)
+	{
+		auto copy = (row_
+				<< ((cells_in_line - i - shape.size) * bits_per_cell)
+				>> ((cells_in_line - i - shape.size) * bits_per_cell)
+				>> (i * bits_per_cell));
+		if (copy == shape.data)
+			// shape in a row found!
+			ret++;
+	}
+
+	return ret;
+}
+
+template<typename B>
+int Gomoku::Board::CountFiguresEndRow(const B &lines, const Gomoku::Board::GomokuShape &shape, bool diagonal) const
+{
+	int ret = 0;
+
+	if (!diagonal)
+	{
+		for (const auto& row_ : lines)
+		{
+			auto copy = row_ >> ((cells_in_line - shape.size) * bits_per_cell);
+
+			if (copy == shape.data)
+				// shape in a row found!
+				ret++;
+		}
+	}
+	else
+	{
+		int len = shape.size;
+		int i = len-1;
+
+		for (; len < 19; len++, i++)
+		{
+			auto copy = lines[i] >> ((len - shape.size) * bits_per_cell);
+
+			if (copy == shape.data)
+				ret++;
+		}
+		for (; len > shape.size - 1; len--, i++)
+		{
+			auto copy = lines[i] >> ((len - shape.size) * bits_per_cell);
+
+			if (copy == shape.data)
+				ret++;
+		}
+	}
+
+	return ret;
+}
+
+template<typename B>
+int Gomoku::Board::CountFiguresBeginRow(const B &lines, const Gomoku::Board::GomokuShape &shape, bool diagonal) const
+{
+	int ret = 0;
+
+	if (!diagonal)
+	{
+		for (const auto& row_ : lines)
+		{
+			auto copy = (row_
+					<< ((cells_in_line - shape.size) * bits_per_cell)
+					>> ((cells_in_line - shape.size) * bits_per_cell));
+
+			if (copy == shape.data)
+				// shape in a row found!
+				ret++;
+		}
+	}
+	else
+	{
+		int len = shape.size;
+		int i = len-1;
+
+		for (; len < 19; len++, i++)
+		{
+			auto copy = (lines[i]
+					<< ((cells_in_line - shape.size) * bits_per_cell)
+					>> ((cells_in_line - shape.size) * bits_per_cell));
+
+			if (copy == shape.data)
+			{
+				std::cerr << "!!:" << i << std::endl;
+				ret++;
+			}
+
+		}
+		for (; len > shape.size - 1; len--, i++)
+		{
+			auto copy = (lines[i]
+					<< ((cells_in_line - shape.size) * bits_per_cell)
+					>> ((cells_in_line - shape.size) * bits_per_cell));
+
+			if (copy == shape.data)
+			{
+				std::cout << "!!:" << i << std::endl;
+				ret++;
+			}
+
+		}
+	}
+
+	return ret;
+}
+
+template<typename B>
+int Gomoku::Board::CountFigures(const B &lines, const Gomoku::Board::GomokuShape &shape, bool diagonal) const
+{
+	int ret = 0;
+
+	if (!diagonal)
+	{
+		for (const auto& row_ : lines)
+		{
+			for (int i = 0; i < cells_in_line - shape.size; i++)
+			{
+				auto copy = (row_
+						<< ((cells_in_line - i - shape.size) * bits_per_cell)
+						>> ((cells_in_line - i - shape.size) * bits_per_cell)
+						>> (i * bits_per_cell));
+				if (copy == shape.data)
+					// shape in a row found!
+					ret++;
+			}
+		}
+	}
+	else
+	{
+		int len = shape.size;
+		int i = len-1;
+
+		for (; len < 19; len++, i++)
+		{
+			for (int j = 0; j < len - shape.size; j++)
+			{
+				auto copy = (lines[i]
+						<< ((cells_in_line - j - shape.size) * bits_per_cell)
+						>> ((cells_in_line - j - shape.size) * bits_per_cell)
+						>> (j * bits_per_cell));
+
+
+				if (copy == shape.data)
+					ret++;
+			}
+		}
+		for (; len > shape.size - 1; len--, i++)
+		{
+			for (int j = 0; j < len - shape.size; j++)
+			{
+				auto copy = (lines[i]
+						<< ((cells_in_line - j - shape.size) * bits_per_cell)
+						>> ((cells_in_line - j - shape.size) * bits_per_cell)
+						>> (j * bits_per_cell));
+
+
+				if (copy == shape.data)
+					ret++;
+			}
+		}
+	}
+
+	return ret;
+}
+
+Gomoku::Board::Side Gomoku::Board::At(const std::string &move) const
+{
+	return At(Board::StringToMove(move).first, Board::StringToMove(move).second);
 }
 
 #pragma clang diagnostic pop

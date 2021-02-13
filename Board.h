@@ -113,11 +113,17 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_three5_b { 0b0010'1000'1001, 6 };	// XO_OO_
 		constexpr static GomokuShape figure_half_three6_b { 0b0110'0010'1000, 6 };	// _OO_OX
 
-
+		enum class Side
+		{
+			None = 0,
+			White,
+			Black
+		};
 		enum class MoveResult
 		{
 			Default,
 			Capture,
+			WrongMove,
 			WhiteWin,
 			BlackWin,
 			Draw
@@ -125,9 +131,9 @@ namespace Gomoku
 	private:
 
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
+		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
+		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
+		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
 
 		std::unordered_set<std::pair<int, int>, pairhash> available_moves;
 
@@ -148,209 +154,38 @@ namespace Gomoku
 		// History of moves
 		std::vector<std::pair<int, int>> moves_;
 
-		void FindMovesBreaksFifth();
-		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
-		MoveResult MakeMoveInternal(int row, int col);
+		void FindMovesBreaksFifthInternal();
 		void GenerateAvailableMovesInternal();
 
+		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
+		MoveResult MakeMoveInternal(int row, int col);
+
+
 		MoveResult lastMoveResult_ = MoveResult::Default;
+		void SetStoneInternal(int row, int col, Side s);
 
 	public:
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitVerticles();
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitUpLines();
-		static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> InitDownLines();
-
 		static std::string MoveToString(const std::pair<int, int> &move);
 		static std::pair<int, int> StringToMove(const std::string &s);
 
-		enum class Side
-		{
-			None = 0,
-			White,
-			Black
-		};
+
 
 		Board();
 		explicit Board(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
 
 		template<typename B>
-		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal=false) const
-		{
-			int ret = 0;
-
-			if (!diagonal)
-			{
-				for (const auto& row_ : lines)
-				{
-					for (int i = 0; i < cells_in_line - shape.size; i++)
-					{
-						auto copy = (row_
-								<< ((cells_in_line - i - shape.size) * bits_per_cell)
-								>> ((cells_in_line - i - shape.size) * bits_per_cell)
-								>> (i * bits_per_cell));
-						if (copy == shape.data)
-							// shape in a row found!
-							ret++;
-					}
-				}
-			}
-			else
-			{
-				int len = shape.size;
-				int i = len-1;
-
-				for (; len < 19; len++, i++)
-				{
-					for (int j = 0; j < len - shape.size; j++)
-					{
-						auto copy = (lines[i]
-								<< ((cells_in_line - j - shape.size) * bits_per_cell)
-								>> ((cells_in_line - j - shape.size) * bits_per_cell)
-								>> (j * bits_per_cell));
-
-
-						if (copy == shape.data)
-							ret++;
-					}
-				}
-				for (; len > shape.size - 1; len--, i++)
-				{
-					for (int j = 0; j < len - shape.size; j++)
-					{
-						auto copy = (lines[i]
-								<< ((cells_in_line - j - shape.size) * bits_per_cell)
-								>> ((cells_in_line - j - shape.size) * bits_per_cell)
-								>> (j * bits_per_cell));
-
-
-						if (copy == shape.data)
-							ret++;
-					}
-				}
-			}
-
-			return ret;
-		}
+		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
 		template<typename B>
-		int CountFiguresBeginRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const
-		{
-			int ret = 0;
-
-			if (!diagonal)
-			{
-				for (const auto& row_ : lines)
-				{
-					auto copy = (row_
-							<< ((cells_in_line - shape.size) * bits_per_cell)
-							>> ((cells_in_line - shape.size) * bits_per_cell));
-
-					if (copy == shape.data)
-						// shape in a row found!
-						ret++;
-				}
-			}
-			else
-			{
-				int len = shape.size;
-				int i = len-1;
-
-				for (; len < 19; len++, i++)
-				{
-					auto copy = (lines[i]
-							<< ((cells_in_line - shape.size) * bits_per_cell)
-							>> ((cells_in_line - shape.size) * bits_per_cell));
-
-					if (copy == shape.data)
-					{
-						std::cerr << "!!:" << i << std::endl;
-						ret++;
-					}
-
-				}
-				for (; len > shape.size - 1; len--, i++)
-				{
-					auto copy = (lines[i]
-							<< ((cells_in_line - shape.size) * bits_per_cell)
-							>> ((cells_in_line - shape.size) * bits_per_cell));
-
-					if (copy == shape.data)
-					{
-						std::cout << "!!:" << i << std::endl;
-						ret++;
-					}
-
-				}
-			}
-
-			return ret;
-		}
-
+		int CountFiguresBeginRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
 		template<typename B>
-		int CountFiguresEndRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const
-		{
-			int ret = 0;
-
-			if (!diagonal)
-			{
-				for (const auto& row_ : lines)
-				{
-					auto copy = row_ >> ((cells_in_line - shape.size) * bits_per_cell);
-
-					if (copy == shape.data)
-						// shape in a row found!
-						ret++;
-				}
-			}
-			else
-			{
-				int len = shape.size;
-				int i = len-1;
-
-				for (; len < 19; len++, i++)
-				{
-					auto copy = lines[i] >> ((len - shape.size) * bits_per_cell);
-
-					if (copy == shape.data)
-						ret++;
-				}
-				for (; len > shape.size - 1; len--, i++)
-				{
-					auto copy = lines[i] >> ((len - shape.size) * bits_per_cell);
-
-					if (copy == shape.data)
-						ret++;
-				}
-			}
-
-			return ret;
-		}
+		int CountFiguresEndRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
+		template<typename B>
+		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int x, int y) const;
 
 
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
 		[[nodiscard]] bool IsThereFigureOnBoard(const GomokuShape &shape) const;
-
-
-		template<typename B>
-		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int x, int y) const
-		{
-			int ret = 0;
-
-			const auto& row_ = lines[x];
-
-			for (int i = std::max(0, y - shape.size + 1); i <= y; i++) //std::min(y + shape.size, cells_in_line - shape.size)
-			{
-				auto copy = (row_
-						<< ((cells_in_line - i - shape.size) * bits_per_cell)
-						>> ((cells_in_line - i - shape.size) * bits_per_cell)
-						>> (i * bits_per_cell));
-				if (copy == shape.data)
-					// shape in a row found!
-					ret++;
-			}
-
-			return ret;
-		}
 
 		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
 
@@ -364,12 +199,15 @@ namespace Gomoku
 
 		bool TakeBackMove();
 
-		void Set(int row, int col, Side s);
+
 
 		[[nodiscard]] const std::vector<std::pair<int, int>>& GetMovesList() const;
 		[[nodiscard]] size_t hash() const;
 		[[nodiscard]] bool WhiteMove() const;
+
 		[[nodiscard]] Side At(int row, int col) const;
+		[[nodiscard]] Side At(const std::string& move) const;
+
 		[[nodiscard]] int GetCapturePoints(Side side) const;
 		[[nodiscard]] MoveResult GetLastMoveResult() const;
 		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
