@@ -119,7 +119,7 @@ namespace GomokuDraw
 	static int gameModeId = 0;
 
 	static const char* gameTimes[] = { "1 minute", "3 minutes", "5 minutes", "10 minutes", "15 minutes" };
-	static int gameTimeId = 0;
+	static int gameTimeId = 2;
 
 	bool Init()
 	{

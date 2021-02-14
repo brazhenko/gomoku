@@ -10,7 +10,6 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 	auto time1 = std::chrono::high_resolution_clock::now();
 
 	static int c=0;
-	PositionStats stats{};
 
 	int ret = 0;
 

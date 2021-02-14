@@ -11,17 +11,10 @@ namespace Gomoku
 {
 	class Engine {
 	public:
-		struct PositionStats
-		{
-			int Eval{};
-
-			int Captures[2];
-			int PotentialCaptures[2];
-		};
 
 		static constexpr int halfFreeFourCoef = 1;
 		static constexpr int potentialCaptureCoef = 1;
-		static constexpr int captureCoef = 1;
+		static constexpr int captureCoef = 3;
 		static constexpr int freeThreeCoef = 1;
 		static constexpr int halfFreeThreeCoef = 1;
 

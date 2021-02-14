@@ -167,6 +167,9 @@ namespace Gomoku
 		Board();
 		explicit Board(const std::vector<std::pair<int, int>> &moves);
 		void Reset();
+		bool TakeBackMove();
+
+		// Const methods
 
 		template<typename B>
 		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
@@ -191,14 +194,14 @@ namespace Gomoku
 
 		MoveResult MakeMove(int row, int col);
 
-		bool TakeBackMove();
-
 		[[nodiscard]] const std::vector<std::pair<int, int>>& GetMovesList() const;
 		[[nodiscard]] size_t hash() const;
 		[[nodiscard]] bool WhiteMove() const;
 
 		[[nodiscard]] Side At(int row, int col) const;
 		[[nodiscard]] Side At(const std::string& move) const;
+
+		[[nodiscard]] int StoneCount() const;
 
 		[[nodiscard]] int GetCapturePoints(Side side) const;
 		[[nodiscard]] MoveResult GetLastMoveResult() const;

@@ -1170,4 +1170,14 @@ Gomoku::Board::Side Gomoku::Board::At(const std::string &move) const
 	return At(Board::StringToMove(move).first, Board::StringToMove(move).second);
 }
 
+int Gomoku::Board::StoneCount() const
+{
+	int ret = 0;
+
+	for (const auto &row: board_)
+		ret += row.count();
+
+	return ret;
+}
+
 #pragma clang diagnostic pop
