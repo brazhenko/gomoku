@@ -1180,9 +1180,30 @@ int Gomoku::Board::StoneCount() const
 	return ret;
 }
 
-bool Gomoku::Board::IsCellInGameLocality(int row, int col) const
+
+bool Gomoku::Board::IsCellHasStoneNearby(int row, int col, int eps) const
 {
-	return {};
+    static constexpr board_line ones = 0b11111111111111111111111111111111111111;
+    const auto mask = ones
+            << (bits_per_line - 2*(col + 1 + eps)) >> (bits_per_line - 2*(col + 1 + eps))
+            >> (2*(col - eps)) << (2*(col - eps));
+
+//    std::cerr << mask << " " << 2*(col + 1 + eps) << std::endl;
+
+    bool ret = false;
+
+    for (
+        int i = std::max(0, row - eps);
+        i < std::min(row + eps + 1, cells_in_line);
+        i++
+        )
+    {
+        ret = (mask & board_[i]).any();
+
+        if (ret) return ret;
+    }
+
+    return ret;
 }
 
 #pragma clang diagnostic pop

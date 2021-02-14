@@ -156,7 +156,6 @@ namespace Gomoku
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
 		MoveResult MakeMoveInternal(int row, int col);
 
-
 		MoveResult lastMoveResult_ = MoveResult::Default;
 		void SetStoneInternal(int row, int col, Side s);
 
@@ -202,13 +201,12 @@ namespace Gomoku
 		[[nodiscard]] Side At(const std::string& move) const;
 
 		[[nodiscard]] int StoneCount() const;
-		[[nodiscard]] bool IsCellInGameLocality(int row, int col) const;
 
 		[[nodiscard]] int GetCapturePoints(Side side) const;
 		[[nodiscard]] MoveResult GetLastMoveResult() const;
 		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
 		[[nodiscard]] std::string ToPgnString() const;
-
+        [[nodiscard]] bool IsCellHasStoneNearby(int row, int col, int eps=1) const;
 
 		// I/O of board
 		friend std::ostream& operator<<(std::ostream& os, const Board& bs);

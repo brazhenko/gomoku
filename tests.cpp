@@ -68,18 +68,50 @@
 //   ASSERT_GT(records.size(), 0) << "There is no record left.";
 ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 
+///////////////////////////
 // Чтоб провелись тесты, надо собирать в терминале : cmake -DCMAKE_BUILD_TYPE=Debug && make
 // Нужно протестировать класс Gomoku::Board
+// Методы, кототорые считают определенное количество фигур на доске - особенно
+// Вдохновиться тестами можно здесь: https://ru.wikipedia.org/wiki/%D0%A0%D1%8D%D0%BD%D0%B4%D0%B7%D1%8E
 
 // Пример теста:
 TEST(board, test1)
 {
 	std::ifstream is("../test_files/board1.gg");
 	// Если файл не открылся, тесты надо прекращать, что логично
-	ASSERT_TRUE(is.is_open());
+    assert(is.is_open());
 
 	Gomoku::Board b1;
 	is >> b1;
-	// Если один тест не прошел, можно тестировать дальше, поэтому EXPECT
+	// Если один тест не прошел, можно тестировать дальше, поэтому EXPECT_EQ, а не ASSERT_EQ
 	EXPECT_EQ(b1.StoneCount(), 7);
+}
+
+
+TEST(board, locality)
+{
+    std::ifstream is("../test_files/board1.gg");
+    assert(is.is_open());
+
+    Gomoku::Board b1;
+    is >> b1;
+    // Если один тест не прошел, можно тестировать дальше, поэтому EXPECT
+
+    EXPECT_EQ(b1.IsCellHasStoneNearby(7, 7), true);
+    EXPECT_EQ(b1.IsCellHasStoneNearby(7, 8), true);
+}
+
+
+TEST(board, countfigures)
+{
+    std::ifstream is("../test_files/board3.gg");
+    assert(is.is_open());
+
+    Gomoku::Board b1;
+    is >> b1;
+    // Если один тест не прошел, можно тестировать дальше, поэтому EXPECT
+
+    EXPECT_EQ(b1.CountFreeThrees(Gomoku::Board::Side::White), 3);
+    EXPECT_EQ(b1.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+
 }

@@ -7,7 +7,7 @@ int main()
 {
 #if DEBUG
 	testing::InitGoogleTest();
-	if (RUN_ALL_TESTS()) return (-1);
+    (void)RUN_ALL_TESTS();
 #endif
 
 	Gomoku::Game game{};

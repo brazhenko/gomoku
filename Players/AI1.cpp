@@ -38,6 +38,9 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 
 	for (const auto &move: availableMoves)
 	{
+        if (!currentBoard.IsCellHasStoneNearby(move.first, move.second, 3)) continue;
+
+
 		auto copy = this->currentBoard;
 
 		copy.MakeMove(move.first, move.second);
