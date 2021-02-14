@@ -47,16 +47,16 @@ namespace Gomoku
 	public:
 		// Shapes to find
 		// White shapes
-		constexpr static GomokuShape figure_five_w {0b0101010101, 5};				// XXXXX
+		constexpr static GomokuShape figure_five_w {0b0101010101, 5};			// XXXXX
 		//
 		// Fours
-		constexpr static GomokuShape figure_free_four_w {0b00'01010101'00, 6};				// _XXXX_
+		constexpr static GomokuShape figure_free_four_w {0b00'01010101'00, 6};	// _XXXX_
 
-		constexpr static GomokuShape figure_half_four1_w {0b00'01010101'10, 6};				// OXXXX_
-		constexpr static GomokuShape figure_half_four2_w {0b10'01010101'00, 6};				// _XXXXO
-		constexpr static GomokuShape figure_half_four3_w {0b010101'00'01, 5};				// X_XXX
-		constexpr static GomokuShape figure_half_four4_w {0b0101'00'0101, 5};				// XX_XX
-		constexpr static GomokuShape figure_half_four5_w {0b01'00'010101, 5};				// XXX_X
+		constexpr static GomokuShape figure_half_four1_w {0b00'01010101'10, 6};	// OXXXX_
+		constexpr static GomokuShape figure_half_four2_w {0b10'01010101'00, 6};	// _XXXXO
+		constexpr static GomokuShape figure_half_four3_w {0b010101'00'01, 5};	// X_XXX
+		constexpr static GomokuShape figure_half_four4_w {0b0101'00'0101, 5};	// XX_XX
+		constexpr static GomokuShape figure_half_four5_w {0b01'00'010101, 5};	// XXX_X
 
 		constexpr static GomokuShape figure_half_four6_special_w { 0b0001010101, 5 };	// |XXXX_
 		constexpr static GomokuShape figure_half_four7_special_w { 0b0101010100, 5 };	// _XXXX|
@@ -114,17 +114,18 @@ namespace Gomoku
 			White,
 			Black
 		};
+
 		enum class MoveResult
 		{
-			Default,
+			Default = 0,
 			Capture,
 			WrongMove,
 			WhiteWin,
 			BlackWin,
 			Draw
 		};
-	private:
 
+	private:
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
 		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
 		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
@@ -191,8 +192,6 @@ namespace Gomoku
 		MoveResult MakeMove(int row, int col);
 
 		bool TakeBackMove();
-
-
 
 		[[nodiscard]] const std::vector<std::pair<int, int>>& GetMovesList() const;
 		[[nodiscard]] size_t hash() const;
