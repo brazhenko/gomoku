@@ -93,8 +93,12 @@ int main()
 
 			ImGui::End();
 		}
+
+		// Render
 		GomokuDraw::Render();
 	}
+
+	// Cleanup
 	GomokuDraw::Cleanup();
 
 	return 0;

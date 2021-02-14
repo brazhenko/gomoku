@@ -202,11 +202,13 @@ namespace Gomoku
 		[[nodiscard]] Side At(const std::string& move) const;
 
 		[[nodiscard]] int StoneCount() const;
+		[[nodiscard]] bool IsCellInGameLocality(int row, int col) const;
 
 		[[nodiscard]] int GetCapturePoints(Side side) const;
 		[[nodiscard]] MoveResult GetLastMoveResult() const;
 		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
 		[[nodiscard]] std::string ToPgnString() const;
+
 
 		// I/O of board
 		friend std::ostream& operator<<(std::ostream& os, const Board& bs);

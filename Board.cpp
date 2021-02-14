@@ -1180,4 +1180,9 @@ int Gomoku::Board::StoneCount() const
 	return ret;
 }
 
+bool Gomoku::Board::IsCellInGameLocality(int row, int col) const
+{
+	return {};
+}
+
 #pragma clang diagnostic pop

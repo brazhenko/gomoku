@@ -64,7 +64,7 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 		else
 			blackPlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
 
-		clock_.Start(board_.WhiteMove());
+		clock_.Start();
 	}
 }
 

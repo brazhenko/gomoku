@@ -34,7 +34,7 @@ Gomoku::ChessClock::ChessClock(int whiteSeconds, int blackSeconds, bool whiteMov
 		, PauseOn { true }
 {}
 
-void Gomoku::ChessClock::Start(bool WhiteTurn)
+void Gomoku::ChessClock::Start()
 {
 	PauseOn = false;
 

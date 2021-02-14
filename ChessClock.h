@@ -33,7 +33,7 @@ namespace Gomoku
 		ChessClock() = delete;
 		ChessClock(int whiteSeconds, int blackSeconds, bool whiteMove=true);
 
-		void Start(bool WhiteTurn=true);
+		void Start();
 		void Pause();
 		void Continue();
 		void Stop();
