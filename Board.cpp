@@ -1115,7 +1115,7 @@ int Gomoku::Board::CountFigures(const B &lines, const Gomoku::Board::GomokuShape
 	{
 		for (const auto& row_ : lines)
 		{
-			for (int i = 0; i < cells_in_line - shape.size; i++)
+			for (int i = 0; i <= cells_in_line - shape.size; i++)
 			{
 				auto copy = (row_
 						<< ((cells_in_line - i - shape.size) * bits_per_cell)
