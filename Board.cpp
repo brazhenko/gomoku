@@ -1160,7 +1160,7 @@ Gomoku::Board::Side Gomoku::Board::At(const std::string &move) const
 	return At(Board::StringToMove(move).first, Board::StringToMove(move).second);
 }
 
-int Gomoku::Board::StoneCount() const
+int Gomoku::Board::GetStoneCount() const
 {
 	int ret = 0;
 

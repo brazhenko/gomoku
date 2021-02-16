@@ -159,15 +159,6 @@ namespace Gomoku
 		MoveResult lastMoveResult_ = MoveResult::Default;
 		void SetStoneInternal(int row, int col, Side s);
 
-	public:
-		static std::string MoveToString(const std::pair<int, int> &move);
-		static std::pair<int, int> StringToMove(const std::string &s);
-
-		Board();
-		explicit Board(const std::vector<std::pair<int, int>> &moves);
-		void Reset();
-		bool TakeBackMove();
-
 		// Const methods
 
 		template<typename B>
@@ -179,34 +170,49 @@ namespace Gomoku
 		template<typename B>
 		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int x, int y) const;
 
+	public:
+		Board();
+		explicit Board(const std::vector<std::pair<int, int>> &moves);
+
+		void Reset();
+		bool TakeBackMove();
+		MoveResult MakeMove(int row, int col);
+
+		// Const methods
+		static std::string MoveToString(const std::pair<int, int> &move);
+		static std::pair<int, int> StringToMove(const std::string &s);
+
+
 
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
 		[[nodiscard]] bool IsThereFigureOnBoard(const GomokuShape &shape) const;
-
-		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
-
 		[[nodiscard]] int CountFreeThrees(Side side) const;
 		[[nodiscard]] int CountHalfFreeThrees(Side side) const;
 		[[nodiscard]] int CountFreeThreesLastMove(Side side, std::pair<int, int> lastMove) const;
-
 		[[nodiscard]] int CountHalfFreeFours(Side side) const;
 
-		MoveResult MakeMove(int row, int col);
+		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
 
 		[[nodiscard]] const std::vector<std::pair<int, int>>& GetMovesList() const;
+
+
 		[[nodiscard]] size_t hash() const;
 		[[nodiscard]] bool WhiteMove() const;
+		[[nodiscard]] int GetStoneCount() const;
+		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
+
 
 		[[nodiscard]] Side At(int row, int col) const;
 		[[nodiscard]] Side At(const std::string& move) const;
 
-		[[nodiscard]] int StoneCount() const;
-
 		[[nodiscard]] int GetCapturePoints(Side side) const;
 		[[nodiscard]] MoveResult GetLastMoveResult() const;
-		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
-		[[nodiscard]] std::string ToPgnString() const;
+
+
         [[nodiscard]] bool IsCellHasStoneNearby(int row, int col, int eps=1) const;
+
+
+		[[nodiscard]] std::string ToPgnString() const;
 
 		// I/O of board
 		friend std::ostream& operator<<(std::ostream& os, const Board& bs);

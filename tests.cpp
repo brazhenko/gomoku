@@ -84,7 +84,7 @@ TEST(board, test1)
 	Gomoku::Board b1;
 	is >> b1;
 	// Если один тест не прошел, можно тестировать дальше, поэтому EXPECT_EQ, а не ASSERT_EQ
-	EXPECT_EQ(b1.StoneCount(), 7);
+	EXPECT_EQ(b1.GetStoneCount(), 7);
 }
 
 

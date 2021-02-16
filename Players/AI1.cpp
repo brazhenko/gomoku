@@ -13,7 +13,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 	myMove = true;
 	availableMoves_ = availableMoves;
 
-	if (this->currentBoard.StoneCount() == 0 && (availableMoves.find(Board::StringToMove("j10")) != availableMoves.end()))
+	if (this->currentBoard.GetStoneCount() == 0 && (availableMoves.find(Board::StringToMove("j10")) != availableMoves.end()))
 	{
 		this->nextMove = {Board::StringToMove("j10").first, Board::StringToMove("j10").second};
 		return;
