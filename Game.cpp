@@ -33,7 +33,9 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 			clock_ = {100, 100, board_.WhiteMove()};
 
 		Gomoku::MakeMove_t MakeMoveWhite = [this](int row, int col) {
-			if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
+			const auto &tmp = this->board_.GetAvailableMoves();
+
+			if (std::find(tmp.begin(), tmp.end(), std::make_pair(row, col)) != tmp.end())
 			{
 				auto ret = this->board_.MakeMove(row, col);
 				this->clock_.ChangeMove();
@@ -44,7 +46,9 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 		};
 
 		Gomoku::MakeMove_t MakeMoveBlack = [this](int row, int col) {
-			if (this->board_.GetAvailableMoves().find({row, col}) != this->board_.GetAvailableMoves().end())
+			const auto &tmp = this->board_.GetAvailableMoves();
+
+			if (std::find(tmp.begin(), tmp.end(), std::make_pair(row, col)) != tmp.end())
 			{
 				auto ret = this->board_.MakeMove(row, col);
 				this->clock_.ChangeMove();

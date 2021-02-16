@@ -11,7 +11,7 @@ namespace Gomoku
 {
 	class AI1 : public IPlayer
 	{
-		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
+		std::vector<std::pair<int, int>> availableMoves_;
 
 	public:
 		explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
@@ -40,7 +40,7 @@ namespace Gomoku
 
 		int stoneCount = 0;
 
-		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override;
+		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override;
 
 		Board::MoveResult Ping() override;
 	};

@@ -22,10 +22,10 @@ namespace Gomoku
 				: IPlayer(side, std::move(MakeMove), realBoard)
 		{}
 
-		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override
+		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override
 		{
 			myMove = true;
-			availableMoves_ = availableMoves;
+			availableMoves_ = {availableMoves.begin(), availableMoves.end()};
 		}
 
 		Board::MoveResult Ping() override;

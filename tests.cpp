@@ -652,9 +652,17 @@ TEST(board, count_half_fours_random)
 	}
 }
 
-TEST(board, count_fives)
-{
-	{
+#include <chrono>
+#include <thread>
 
+
+TEST(thread, test_thread_creation)
+{
+	auto l = [](){ std::this_thread::sleep_for(std::chrono::seconds(1));  };
+
+	for (int i = 0; i < 100; i++)
+	{
+		std::thread t(l);
+		t.detach();
 	}
 }

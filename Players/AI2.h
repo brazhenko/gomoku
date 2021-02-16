@@ -20,7 +20,7 @@ namespace Gomoku
 		{}
 
 
-		void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) override;
+		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override;
 
 		Board::MoveResult Ping() override;
 	};

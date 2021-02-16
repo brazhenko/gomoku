@@ -8,6 +8,7 @@
 #include "Board.h"
 #include <vector>
 #include "PGNGame.h"
+#include <algorithm>
 
 // Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal2 lines x, y respectively)
 const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToVerticles = [](){
@@ -54,7 +55,7 @@ Gomoku::Board::Board()
 	// Этот
 	for (int i = 0; i < cells_in_line; i++)
 		for (int j = 0; j < cells_in_line; j++)
-			this->availableMoves_.emplace(i, j);
+			this->availableMoves_.emplace_back(i, j);
 
 	// Или этот
 // 	GenerateAvailableMovesInternal();
@@ -69,7 +70,7 @@ Gomoku::Board::Board(const std::vector<std::pair<int, int>> &moves)
 
 	for (const auto &move : moves)
 	{
-		if (GetAvailableMoves().find(move) == GetAvailableMoves().end()) // if move is not available
+		if (std::find(GetAvailableMoves().begin(), GetAvailableMoves().end(), move) == GetAvailableMoves().end()) // if move is not available
 		{
 			std::stringstream ss;
 
@@ -241,7 +242,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 
 			// Capture destroys five => add it to available moves list
 			if (fifthCount == 0)
-				availableMoves_.emplace(i, j);
+				availableMoves_.emplace_back(i, j);
 
 			// Return all `captured` stones back
 			for (const auto &c : captured)
@@ -414,7 +415,7 @@ Gomoku::Board::MoveResult Gomoku::Board:: MakeMove(int row, int col)
 
 Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 {
-	if (availableMoves_.find({row, col}) == availableMoves_.end())
+	if (std::find(availableMoves_.begin(), availableMoves_.end(), std::make_pair(row, col)) == availableMoves_.end())
 		return Board::MoveResult::WrongMove;
 
 	MoveResult ret = MoveResult::Default;
@@ -583,7 +584,7 @@ int Gomoku::Board::GetCapturePoints(Gomoku::Board::Side side) const
 	return -1;
 }
 
-const std::unordered_set<std::pair<int, int>, pairhash> &Gomoku::Board::GetAvailableMoves() const
+const std::vector<std::pair<int, int>> &Gomoku::Board::GetAvailableMoves() const
 {
 	return availableMoves_;
 }
@@ -959,7 +960,7 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
 				if (IsMoveCapture(i, j, movePattern))
 				{
 					// Captures always valid
-					availableMoves_.emplace(i, j);
+					availableMoves_.emplace_back(i, j);
 					continue;
 				}
 				int freeThreesCount = 0, newFreeThreesCount = 0;
@@ -975,7 +976,7 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
 				// Two or more free threes NOT produced
 				// if (!(newFreeThreesCount > freeThreesCount + 1))
 				if (newFreeThreesCount < 2)
-					availableMoves_.emplace(i, j);
+					availableMoves_.emplace_back(i, j);
 
 				// Return back pretended move
 				SetStoneInternal(i, j, Side::None);
@@ -1075,7 +1076,6 @@ int Gomoku::Board::CountFiguresBeginRow(const B &lines, const Gomoku::Board::Gom
 
 			if (copy == shape.data)
 			{
-				std::cerr << "!!:" << i << std::endl;
 				ret++;
 			}
 
@@ -1088,7 +1088,6 @@ int Gomoku::Board::CountFiguresBeginRow(const B &lines, const Gomoku::Board::Gom
 
 			if (copy == shape.data)
 			{
-				std::cout << "!!:" << i << std::endl;
 				ret++;
 			}
 

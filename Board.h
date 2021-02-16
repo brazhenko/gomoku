@@ -129,7 +129,7 @@ namespace Gomoku
 		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
 		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
 
-		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
+		std::vector<std::pair<int, int>> availableMoves_;
 
 		// Capture points of
 		int WhiteCapturePoints = 0;
@@ -199,7 +199,7 @@ namespace Gomoku
 		[[nodiscard]] size_t hash() const;
 		[[nodiscard]] bool WhiteMove() const;
 		[[nodiscard]] int GetStoneCount() const;
-		[[nodiscard]] const std::unordered_set<std::pair<int, int>, pairhash>& GetAvailableMoves() const;
+		[[nodiscard]] const std::vector<std::pair<int, int>>& GetAvailableMoves() const;
 
 
 		[[nodiscard]] Side At(int row, int col) const;

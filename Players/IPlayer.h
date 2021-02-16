@@ -48,7 +48,7 @@ namespace Gomoku
 		{
 		}
 		virtual ~IPlayer() = default;
-		virtual void YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash>& availableMoves) = 0;
+		virtual void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) = 0;
 		void NotYourTurn()
 		{
 			myMove = false;

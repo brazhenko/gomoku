@@ -7,15 +7,21 @@
 #include <map>
 #include <string>
 #include <set>
+#include <future>
 
-void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<int, int>, pairhash> &availableMoves)
+void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, int>> &availableMoves)
 {
+	auto t1 = std::chrono::high_resolution_clock::now();
+
 	myMove = true;
 	availableMoves_ = availableMoves;
 
-	if (this->currentBoard.GetStoneCount() == 0 && (availableMoves.find(Board::StringToMove("j10")) != availableMoves.end()))
+	if (this->currentBoard.GetStoneCount() == 0
+		&& (std::find(availableMoves.begin(), availableMoves.end(),
+		std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second))
+				!= availableMoves.end()))
 	{
-		this->nextMove = {Board::StringToMove("j10").first, Board::StringToMove("j10").second};
+		this->nextMove = std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second);
 		return;
 	}
 
@@ -26,46 +32,125 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 	}
 
 
-	int bestMeasure;
-	if (this->side_ == Board::Side::White)
-		bestMeasure= -100;
-	else
-		bestMeasure= +100;
+	auto ll = [this](std::vector<std::pair<int, int>>::const_iterator left,
+					 std::vector<std::pair<int, int>>::const_iterator right
+	) -> std::pair<std::pair<int, int> /* move */, int /* score */>
+	{
+		int bestMeasure;
+		if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
+		std::pair<int, int> retMove;
 
-	int c = 0;
+		for (;left != right; left++)
+		{
+			const auto &move = *left;
+
+			if (!currentBoard.IsCellHasStoneNearby(move.first, move.second, 3)) continue;
+
+			auto copy = this->currentBoard;
+
+			copy.MakeMove(move.first, move.second);
+
+			auto val = Gomoku::Engine::StaticPositionAnalize(copy);
+
+			if (score1BetterThenScore2(val, bestMeasure))
+			{
+				bestMeasure = val;
+				retMove = {move.first, move.second};
+			}
+		}
+
+		return { retMove, bestMeasure };
+	};
+
+	int countOfThreads = 0;
+
+	std::vector<std::future<std::pair<std::pair<int, int> /* move */, int /* score */>>> futures;
+
+	int tmp = availableMoves.size();
+	const int countInThread = 10;
+	if (tmp < 10)
+		countOfThreads = 1;
+	else
+		countOfThreads = tmp / countInThread + (tmp % countInThread != 0);
 
 	std::cout << currentBoard << std::endl;
 
-	for (const auto &move: availableMoves)
+
+	futures.reserve(countOfThreads);
+	for (int i = 0; i < countOfThreads; i++)
 	{
-        if (!currentBoard.IsCellHasStoneNearby(move.first, move.second, 3)) continue;
-
-
-		auto copy = this->currentBoard;
-
-		copy.MakeMove(move.first, move.second);
-
-		auto val = Gomoku::Engine::StaticPositionAnalize(copy);
-
-		if (score1BetterThenScore2(val, bestMeasure))
-		{
-			bestMeasure = val;
-			this->nextMove = {move.first, move.second};
-		}
-
-		if (val != 0)
-		{
-			std::cerr << "///////////////////" << Gomoku::Board::MoveToString(move) << ": " << val << "\n";
-			c ++;
-		}
-
-		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
+		futures.emplace_back(std::move(std::async(
+				ll, availableMoves.begin() + i * countInThread,
+				std::min(availableMoves.begin() + (i+1) * countInThread, availableMoves.end())
+				)));
 	}
 
-	std::cout << "BEST MOVE: " << Gomoku::Board::MoveToString(this->nextMove) << ", avail:" << c << std::endl;
-//	for (auto &a : s)
-//		std::cout << a << std::endl;
-	std::cout << "///////////////////" << std::endl;
+	int bestMeasure;
+	if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
+	for (int i = 0; i < countOfThreads; i++)
+	{
+		auto tmp2 = futures[i].get();
+
+		std::cout << "best " << i << " :" << Gomoku::Board::MoveToString(tmp2.first) << ", val: " << tmp2.second << std::endl;
+		if (score1BetterThenScore2(tmp2.second, bestMeasure))
+		{
+			this->nextMove = tmp2.first;
+			bestMeasure = tmp2.second;
+		}
+
+	}
+
+
+
+//	auto th1 = std::async(ll, availableMoves.begin(), availableMoves.begin() + availableMoves.size() / 2);
+//	auto th2 = std::async(ll, availableMoves.begin() + availableMoves.size() / 2, availableMoves.end());
+//
+//	auto retTh1 = th1.get();
+//	auto retTh2 = th2.get();
+//	std::cout << "BEST MOVE1: " << Gomoku::Board::MoveToString(retTh1.first) << " " << retTh1.second << std::endl;
+//	std::cout << "BEST MOVE2: " << Gomoku::Board::MoveToString(retTh2.first) << " " << retTh2.second << std::endl;
+//
+//
+//	if (score1BetterThenScore2(retTh2.second, retTh1.second))
+//	{
+//		this->nextMove = retTh2.first;
+//	}
+//	else
+//	{
+//		this->nextMove = retTh1.first;
+//	}
+
+//	int bestMeasure;
+//	if (this->side_ == Board::Side::White)
+//		bestMeasure= -100;
+//	else
+//		bestMeasure= +100;
+//	for (const auto &move: availableMoves)
+//	{
+//        if (!currentBoard.IsCellHasStoneNearby(move.first, move.second, 3)) continue;
+//
+//		auto copy = this->currentBoard;
+//
+//		copy.MakeMove(move.first, move.second);
+//
+//		auto val = Gomoku::Engine::StaticPositionAnalize(copy);
+//
+//		if (score1BetterThenScore2(val, bestMeasure))
+//		{
+//			bestMeasure = val;
+//			this->nextMove = {move.first, move.second};
+//		}
+//
+////		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
+//	}
+
+
+
+
+	auto t2 = std::chrono::high_resolution_clock::now();
+	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+	std::cout << "BEST MOVE: " << Gomoku::Board::MoveToString(this->nextMove) << ", ms elapsed: " << duration << std::endl;
 }
 
 Gomoku::Board::MoveResult Gomoku::AI1::Ping()
