@@ -5,10 +5,14 @@
 
 int main()
 {
-#if DEBUG
+//#if DEBUG
 	testing::InitGoogleTest();
     (void)RUN_ALL_TESTS();
-#endif
+# if ONLYTEST
+	return 0;
+# endif
+
+//#endif
 
 	Gomoku::Game game{};
 

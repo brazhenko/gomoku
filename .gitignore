@@ -43,7 +43,6 @@ imgui.ini
 .idea/
 cmake-build-debug/
 imgui/
-cmake-build-release/
-cmake-build-relwithdebinfo/
+cmake-build-*/
 googletest/
 .DS_Store

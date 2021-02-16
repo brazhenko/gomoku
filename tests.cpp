@@ -77,7 +77,7 @@
 // Пример теста:
 TEST(board, test1)
 {
-	std::ifstream is("../test_files/board1.gg");
+	std::ifstream is("test_files/board1.gg");
 	// Если файл не открылся, тесты надо прекращать, что логично
     assert(is.is_open());
 
@@ -90,7 +90,7 @@ TEST(board, test1)
 
 TEST(board, locality)
 {
-    std::ifstream is("../test_files/board1.gg");
+    std::ifstream is("test_files/board1.gg");
     assert(is.is_open());
 
     Gomoku::Board b1;
@@ -102,16 +102,41 @@ TEST(board, locality)
 }
 
 
-TEST(board, countfigures)
+TEST(board, count_free_threes)
 {
-    std::ifstream is("../test_files/board3.gg");
-    assert(is.is_open());
+	{
+		std::ifstream is("test_files/board3.gg");
+		assert(is.is_open());
+		Gomoku::Board b1;
+		is >> b1;
+		// Если один тест не прошел, можно тестировать дальше, поэтому EXPECT
 
-    Gomoku::Board b1;
-    is >> b1;
-    // Если один тест не прошел, можно тестировать дальше, поэтому EXPECT
+		EXPECT_EQ(b1.CountFreeThrees(Gomoku::Board::Side::White), 3);
+		EXPECT_EQ(b1.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/board4.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
 
-    EXPECT_EQ(b1.CountFreeThrees(Gomoku::Board::Side::White), 3);
-    EXPECT_EQ(b1.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 7	);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/board5.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
 
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 5);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 2);
+	}
+}
+
+TEST(board, count_fives)
+{
+	{
+
+	}
 }

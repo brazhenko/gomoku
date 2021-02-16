@@ -77,7 +77,12 @@ SET(PGNLIB_SRC
 # </PGNLIB>
 
 
-file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/textures ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_files ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
+#
+#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_files DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
+
 
 
 add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
@@ -86,7 +91,6 @@ add_executable(${PROJECT_NAME} main.cpp GomokuDraw.cpp GomokuDraw.h
         Board.cpp Board.h tests.cpp ChessClock.cpp ChessClock.h Players/IPlayer.cpp Players/IPlayer.h Players/AI1.cpp Players/AI1.h Players/Human.cpp Players/Human.h Engine.cpp Engine.h Players/AI2.cpp Players/AI2.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
-
 
 enable_testing()
 find_package(GTest REQUIRED)
@@ -110,4 +114,8 @@ add_test(
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG)
+endif()
+
+if (${ONLYTEST})
+	target_compile_definitions(${PROJECT_NAME} PUBLIC ONLYTEST=1)
 endif()

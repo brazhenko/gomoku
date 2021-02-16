@@ -607,11 +607,9 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::Board &bs)
 		>> bs.BlackCapturePoints
 		>> bs.movePattern;
 
-	std::cout << bs.WhiteCapturePoints << bs.BlackCapturePoints << bs.movePattern;
-
-	for (int i = 18; i >= 0; i--)
+	for (int i = Gomoku::Board::cells_in_line - 1; i > -1; i--)
 	{
-		for (int j = 0; j < 19; j++) {
+		for (int j = 0; j < Gomoku::Board::cells_in_line; j++) {
 			char kek;
 			is >> kek;
 
