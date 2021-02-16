@@ -716,7 +716,9 @@ bool Gomoku::Board::IsThereFigureOnBoard(const Gomoku::Board::GomokuShape &shape
 
 bool Gomoku::operator==(const Gomoku::Board &left, const Gomoku::Board &right)
 {
-    return left.board_ == right.board_;
+    return left.board_ == right.board_
+     	&& left.WhiteCapturePoints == right.WhiteCapturePoints
+     	&& left.WhiteCapturePoints == right.BlackCapturePoints;
 }
 
 Gomoku::Board::MoveResult Gomoku::Board::GetLastMoveResult() const
@@ -1124,7 +1126,7 @@ int Gomoku::Board::CountFigures(const B &lines, const Gomoku::Board::GomokuShape
 
 		for (; len < 19; len++, i++)
 		{
-			for (int j = 0; j < len - shape.size; j++)
+			for (int j = 0; j <= len - shape.size; j++)
 			{
 				auto copy = (lines[i]
 						<< ((cells_in_line - j - shape.size) * bits_per_cell)
@@ -1138,7 +1140,7 @@ int Gomoku::Board::CountFigures(const B &lines, const Gomoku::Board::GomokuShape
 		}
 		for (; len > shape.size - 1; len--, i++)
 		{
-			for (int j = 0; j < len - shape.size; j++)
+			for (int j = 0; j <= len - shape.size; j++)
 			{
 				auto copy = (lines[i]
 						<< ((cells_in_line - j - shape.size) * bits_per_cell)

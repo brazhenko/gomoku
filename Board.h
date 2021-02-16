@@ -219,10 +219,6 @@ namespace Gomoku
 		friend std::istream& operator>>(std::istream& is, Board& bs);
 
         friend bool operator==(const Gomoku::Board& left, const Gomoku::Board& right);
-
-//        ~Board(){
-//        	std::cout << __FUNCTION__  << std::endl;
-//        }
 	};
 }
 
