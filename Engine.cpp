@@ -18,16 +18,15 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 	// Edge cases
 
-	// Game ended (fifth)
-	if (bs.GetLastMoveResult() == Board::MoveResult::Draw)
 	{
-		ss << "Draw" << std::endl;
-		return 0;
+		// Game ended (fifth)
+		if (bs.GetLastMoveResult() == Board::MoveResult::Draw)
+			return 0;
+		if (bs.GetLastMoveResult() == Board::MoveResult::WhiteWin)
+			return +100;
+		if (bs.GetLastMoveResult() == Board::MoveResult::BlackWin)
+			return -100;
 	}
-	if (bs.GetLastMoveResult() == Board::MoveResult::WhiteWin)
-		return +100;
-	if (bs.GetLastMoveResult() == Board::MoveResult::BlackWin)
-		return -100;
 
 	{
 		// completed fives
@@ -42,25 +41,18 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		// free fours
 		auto b1 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_w);
 		auto b2 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_b);
-		if (b1 && b2)
-		{
-			if (bs.WhiteMove())
-				return +10;
-			return -10;
-		}
-		if (b1) return +10;
-		if (b2) return -10;
-	}
 
-	{
 		// half free and flanked fours
 		auto t1 = bs.CountHalfFreeFours(Board::Side::White);
 		auto t2 = bs.CountHalfFreeFours(Board::Side::Black);
 
-		if (bs.WhiteMove() && t1)
-			return +10;
-		if (!bs.WhiteMove() && t2)
-			return -10;
+		if (bs.WhiteMove() && (b1 || t1))
+			return +20;
+		if (!bs.WhiteMove() && (b1 || t1))
+			return -20;
+
+		if (b1) return +10;
+		if (b2) return -10;
 
 		ss << "half 4, white: " << t1 << " , black: " << t2 << std::endl;
 		ret += (t1 - t2) * halfFreeFourCoef;
