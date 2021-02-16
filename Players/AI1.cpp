@@ -59,7 +59,6 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::unordered_set<std::pair<
 			c ++;
 		}
 
-
 		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
 	}
 
