@@ -134,6 +134,126 @@ TEST(board, count_free_threes)
 	}
 }
 
+TEST(board, count_free_threes_row)
+{
+	{
+		std::ifstream is("test_files/free_threes/r1_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 1);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/r2_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 2);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/r3_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 3);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/r4_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 4);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+}
+
+TEST(board, count_free_threes_column)
+{
+	{
+		std::ifstream is("test_files/free_threes/c1_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 1);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/c2_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 2);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/c3_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 3);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/c4_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 4);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+}
+
+TEST(board, count_free_threes_diagonal)
+{
+	{
+		std::ifstream is("test_files/free_threes/d1_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 1);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/d2_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 2);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/d3_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 3);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+	{
+		std::ifstream is("test_files/free_threes/d4_0.gg");
+		assert(is.is_open());
+		Gomoku::Board b;
+		is >> b;
+
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::White), 4);
+		EXPECT_EQ(b.CountFreeThrees(Gomoku::Board::Side::Black), 0);
+	}
+}
+
 TEST(board, count_fives)
 {
 	{
