@@ -226,7 +226,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 							fifthCount += CountFigures(vertical_, figure_five_w);
 							fifthCount += CountFigures(upLines_, figure_five_w, true);
 							fifthCount += CountFigures(downLines_, figure_five_w, true);
-							WhiteCapturePoints -= (captured.size() / 2);
+							BlackCapturePoints -= (captured.size() / 2);
 						}
 						else
 						{
@@ -235,10 +235,10 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 							fifthCount += CountFigures(upLines_, figure_five_b, true);
 							fifthCount += CountFigures(downLines_, figure_five_b, true);
 
-							BlackCapturePoints -= (captured.size() / 2);
+							WhiteCapturePoints -= (captured.size() / 2);
 						}
 
-						// Capture destroys fifth
+						// Capture destroys five
 						if (fifthCount == 0)
 							availableMoves_.emplace(i, j);
 
@@ -436,30 +436,30 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 		return MoveResult::WhiteWin;
 	if (!WhiteMove() && BlackCapturePoints >= 5)
 		return MoveResult::BlackWin;
-	int fifthCount = 0;
+	int fivesCount = 0;
 
 	const auto &upC = _cToUpLines.at({row, col});
 	const auto &downC = _cToDownLines.at({row, col});
 
 	if (WhiteMove())
 	{
-		fifthCount += CountFiguresPoints(board_, figure_five_w, row, col);
-		fifthCount += CountFiguresPoints(vertical_, figure_five_w, col, row);
-		fifthCount += CountFiguresPoints(upLines_, figure_five_w, upC.first, upC.second);
-		fifthCount += CountFiguresPoints(downLines_, figure_five_w, downC.first, downC.second);
+		fivesCount += CountFiguresPoints(board_, figure_five_w, row, col);
+		fivesCount += CountFiguresPoints(vertical_, figure_five_w, col, row);
+		fivesCount += CountFiguresPoints(upLines_, figure_five_w, upC.first, upC.second);
+		fivesCount += CountFiguresPoints(downLines_, figure_five_w, downC.first, downC.second);
 	}
 	else
 	{
-		fifthCount += CountFiguresPoints(board_, figure_five_b, row, col);
-		fifthCount += CountFiguresPoints(vertical_, figure_five_b, col, row);
-		fifthCount += CountFiguresPoints(upLines_, figure_five_b, upC.first, upC.second);
-		fifthCount += CountFiguresPoints(downLines_, figure_five_b, downC.first, downC.second);
+		fivesCount += CountFiguresPoints(board_, figure_five_b, row, col);
+		fivesCount += CountFiguresPoints(vertical_, figure_five_b, col, row);
+		fivesCount += CountFiguresPoints(upLines_, figure_five_b, upC.first, upC.second);
+		fivesCount += CountFiguresPoints(downLines_, figure_five_b, downC.first, downC.second);
 	}
 
 	// Change move
 	movePattern ^= 0b11;
 
-	if (fifthCount > 0)
+	if (fivesCount > 0)
 	{
 		// Form avalable ending moves
 		FindMovesBreaksFifthInternal();
