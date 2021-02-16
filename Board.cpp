@@ -205,50 +205,49 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<i
 void Gomoku::Board::FindMovesBreaksFifthInternal()
 {
 	for (int i = 0; i < cells_in_line; i++)
-	{
 		for (int j = 0; j < cells_in_line; j++)
 		{
-			if (Side::None == At(i, j))
+			// Valid move is an empty cell
+			if (Side::None != At(i, j))
+				continue;
+
+			// Valid move can be only a capture one
+			if (!IsMoveCapture(i, j, movePattern))
+				continue;
+
+			// Pretending capture
+			auto captured = MakeCapture(i, j);
+			if (captured.empty())
+				continue;
+
+			int fifthCount = 0;
+
+			if (!WhiteMove())
 			{
-				// Check if move valid
-				if (IsMoveCapture(i, j, movePattern))
-				{
-					// Pretending capture
-					auto captured = MakeCapture(i, j);
-
-					int fifthCount = 0;
-
-					if (captured.empty())
-						continue;
-
-					if (!WhiteMove())
-					{
-						fifthCount += CountFigures(board_, figure_five_w);
-						fifthCount += CountFigures(vertical_, figure_five_w);
-						fifthCount += CountFigures(upLines_, figure_five_w, true);
-						fifthCount += CountFigures(downLines_, figure_five_w, true);
-						BlackCapturePoints -= (captured.size() / 2);
-					}
-					else
-					{
-						fifthCount += CountFigures(board_, figure_five_b);
-						fifthCount += CountFigures(vertical_, figure_five_b);
-						fifthCount += CountFigures(upLines_, figure_five_b, true);
-						fifthCount += CountFigures(downLines_, figure_five_b, true);
-						WhiteCapturePoints -= (captured.size() / 2);
-					}
-
-					// Capture destroys five => add it to available moves list
-					if (fifthCount == 0)
-						availableMoves_.emplace(i, j);
-
-					// Return all `captured` stones back
-					for (const auto &c : captured)
-						SetStoneInternal(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11U));
-				}
+				fifthCount += CountFigures(board_, figure_five_w);
+				fifthCount += CountFigures(vertical_, figure_five_w);
+				fifthCount += CountFigures(upLines_, figure_five_w, true);
+				fifthCount += CountFigures(downLines_, figure_five_w, true);
+				BlackCapturePoints -= (int(captured.size()) / 2);
 			}
+			else
+			{
+				fifthCount += CountFigures(board_, figure_five_b);
+				fifthCount += CountFigures(vertical_, figure_five_b);
+				fifthCount += CountFigures(upLines_, figure_five_b, true);
+				fifthCount += CountFigures(downLines_, figure_five_b, true);
+				WhiteCapturePoints -= (int(captured.size()) / 2);
+			}
+
+			// Capture destroys five => add it to available moves list
+			if (fifthCount == 0)
+				availableMoves_.emplace(i, j);
+
+			// Return all `captured` stones back
+			for (const auto &c : captured)
+				SetStoneInternal(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11U));
+
 		}
-	}
 }
 
 std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
