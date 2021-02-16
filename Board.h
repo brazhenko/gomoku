@@ -36,7 +36,6 @@ namespace Gomoku
 		static constexpr int cells_in_line = 19;
 		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
-	private:
 		using board_line = std::bitset<bits_per_line>;
 		struct GomokuShape
 		{
@@ -44,7 +43,6 @@ namespace Gomoku
 			int			size{};
 		};
 
-	public:
 		// Shapes to find
 		// White shapes
 		constexpr static GomokuShape figure_five_w {0b0101010101, 5};			// XXXXX
@@ -139,6 +137,7 @@ namespace Gomoku
 
 		// Normal board: array of rows, board_[1][2] == board["c2"]
 		std::array<board_line, 19> board_{};
+
 		// Twisted lines of board
 		std::array<board_line, 19> vertical_{};
 		std::array<board_line, 38> upLines_{};
@@ -150,17 +149,19 @@ namespace Gomoku
 		// History of moves
 		std::vector<std::pair<int, int>> moves_;
 
+		// Default MoveResult
+		MoveResult lastMoveResult_ = MoveResult::Default;
+
 		void FindMovesBreaksFifthInternal();
 		void GenerateAvailableMovesInternal();
 
 		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
 		MoveResult MakeMoveInternal(int row, int col);
 
-		MoveResult lastMoveResult_ = MoveResult::Default;
+
 		void SetStoneInternal(int row, int col, Side s);
 
 		// Const methods
-
 		template<typename B>
 		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
 		template<typename B>
@@ -181,7 +182,6 @@ namespace Gomoku
 		// Const methods
 		static std::string MoveToString(const std::pair<int, int> &move);
 		static std::pair<int, int> StringToMove(const std::string &s);
-
 
 
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
