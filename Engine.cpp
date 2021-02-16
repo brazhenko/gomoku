@@ -30,7 +30,16 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		return -100;
 
 	{
-		// Fours
+		// completed fives
+		auto b1 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_five_w);
+		auto b2 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_five_b);
+
+		if (b1) return +20;
+		if (b2) return -20;
+	}
+
+	{
+		// free fours
 		auto b1 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_w);
 		auto b2 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_b);
 		if (b1 && b2)
@@ -61,6 +70,12 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		// free threes
 		auto t1 = bs.CountFreeThrees(Board::Side::White);
 		auto t2 = bs.CountFreeThrees(Board::Side::Black);
+
+		if (t1 >= 2) return 8;
+		if (t2 >= 2) return -8;
+
+		if (t1 && bs.WhiteMove()) return 7;
+		if (t2 && !bs.WhiteMove()) return -7;
 
 		ss << "free 3, white: " << t1 << " , black: " << t2 << std::endl;
 		ret += (t1 - t2) * freeThreeCoef;
