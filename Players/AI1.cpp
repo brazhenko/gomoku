@@ -40,7 +40,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
 		std::pair<int, int> retMove;
 
-		for (;left != right; left++)
+		for (; left != right; left++)
 		{
 			const auto &move = *left;
 
@@ -80,9 +80,9 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	for (int i = 0; i < countOfThreads; i++)
 	{
 		futures.emplace_back(std::move(std::async(
-				ll, availableMoves.begin() + i * countInThread,
-				std::min(availableMoves.begin() + (i+1) * countInThread, availableMoves.end())
-				)));
+			ll, availableMoves.begin() + i * countInThread,
+			std::min(availableMoves.begin() + (i+1) * countInThread, availableMoves.end())
+		)));
 	}
 
 	int bestMeasure;
@@ -99,53 +99,6 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		}
 
 	}
-
-
-
-//	auto th1 = std::async(ll, availableMoves.begin(), availableMoves.begin() + availableMoves.size() / 2);
-//	auto th2 = std::async(ll, availableMoves.begin() + availableMoves.size() / 2, availableMoves.end());
-//
-//	auto retTh1 = th1.get();
-//	auto retTh2 = th2.get();
-//	std::cout << "BEST MOVE1: " << Gomoku::Board::MoveToString(retTh1.first) << " " << retTh1.second << std::endl;
-//	std::cout << "BEST MOVE2: " << Gomoku::Board::MoveToString(retTh2.first) << " " << retTh2.second << std::endl;
-//
-//
-//	if (score1BetterThenScore2(retTh2.second, retTh1.second))
-//	{
-//		this->nextMove = retTh2.first;
-//	}
-//	else
-//	{
-//		this->nextMove = retTh1.first;
-//	}
-
-//	int bestMeasure;
-//	if (this->side_ == Board::Side::White)
-//		bestMeasure= -100;
-//	else
-//		bestMeasure= +100;
-//	for (const auto &move: availableMoves)
-//	{
-//        if (!currentBoard.IsCellHasStoneNearby(move.first, move.second, 3)) continue;
-//
-//		auto copy = this->currentBoard;
-//
-//		copy.MakeMove(move.first, move.second);
-//
-//		auto val = Gomoku::Engine::StaticPositionAnalize(copy);
-//
-//		if (score1BetterThenScore2(val, bestMeasure))
-//		{
-//			bestMeasure = val;
-//			this->nextMove = {move.first, move.second};
-//		}
-//
-////		tree->children.emplace(std::make_unique<CalcNode>(std::move(copy)));
-//	}
-
-
-
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();

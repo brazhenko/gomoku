@@ -652,13 +652,6 @@ TEST(board, count_half_fours_random)
 	}
 }
 
-<<<<<<< HEAD
-#include <chrono>
-#include <thread>
-
-
-TEST(thread, test_thread_creation)
-=======
 TEST(board, count_half_threes_row)
 {
 	{
