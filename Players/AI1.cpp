@@ -8,6 +8,7 @@
 #include <string>
 #include <set>
 #include <future>
+#include <boost/heap/priority_queue.hpp>
 
 void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, int>> &availableMoves)
 {
@@ -85,8 +86,19 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		)));
 	}
 
+	const int depth = 5;
+	const int countOfBestCandididates = 3;
+
+	struct decreasingOrderMyType {
+		bool operator() (const int  lhs, int rhs) const { return lhs > rhs; }
+	};
+
+	using namespace boost::heap;
+	priority_queue<int, compare<decreasingOrderMyType>>    openList{};
+
 	int bestMeasure;
 	if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
+
 	for (int i = 0; i < countOfThreads; i++)
 	{
 		auto tmp2 = futures[i].get();
@@ -99,6 +111,15 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		}
 
 	}
+
+
+
+	for (int i = 0; i < depth; i++)
+	{
+
+	}
+
+
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -125,7 +146,7 @@ bool Gomoku::AI1::FindNext()
 	{
 		if ((*it)->state_ == currentBoard)
 		{
-			tree = std::move(tree->children.extract(it).value());
+//			tree = std::move(tree->children.extract(it).value());
 			return true;
 		}
 	}

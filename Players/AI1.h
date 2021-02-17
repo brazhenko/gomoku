@@ -28,7 +28,7 @@ namespace Gomoku
 
 			int positionScore = 0;
 			Board state_;
-			std::unordered_set<std::unique_ptr<CalcNode>> children;
+			std::vector<std::unique_ptr<CalcNode>> children;
 		};
 
 		std::unique_ptr<CalcNode> tree = std::make_unique<CalcNode>(Board{});
