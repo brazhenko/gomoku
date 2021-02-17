@@ -11,7 +11,6 @@ int main()
 # if ONLYTEST
 	return 0;
 # endif
-
 //#endif
 
 	Gomoku::Game game{};
@@ -21,6 +20,14 @@ int main()
 		std::cerr << "Cannot init GomokuDraw" << std::endl;
 		return (-1);
 	}
+
+	// To Remove
+	GomokuDraw::PrintMessage("Message longer \nthan width of this screen very very long");
+	GomokuDraw::PrintMessage("Messages");
+	GomokuDraw::PrintMessage("Printer");
+	for (int i = 0; i < 100; i++)
+		GomokuDraw::PrintMessage("Works");
+	// End Remove
 
 	// Main loop
 	while (GomokuDraw::Go())

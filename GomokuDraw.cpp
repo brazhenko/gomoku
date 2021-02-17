@@ -532,7 +532,7 @@ namespace GomokuDraw
 
 	void DrawFilesButtons(Gomoku::Game &game)
 	{
-		ImGui::Dummy(ImVec2(20.0f, 129.0f));
+		ImGui::Dummy(ImVec2(20.0f, 9.0f));
 		ImGui::BeginGroup();
 		if (ImGui::Button("save fen"))
 		{
@@ -702,7 +702,7 @@ namespace GomokuDraw
 		}
 		ImGui::EndGroup();
 		ImGui::SameLine();
-		ImGui::Dummy(ImVec2(110.0f, 1.0f));
+		ImGui::Dummy(ImVec2(60.0f, 1.0f));
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		{
@@ -728,13 +728,33 @@ namespace GomokuDraw
                     ;//ImGui::Text("%d", Gomoku::Engine::StaticPositionAnalize(game.board_));
             }
 
-
 			GomokuDraw::DrawFilesButtons(game);
+
+			if (ImGui::TreeNode("Messages"))
+		{
+			//HelpMarker("Use child windows to begin into a self-contained independent scrolling/clipping regions within a host window.");
+
+			// Child 1: no border, enable horizontal scrollbar
+			{
+				ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+				ImGui::BeginChild("ChildL", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.35f, 120), false, window_flags);
+				// for (int i = 0; i < 100; i++)
+				// 	ImGui::Text("%04d: scrollable region", i);
+
+				for (auto i = GomokuDraw::messages.begin(); i != GomokuDraw::messages.end(); ++i) 
+					ImGui::Text("%s", (*i).c_str());
+				ImGui::EndChild();
+			}
+
+			ImGui::SameLine();
+
+			ImGui::Separator();
+			ImGui::TreePop();
+		}
 		}
 
 		ImGui::PopItemWidth();
 		ImGui::EndGroup();
-
 		ImGui::End();
 	}
 
@@ -767,5 +787,10 @@ namespace GomokuDraw
 		}
 
 		ImGui::End();
+	}
+
+	void PrintMessage(std::string message)
+	{
+		GomokuDraw::messages.push_back(message);
 	}
 }

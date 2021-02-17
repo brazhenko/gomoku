@@ -19,6 +19,7 @@ namespace GomokuDraw
 
 	void DrawSome();
 
+	static std::vector<std::string> messages; 
 	std::pair<int, int> MouseCoordinatesToStonePosition(float x_, float y_);
 	std::pair<float, float> StonePositionToPrintCoorinates(std::pair<int, int> stone);
 
@@ -33,6 +34,7 @@ namespace GomokuDraw
 	void DrawSteps(Gomoku::Game &game);
 	void DrawButtons(Gomoku::Game &game);
 
+	void PrintMessage(std::string);
 	void DrawFilesButtons(Gomoku::Game &game);
 	void DrawGameMenu(Gomoku::Game &game);
 
