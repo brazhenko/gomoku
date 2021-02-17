@@ -22,6 +22,7 @@ int main()
 	}
 
 	// To Remove
+	GomokuDraw::PrintMessage("Message longer \nthan width of this screen very very long");
 	GomokuDraw::PrintMessage("Messages");
 	GomokuDraw::PrintMessage("Printer");
 	for (int i = 0; i < 100; i++)
