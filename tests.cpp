@@ -1178,3 +1178,18 @@ TEST(board, count_free_fours_random)
 		EXPECT_EQ(b.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_b), true);
 	}
 }
+
+#include <boost/heap/priority_queue.hpp>
+TEST(datastructure, 1)
+{
+
+	std::priority_queue<int>    bestMoves;
+
+	bestMoves.emplace(1);
+	bestMoves.emplace(3);
+	bestMoves.emplace(6);
+	bestMoves.emplace(6);
+
+	std::cerr << bestMoves.top() << std::endl;
+	assert(bestMoves.size() == 4);
+}

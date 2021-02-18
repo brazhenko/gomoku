@@ -120,7 +120,7 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 	static std::unordered_map<Gomoku::Board, int> m;
 
 	static std::atomic_int c = 0;
-	std::cerr << "////eval:" << c++ << "////" << std::endl;
+//	std::cerr << "////eval:" << c++ << "////" << std::endl;
 
 	if (m.find(bs) == m.end())
 	{

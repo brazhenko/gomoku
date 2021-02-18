@@ -5,10 +5,8 @@
 #include "AI1.h"
 #include "../Engine.h"
 #include <map>
-#include <string>
-#include <set>
 #include <future>
-#include <boost/heap/priority_queue.hpp>
+#include <queue>
 
 void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, int>> &availableMoves)
 {
@@ -26,20 +24,28 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		return;
 	}
 
-
 	if (!FindNext())
 	{
 		tree = std::make_unique<CalcNode>(currentBoard);
 	}
 
+	using moves_pq = std::priority_queue<
+					std::pair<Board::pcell, int>,
+					std::vector<std::pair<Board::pcell, int>>,
+					std::function<bool(const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right)>>;
 
-	auto ll = [this](std::vector<std::pair<int, int>>::const_iterator left,
-					 std::vector<std::pair<int, int>>::const_iterator right)
-				-> std::pair<Board::pcell /* move */, int /* score */>
+	auto findPerspectiveMoves = [this](std::vector<std::pair<int, int>>::const_iterator left,
+									   std::vector<std::pair<int, int>>::const_iterator right,
+									   bool max=true)
 	{
-		int bestMeasure;
-		if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
-		std::pair<int, int> retMove;
+		int bestMeasure = Min;
+
+		moves_pq perspectiveMoves([this, max](const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right) {
+				if (max)
+					return score1WorseThenScore2(left.second, right.second);
+				return score1BetterThenScore2(left.second, right.second);
+		});
+
 
 		for (; left != right; left++)
 		{
@@ -50,19 +56,15 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 			copy.MakeMove(move.first, move.second);
 
 			auto val = Gomoku::Engine::StaticPositionAnalize(copy);
-			if (score1BetterThenScore2(val, bestMeasure))
-			{
-				bestMeasure = val;
-				retMove = {move.first, move.second};
-			}
+			perspectiveMoves.emplace(move, val);
 		}
 
-		return { retMove, bestMeasure };
+		return perspectiveMoves;
 	};
 
 	int countOfThreads = 0;
 
-	std::vector<std::future<std::pair<Board::pcell /* move */, int /* score */>>> futures;
+	std::vector<std::future<moves_pq>> futures;
 
 	int tmp = availableMoves.size();
 	const int countInThread = 10;
@@ -71,49 +73,53 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	else
 		countOfThreads = tmp / countInThread + (tmp % countInThread != 0);
 
-	std::cout << currentBoard << std::endl;
-
-
 	futures.reserve(countOfThreads);
 	for (int i = 0; i < countOfThreads; i++)
 	{
 		futures.emplace_back(std::move(std::async(
-			ll, availableMoves.begin() + i * countInThread,
-			std::min(availableMoves.begin() + (i+1) * countInThread, availableMoves.end())
+				findPerspectiveMoves, availableMoves.begin() + i * countInThread,
+				std::min(availableMoves.begin() + (i+1) * countInThread, availableMoves.end())
 		)));
 	}
 
 	const int depth = 5;
 	const int countOfBestCandididates = 3;
 
-	struct decreasingOrderMyType {
-		bool operator() (const int  lhs, int rhs) const { return lhs > rhs; }
-	};
 
-	using namespace boost::heap;
-	priority_queue<int, compare<decreasingOrderMyType>>    openList{};
-
-	int bestMeasure;
-	if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
+	std::priority_queue
+		<
+			std::pair<Board::pcell, int>,
+			std::vector<std::pair<Board::pcell, int>>,
+			std::function<bool(const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right)>
+		> pq([this](const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right) {
+			return score1WorseThenScore2(left.second, right.second);
+	});
 
 	for (int i = 0; i < countOfThreads; i++)
 	{
 		auto tmp2 = futures[i].get();
 
-		std::cout << "best " << i << " :" << Gomoku::Board::MoveToString(tmp2.first) << ", val: " << tmp2.second << std::endl;
-		if (score1BetterThenScore2(tmp2.second, bestMeasure))
+		for (int j = 0; j < countOfBestCandididates && !tmp2.empty(); j++)
 		{
-			this->nextMove = tmp2.first;
-			bestMeasure = tmp2.second;
+			pq.emplace(tmp2.top());
+			tmp2.pop();
 		}
-
 	}
 
+	if (!pq.empty())
+		this->nextMove = pq.top().first;
 
 
-	for (int i = 0; i < depth; i++)
+	for (int i = 0; i < countOfBestCandididates && !pq.empty(); i++)
 	{
+		pq.top();
 
+		auto copy = this->currentBoard;
+		copy.MakeMove(pq.top().first.first, pq.top().first.second);
+
+		tree->children.emplace(std::move(copy));
+
+		pq.pop();
 	}
 
 

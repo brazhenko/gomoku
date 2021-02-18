@@ -82,6 +82,11 @@ namespace Gomoku
 			{
 				state_ = bs;
 			}
+			explicit CalcNode(Board&& bs)
+			: state_(bs)
+			{
+				std::cerr << "MOVING" << std::endl;
+			}
 
 			int positionScore = 0;
 			Board state_;
