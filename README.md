@@ -4,8 +4,16 @@ One of my quality pet-projects at `42`.
 
 ## About
 
+[`Gomoku`](https://en.wikipedia.org/wiki/Gomoku) is a strategy board games. Goal of the game is to put your 5 
+stoens in a row (It is also called Five-in-a-Row). This game has lots of variations. 
+The original one is no more applied, because first player can win the game
+[regardless of the opponent's moves](regardless of the opponent's moves).  
+
+My aim was to code game interface and an Engine for one of variations.
+
 ### Rules
 
+#### Engine
 
 ## Build
 
