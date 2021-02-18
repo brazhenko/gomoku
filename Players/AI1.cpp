@@ -34,8 +34,8 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 
 
 	auto ll = [this](std::vector<std::pair<int, int>>::const_iterator left,
-					 std::vector<std::pair<int, int>>::const_iterator right
-	) -> std::pair<std::pair<int, int> /* move */, int /* score */>
+					 std::vector<std::pair<int, int>>::const_iterator right)
+				-> std::pair<Board::pcell /* move */, int /* score */>
 	{
 		int bestMeasure;
 		if (this->side_ == Board::Side::White) bestMeasure= -100; else bestMeasure= +100;
@@ -44,15 +44,12 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		for (; left != right; left++)
 		{
 			const auto &move = *left;
-
 			if (!currentBoard.IsCellHasStoneNearby(move, 3)) continue;
 
 			auto copy = this->currentBoard;
-
 			copy.MakeMove(move.first, move.second);
 
 			auto val = Gomoku::Engine::StaticPositionAnalize(copy);
-
 			if (score1BetterThenScore2(val, bestMeasure))
 			{
 				bestMeasure = val;
@@ -65,7 +62,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 
 	int countOfThreads = 0;
 
-	std::vector<std::future<std::pair<std::pair<int, int> /* move */, int /* score */>>> futures;
+	std::vector<std::future<std::pair<Board::pcell /* move */, int /* score */>>> futures;
 
 	int tmp = availableMoves.size();
 	const int countInThread = 10;

@@ -1,13 +1,11 @@
 # gomoku
 
-## Installation
+## Build
 
 ```bash
+# Build was tested only on MacOS, clang-1100.0.33.17
 bash install_dependencies.sh
-mkdir build
-cd build
-cmake .. && make
-
+cmake -DCMAKE_BUILD_TYPE="Release" .. && make
 ```
 
 ## Usage
@@ -16,6 +14,20 @@ cmake .. && make
 ./gomoku
 ```
 
+## Docs
+```
+|- build_dir
+   |- html
+      > index.html 
+```
+
+
+
 
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
+
+
+
+
+

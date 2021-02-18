@@ -22,29 +22,14 @@ namespace Gomoku
 		MakeMove_t MakeMove_;
 		bool myMove = false;
 
-		static auto cmpIntializer(Board::Side side)
-		{
-			std::function<bool(int score1, int score2)> ret;
 
-			if (side == Board::Side::White)
-				ret = [](int left, int right){ return left > right; };
-			else if (side == Board::Side::Black)
-				ret =  [](int left, int right){ return left < right; };
-			else
-				throw std::runtime_error("wrong side in cmpIntializer");
-
-			return ret;
-		}
-
-		std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		const Gomoku::Board &currentBoard;
 	public:
 
 		explicit IPlayer(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
-		: side_{side}
-		, MakeMove_{std::move(MakeMove)}
-		, score1BetterThenScore2(cmpIntializer(side))
-		, currentBoard(realBoard)
+		: side_{ side }
+		, MakeMove_{ std::move(MakeMove) }
+		, currentBoard( realBoard )
 		{
 		}
 		virtual ~IPlayer() = default;
@@ -57,8 +42,11 @@ namespace Gomoku
 		virtual Board::MoveResult Ping() = 0;
 	};
 
-
-	std::unique_ptr<Gomoku::IPlayer> PlayerFactory(const std::string& name, Gomoku::Board::Side side, const Gomoku::MakeMove_t& MakeMove, const Gomoku::Board &bs);
+	std::unique_ptr<Gomoku::IPlayer> PlayerFactory(
+			const std::string& name,
+			Gomoku::Board::Side side,
+			const Gomoku::MakeMove_t& MakeMove,
+			const Gomoku::Board &bs);
 }
 
 

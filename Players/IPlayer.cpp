@@ -3,11 +3,9 @@
 //
 
 #include "IPlayer.h"
+#include "Human.h"
 #include "AI1.h"
 #include "AI2.h"
-#include "Human.h"
-
-#include <string>
 
 std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 		const std::string& name,
