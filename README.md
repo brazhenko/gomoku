@@ -1,6 +1,6 @@
 # gomoku
 
-One of my quality pet-projects at `42`. 
+One of my quality pet-projects at `42` written in C++17. 
 
 ## About
 
@@ -11,7 +11,7 @@ The original one is no more applied, because first player can win the game
 
 My aim was to code game interface and an Engine for one of variations.
 
-### Rules
+#### Rules
 
 #### Engine
 
@@ -37,6 +37,8 @@ cmake -DCMAKE_BUILD_TYPE="Release" . && make
 ```
 
 ## Screenshots
+
+![example 2](resourses/gomoku1.png)
 
 
 ## License
