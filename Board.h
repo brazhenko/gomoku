@@ -37,6 +37,8 @@ namespace Gomoku
 		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
 		using board_line = std::bitset<bits_per_line>;
+		using pcell = std::pair<int, int>; // cell coordinate pair, {row, col}
+
 		struct GomokuShape
 		{
 			board_line 	data;
@@ -125,11 +127,11 @@ namespace Gomoku
 
 	private:
 		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
-		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToVerticles;
-		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToUpLines;
-		const static std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> _cToDownLines;
+		const static std::unordered_map<pcell, pcell, pairhash> _cToVerticles;
+		const static std::unordered_map<pcell, pcell, pairhash> _cToUpLines;
+		const static std::unordered_map<pcell, pcell, pairhash> _cToDownLines;
 
-		std::vector<std::pair<int, int>> availableMoves_;
+		std::vector<pcell> availableMoves_;
 
 		// Capture points of
 		int WhiteCapturePoints = 0;
@@ -147,7 +149,7 @@ namespace Gomoku
 		board_line movePattern { 0b01 };
 
 		// History of moves
-		std::vector<std::pair<int, int>> moves_;
+		std::vector<pcell> moves_;
 
 		// Default MoveResult
 		MoveResult lastMoveResult_ = MoveResult::Default;
@@ -155,7 +157,7 @@ namespace Gomoku
 		void FindMovesBreaksFifthInternal();
 		void GenerateAvailableMovesInternal();
 
-		std::vector<std::pair<int, int>> MakeCapture(int row, int col);
+		std::vector<pcell> MakeCapture(int row, int col);
 		MoveResult MakeMoveInternal(int row, int col);
 
 
@@ -173,33 +175,33 @@ namespace Gomoku
 
 	public:
 		Board();
-		explicit Board(const std::vector<std::pair<int, int>> &moves);
+		explicit Board(const std::vector<pcell> &moves);
 
 		void Reset();
 		bool TakeBackMove();
 		MoveResult MakeMove(int row, int col);
 
 		// Const methods
-		static std::string MoveToString(const std::pair<int, int> &move);
-		static std::pair<int, int> StringToMove(const std::string &s);
+		static std::string MoveToString(const pcell &move);
+		static pcell StringToMove(const std::string &s);
 
 
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
 		[[nodiscard]] bool IsThereFigureOnBoard(const GomokuShape &shape) const;
 		[[nodiscard]] int CountFreeThrees(Side side) const;
 		[[nodiscard]] int CountHalfFreeThrees(Side side) const;
-		[[nodiscard]] int CountFreeThreesLastMove(Side side, std::pair<int, int> lastMove) const;
+		[[nodiscard]] int CountFreeThreesLastMove(Side side, pcell lastMove) const;
 		[[nodiscard]] int CountHalfFreeFours(Side side) const;
 
 		[[nodiscard]] bool IsMoveCapture(int row, int col, board_line s) const;
 
-		[[nodiscard]] const std::vector<std::pair<int, int>>& GetMovesList() const;
+		[[nodiscard]] const std::vector<pcell>& GetMovesList() const;
 
 
 		[[nodiscard]] size_t hash() const;
 		[[nodiscard]] bool WhiteMove() const;
 		[[nodiscard]] int GetStoneCount() const;
-		[[nodiscard]] const std::vector<std::pair<int, int>>& GetAvailableMoves() const;
+		[[nodiscard]] const std::vector<pcell>& GetAvailableMoves() const;
 
 
 		[[nodiscard]] Side At(int row, int col) const;
@@ -231,7 +233,5 @@ namespace std {
 		}
 	};
 }
-
-
 
 #endif //GOMOKU_BOARD_H

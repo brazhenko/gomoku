@@ -11,8 +11,8 @@
 #include <algorithm>
 
 // Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal2 lines x, y respectively)
-const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToVerticles = [](){
-	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> Gomoku::Board::_cToVerticles = [](){
+	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> ret;
 	for (int j = 0; j < cells_in_line; j++)
 		for (int i = 0; i < cells_in_line; i++)
 			ret.insert({{i, j}, {j, i}});
@@ -20,8 +20,8 @@ const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gom
 	return ret;
 }();
 
-const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToUpLines = [](){
-	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> Gomoku::Board::_cToUpLines = [](){
+	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> ret;
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
 	for (int line = 1; line <= diagonal_count; line++)
 	{
@@ -34,8 +34,8 @@ const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gom
 	return ret;
 }();
 
-const std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> Gomoku::Board::_cToDownLines = [](){
-	std::unordered_map<std::pair<int, int>, std::pair<int, int>, pairhash> ret;
+const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> Gomoku::Board::_cToDownLines = [](){
+	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> ret;
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
 	for (int line = 1; line <= diagonal_count; line++)
 	{
@@ -62,7 +62,7 @@ Gomoku::Board::Board()
 }
 
 
-Gomoku::Board::Board(const std::vector<std::pair<int, int>> &moves)
+Gomoku::Board::Board(const std::vector<Gomoku::Board::pcell> &moves)
 	// Construct default board
 	: Board()
 {
@@ -135,7 +135,7 @@ bool Gomoku::Board::IsMoveCapture(int row, int col, Gomoku::Board::board_line mv
 			);
 }
 
-int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, std::pair<int, int> lastMove) const
+int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Board::pcell lastMove) const
 {
 	int freeThreesCount = 0;
 
@@ -251,9 +251,9 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 		}
 }
 
-std::vector<std::pair<int, int>> Gomoku::Board::MakeCapture(int row, int col)
+std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(int row, int col)
 {
-	std::vector<std::pair<int, int>> capturedStones;
+	std::vector<pcell> capturedStones;
 
 	// capture pair up
 	if (row + 3 < 19
@@ -584,7 +584,7 @@ int Gomoku::Board::GetCapturePoints(Gomoku::Board::Side side) const
 	return -1;
 }
 
-const std::vector<std::pair<int, int>> &Gomoku::Board::GetAvailableMoves() const
+const std::vector<Gomoku::Board::pcell> &Gomoku::Board::GetAvailableMoves() const
 {
 	return availableMoves_;
 }
@@ -658,14 +658,14 @@ bool Gomoku::Board::WhiteMove() const
 	return movePattern == 0b01;
 }
 
-const std::vector<std::pair<int, int>> &Gomoku::Board::GetMovesList() const
+const std::vector<Gomoku::Board::pcell> &Gomoku::Board::GetMovesList() const
 {
 	return this->moves_;
 }
 
-std::pair<int, int> Gomoku::Board::StringToMove(const std::string &s)
+Gomoku::Board::pcell Gomoku::Board::StringToMove(const std::string &s)
 {
-	std::pair<int, int> ret;
+    pcell ret;
 
 	ret.second = s[0] - 'a';
 
@@ -674,7 +674,7 @@ std::pair<int, int> Gomoku::Board::StringToMove(const std::string &s)
 	return ret;
 }
 
-std::string Gomoku::Board::MoveToString(const std::pair<int, int> &move)
+std::string Gomoku::Board::MoveToString(const pcell &move)
 {
 	std::stringstream ss;
 	static const char *letters = "abcdefghijklmnopqrs";
