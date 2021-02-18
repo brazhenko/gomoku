@@ -45,7 +45,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		{
 			const auto &move = *left;
 
-			if (!currentBoard.IsCellHasStoneNearby(move.first, move.second, 3)) continue;
+			if (!currentBoard.IsCellHasStoneNearby(move, 3)) continue;
 
 			auto copy = this->currentBoard;
 

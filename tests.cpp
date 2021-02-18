@@ -97,8 +97,8 @@ TEST(board, locality)
     is >> b1;
     // Если один тест не прошел, можно тестировать дальше, поэтому EXPECT
 
-    EXPECT_EQ(b1.IsCellHasStoneNearby(7, 7), true);
-    EXPECT_EQ(b1.IsCellHasStoneNearby(7, 8), true);
+    EXPECT_EQ(b1.IsCellHasStoneNearby({7, 7}), true);
+    EXPECT_EQ(b1.IsCellHasStoneNearby({7, 8}), true);
 }
 
 

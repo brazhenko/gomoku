@@ -217,7 +217,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				continue;
 
 			// Pretending capture
-			auto captured = MakeCapture(i, j);
+			auto captured = MakeCapture({i, j});
 			if (captured.empty())
 				continue;
 
@@ -251,9 +251,10 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 		}
 }
 
-std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(int row, int col)
+std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 {
 	std::vector<pcell> capturedStones;
+    const int row = move.first, col = move.second;
 
 	// capture pair up
 	if (row + 3 < 19
@@ -426,7 +427,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	// Delete cell from available ones
 
 	// Make captures if exist
-	if (!MakeCapture(row, col).empty())
+	if (!MakeCapture({row, col}).empty())
 		ret = MoveResult::Capture;
 
 	availableMoves_ = {};
@@ -1172,14 +1173,15 @@ int Gomoku::Board::GetStoneCount() const
 }
 
 
-bool Gomoku::Board::IsCellHasStoneNearby(int row, int col, int eps) const
+bool Gomoku::Board::IsCellHasStoneNearby(pcell cell, int eps) const
 {
     static constexpr board_line ones = 0b11111111111111111111111111111111111111;
+
+    const int row = cell.first, col = cell.second;
     const auto mask = ones
             << (bits_per_line - 2*(col + 1 + eps)) >> (bits_per_line - 2*(col + 1 + eps))
             >> (2*(col - eps)) << (2*(col - eps));
 
-//    std::cerr << mask << " " << 2*(col + 1 + eps) << std::endl;
 
     bool ret = false;
 

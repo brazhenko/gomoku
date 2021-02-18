@@ -157,7 +157,7 @@ namespace Gomoku
 		void FindMovesBreaksFifthInternal();
 		void GenerateAvailableMovesInternal();
 
-		std::vector<pcell> MakeCapture(int row, int col);
+		std::vector<pcell> MakeCapture(pcell move);
 		MoveResult MakeMoveInternal(int row, int col);
 
 
@@ -211,7 +211,7 @@ namespace Gomoku
 		[[nodiscard]] MoveResult GetLastMoveResult() const;
 
 
-        [[nodiscard]] bool IsCellHasStoneNearby(int row, int col, int eps=1) const;
+        [[nodiscard]] bool IsCellHasStoneNearby(pcell cell, int eps=1) const;
 
 
 		[[nodiscard]] std::string ToPgnString() const;
