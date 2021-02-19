@@ -78,7 +78,7 @@ Gomoku::Board::Board(const std::vector<Gomoku::Board::pcell> &moves)
 			throw std::runtime_error(ss.str());
 		}
 
-		this->MakeMove(move.first, move.second);
+		this->MakeMove(move);
 	}
 
 	auto t2 = std::chrono::high_resolution_clock::now();
@@ -407,9 +407,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	return capturedStones;
 }
 
-Gomoku::Board::MoveResult Gomoku::Board:: MakeMove(int row, int col)
+Gomoku::Board::MoveResult Gomoku::Board::MakeMove(pcell move)
 {
-	auto ret = MakeMoveInternal(row, col);
+	auto ret = MakeMoveInternal(move.first, move.second);
 	this->lastMoveResult_ = ret;
 	return ret;
 }

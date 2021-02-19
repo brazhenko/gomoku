@@ -179,7 +179,7 @@ namespace Gomoku
 
 		void Reset();
 		bool TakeBackMove();
-		MoveResult MakeMove(int row, int col);
+		MoveResult MakeMove(pcell move);
 
 		// Const methods
 		static std::string MoveToString(const pcell &move);

@@ -30,20 +30,20 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	}
 
 	using moves_pq = std::priority_queue<
-					std::pair<Board::pcell, int>,
-					std::vector<std::pair<Board::pcell, int>>,
-					std::function<bool(const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right)>>;
+					std::pair<Board, int>,
+					std::vector<std::pair<Board, int>>,
+					std::function<bool(const std::pair<Board, int> &left, const std::pair<Board, int> &right)>>;
 
-	auto findPerspectiveMoves = [this](std::vector<std::pair<int, int>>::const_iterator left,
-									   std::vector<std::pair<int, int>>::const_iterator right,
-									   bool max=true)
+
+	auto findPerspectiveMoves = [this](std::vector<Board::pcell>::const_iterator left,
+									   std::vector<Board::pcell>::const_iterator right,
+									   bool max = true)
 	{
-		int bestMeasure = Min;
-
-		moves_pq perspectiveMoves([this, max](const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right) {
-				if (max)
-					return score1WorseThenScore2(left.second, right.second);
-				return score1BetterThenScore2(left.second, right.second);
+		moves_pq perspectiveMoves([this, max]
+		        (const std::pair<Board, int> &left, const std::pair<Board, int> &right)
+        {
+                return score1WorseThenScore2(left.second, right.second);
+//				return score1BetterThenScore2(left.second, right.second);
 		});
 
 
@@ -53,13 +53,13 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 			if (!currentBoard.IsCellHasStoneNearby(move, 3)) continue;
 
 			auto copy = this->currentBoard;
-			copy.MakeMove(move.first, move.second);
-
+			copy.MakeMove(move);
 			auto val = Gomoku::Engine::StaticPositionAnalize(copy);
-			perspectiveMoves.emplace(move, val);
+
+			perspectiveMoves.emplace(std::move(copy), val);
 		}
 
-		return perspectiveMoves;
+        return perspectiveMoves;
 	};
 
 	int countOfThreads = 0;
@@ -67,7 +67,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	std::vector<std::future<moves_pq>> futures;
 
 	int tmp = availableMoves.size();
-	const int countInThread = 10;
+	const int countInThread = 30;
 	if (tmp < 10)
 		countOfThreads = 1;
 	else
@@ -86,38 +86,41 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	const int countOfBestCandididates = 3;
 
 
-	std::priority_queue
-		<
-			std::pair<Board::pcell, int>,
-			std::vector<std::pair<Board::pcell, int>>,
-			std::function<bool(const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right)>
-		> pq([this](const std::pair<Board::pcell, int> &left, const std::pair<Board::pcell, int> &right) {
+    moves_pq pq([this](const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
 			return score1WorseThenScore2(left.second, right.second);
 	});
 
-	for (int i = 0; i < countOfThreads; i++)
+    for (int i = 0; i < countOfThreads; i++)
 	{
 		auto tmp2 = futures[i].get();
 
 		for (int j = 0; j < countOfBestCandididates && !tmp2.empty(); j++)
 		{
 			pq.emplace(tmp2.top());
+
 			tmp2.pop();
 		}
 	}
 
-	if (!pq.empty())
-		this->nextMove = pq.top().first;
+
+	if (!pq.empty() && !pq.top().first.GetMovesList().empty())
+    {
+        this->nextMove = pq.top().first.GetMovesList().back();
+        std::cout << "MOVE:" << Board::MoveToString(pq.top().first.GetMovesList().back()) << std::endl;
+    }
+	else
+    {
+	    std::cout << "NOT FOUND" << std::endl;
+    }
 
 
 	for (int i = 0; i < countOfBestCandididates && !pq.empty(); i++)
 	{
-		pq.top();
-
-		auto copy = this->currentBoard;
-		copy.MakeMove(pq.top().first.first, pq.top().first.second);
-
-		tree->children.emplace(std::move(copy));
+		tree->children.emplace_back(
+		        std::make_unique<CalcNode>(
+		                std::move(const_cast<Gomoku::Board&>(pq.top().first))
+		                )
+		                );
 
 		pq.pop();
 	}
@@ -126,8 +129,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-
-	std::cout << "BEST MOVE: " << Gomoku::Board::MoveToString(this->nextMove) << ", ms elapsed: " << duration << std::endl;
+    std::cout << "BEST MOVE: " << Gomoku::Board::MoveToString(this->nextMove) << ", ms elapsed: " << duration << std::endl;
 }
 
 Gomoku::Board::MoveResult Gomoku::AI1::Ping()

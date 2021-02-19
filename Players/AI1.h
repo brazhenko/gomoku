@@ -11,7 +11,7 @@ namespace Gomoku
 {
 	class AI1 : public IPlayer
 	{
-		std::vector<std::pair<int, int>> availableMoves_;
+		std::vector<Board::pcell> availableMoves_;
 
 	public:
 		static auto lessIntializer(Board::Side side)
@@ -84,16 +84,16 @@ namespace Gomoku
 			}
 			explicit CalcNode(Board&& bs)
 			: state_(bs)
-			{
-				std::cerr << "MOVING" << std::endl;
-			}
+			{}
 
 			int positionScore = 0;
 			Board state_;
-			std::vector<std::unique_ptr<CalcNode>> children;
+
+            std::weak_ptr<CalcNode> parent;
+			std::vector<std::shared_ptr<CalcNode>> children;
 		};
 
-		std::unique_ptr<CalcNode> tree = std::make_unique<CalcNode>(Board{});
+		std::shared_ptr<CalcNode> tree = std::make_shared<CalcNode>(Board{});
 
 		bool FindNext();
 

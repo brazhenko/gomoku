@@ -37,7 +37,7 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 
 			if (std::find(tmp.begin(), tmp.end(), std::make_pair(row, col)) != tmp.end())
 			{
-				auto ret = this->board_.MakeMove(row, col);
+				auto ret = this->board_.MakeMove({row, col});
 				this->clock_.ChangeMove();
 				this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 				return ret;
@@ -50,7 +50,7 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 
 			if (std::find(tmp.begin(), tmp.end(), std::make_pair(row, col)) != tmp.end())
 			{
-				auto ret = this->board_.MakeMove(row, col);
+				auto ret = this->board_.MakeMove({row, col});
 				this->clock_.ChangeMove();
 				this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
 				return ret;
