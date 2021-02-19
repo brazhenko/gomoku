@@ -40,6 +40,9 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 									   const std::shared_ptr<CalcNode>& node,
 									   bool max = true)
 	{
+//		auto t1 = std::chrono::high_resolution_clock::now();
+
+
 		moves_pq perspectiveMoves([this, &node]
 		        (const std::pair<Board, int> &left, const std::pair<Board, int> &right)
         {
@@ -60,10 +63,14 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 			perspectiveMoves.emplace(std::move(copy), val);
 		}
 
+//		auto t2 = std::chrono::high_resolution_clock::now();
+//		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+//		std::cout << "ONE: "  << duration << std::endl;
+
         return perspectiveMoves;
 	};
 
-	const int depth = 4;
+	const int depth = 3;
 	const int countOfBestCandididates = 2;
 
 	int countOfThreads = 0;
@@ -176,10 +183,8 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 			}
 		}
 
-
 		for (int i = 0; i < countOfBestCandididates && !pq2.empty(); i++)
 		{
-
 			t.front().second->children_.emplace_back(std::make_shared<CalcNode>(
 					std::move(const_cast<Gomoku::Board&>(pq2.top().first)),
 					t.front().second));
