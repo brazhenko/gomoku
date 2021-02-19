@@ -5,13 +5,15 @@
 #ifndef GOMOKU_AI1_H
 #define GOMOKU_AI1_H
 
+#include <utility>
+
 #include "IPlayer.h"
 
 namespace Gomoku
 {
 	class AI1 : public IPlayer
 	{
-		std::vector<Board::pcell> availableMoves_;
+//		std::vector<Board::pcell> availableMoves_;
 
 	public:
 		static auto lessIntializer(Board::Side side)
@@ -78,22 +80,24 @@ namespace Gomoku
 		struct CalcNode
 		{
 			CalcNode() = delete;
-			explicit CalcNode(const Board& bs)
+			explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent)
+			: parent_(std::move(parent))
 			{
 				state_ = bs;
 			}
-			explicit CalcNode(Board&& bs)
+			explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent)
 			: state_(bs)
+			, parent_(std::move(parent))
 			{}
 
 			int positionScore = 0;
 			Board state_;
 
-            std::weak_ptr<CalcNode> parent;
-			std::vector<std::shared_ptr<CalcNode>> children;
+            const std::weak_ptr<CalcNode> parent_;
+			std::vector<std::shared_ptr<CalcNode>> children_;
 		};
 
-		std::shared_ptr<CalcNode> tree = std::make_shared<CalcNode>(Board{});
+		std::shared_ptr<CalcNode> tree = std::make_shared<CalcNode>(Board{}, std::weak_ptr<CalcNode>());
 
 		bool FindNext();
 
