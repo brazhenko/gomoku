@@ -19,6 +19,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 
 
 	myMove = true;
+	this->nextMove = availableMoves.front();
 
 	if (this->currentBoard.GetStoneCount() == 0
 		&& (std::find(availableMoves.begin(), availableMoves.end(),
@@ -34,56 +35,50 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>());
 	}
 
+	const int depth = 7;
+	const int countOfBestCandididates = 3;
 
 	auto findPerspectiveMoves = [this](std::vector<Board::pcell>::const_iterator left,
 									   std::vector<Board::pcell>::const_iterator right,
 									   const std::shared_ptr<CalcNode>& node,
 									   bool max = true)
 	{
-//		auto t1 = std::chrono::high_resolution_clock::now();
-
 		std::vector<std::pair<Board, int>> pm;
-
-		moves_pq perspectiveMoves([this, &node]
-		        (const std::pair<Board, int> &left, const std::pair<Board, int> &right)
-        {
-
-			return score1WorseThenScore2(left.second, right.second);
-		});
-
+		pm.reserve(right - left);
 
 		for (; left != right; left++)
 		{
 			const auto &move = *left;
-			if (!node->state_.IsCellHasStoneNearby(move, 3)) continue;
+			if (!node->state_.IsCellHasStoneNearby(move, 2)) continue;
 
 			auto copy = node->state_;
 			copy.MakeMove(move);
 			auto val = Gomoku::Engine::StaticPositionAnalize(copy);
 
-			perspectiveMoves.emplace(std::move(copy), val);
+			pm.emplace_back(std::move(copy), val);
 
 		}
 
-//		auto t2 = std::chrono::high_resolution_clock::now();
-//		auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-//		std::cout << "ONE: "  << duration << std::endl;
+		std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates, pm.end()), pm.end(),
+		[this, &node]
+			(const std::pair<Board, int> &left, const std::pair<Board, int> &right)
+			{
+				return score1BetterThenScore2(left.second, right.second);
+			});
 
-        return perspectiveMoves;
+        return pm;
 	};
 
-	const int depth = 3;
-	const int countOfBestCandididates = 2;
+
 
 	int countOfThreads = 0;
-	std::vector<std::future<moves_pq>> futures;
+	std::vector<std::future<std::vector<std::pair<Board, int>>>> futures;
 
 	int tmp = availableMoves.size();
-	const int countInThread = 30;
-	if (tmp < 10)
-		countOfThreads = 1;
-	else
-		countOfThreads = tmp / countInThread + (tmp % countInThread != 0);
+	const int countInThread = 60;
+
+	if (tmp < 10) countOfThreads = 1;
+	else countOfThreads = tmp / countInThread + (tmp % countInThread != 0);
 
 	futures.reserve(countOfThreads);
 	for (int i = 0; i < countOfThreads; i++)
@@ -105,13 +100,13 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	{
 		auto tmp2 = futures[i].get();
 
-		for (int j = 0; j < countOfBestCandididates && !tmp2.empty(); j++)
+		for (int j = 0; j < countOfBestCandididates && j < tmp2.size(); j++)
 		{
-			pq.emplace(tmp2.top());
-
-			tmp2.pop();
+			pq.emplace(tmp2[j]);
 		}
 	}
+
+    std::cout << "PQ:" << pq.size() << std::endl;
 
 
 	if (!pq.empty() && !pq.top().first.GetMovesList().empty())
@@ -145,11 +140,11 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		t.pop();
 	}
 
-	while (t.front().first < depth + currentBoard.GetMovesList().size())
+	while (t.front().first < depth && !	t.empty()) // + currentBoard.GetMovesList().size())
 	{
 		std::cout << "get: " << t.front().first << ", :" << t.size() << std::endl;
 
-		std::vector<std::future<moves_pq>> futures2;
+		std::vector<std::future<std::vector<std::pair<Board, int>>>> futures2;
 
 		const auto &avlMoves = t.front().second->state_.GetAvailableMoves();
 
@@ -178,10 +173,9 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		{
 			auto tmp22 = futures2[i].get();
 
-			for (int j = 0; j < countOfBestCandididates && !tmp22.empty(); j++)
+			for (int j = 0; j < countOfBestCandididates && j < tmp22.size(); j++)
 			{
-				pq2.emplace(tmp22.top());
-				tmp22.pop();
+				pq2.emplace((tmp22[j]));
 			}
 		}
 
@@ -221,10 +215,12 @@ bool Gomoku::AI1::FindNext()
 	{
 		if ((*it)->state_ == currentBoard)
 		{
-//			tree = std::move(tree->children.extract(it).value());
+
+			tree = *it;
 			return true;
 		}
 	}
 
 	return false;
 }
+

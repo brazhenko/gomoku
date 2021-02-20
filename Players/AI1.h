@@ -6,15 +6,14 @@
 #define GOMOKU_AI1_H
 
 #include <utility>
-
+#include <mutex>
+#include <atomic>
 #include "IPlayer.h"
 
 namespace Gomoku
 {
 	class AI1 : public IPlayer
 	{
-//		std::vector<Board::pcell> availableMoves_;
-
 	public:
 		static auto lessIntializer(Board::Side side)
 		{
@@ -42,7 +41,6 @@ namespace Gomoku
 
 			return ret;
 		}
-
 		static auto minInitializer(Board::Side side)
 		{
 			if (Board::Side::White == side)
@@ -61,7 +59,6 @@ namespace Gomoku
 
 			throw std::runtime_error("wrong side in minInitializer");
 		}
-
 
 		std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
