@@ -42,6 +42,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	{
 //		auto t1 = std::chrono::high_resolution_clock::now();
 
+		std::vector<std::pair<Board, int>> pm;
 
 		moves_pq perspectiveMoves([this, &node]
 		        (const std::pair<Board, int> &left, const std::pair<Board, int> &right)
@@ -61,6 +62,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 			auto val = Gomoku::Engine::StaticPositionAnalize(copy);
 
 			perspectiveMoves.emplace(std::move(copy), val);
+
 		}
 
 //		auto t2 = std::chrono::high_resolution_clock::now();
