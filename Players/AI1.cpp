@@ -21,6 +21,22 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	myMove = true;
 	this->nextMove = availableMoves.front();
 
+	if (!FindNext())
+	{
+		tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>());
+	}
+
+
+	{
+		std::lock_guard<std::mutex> lg(jobs_mtx_);
+		// Empty queue
+		std::queue<int> empty;
+		std::swap(empty, jobs_);
+
+		jobs_.push(1);
+	}
+
+
 	if (this->currentBoard.GetStoneCount() == 0
 		&& (std::find(availableMoves.begin(), availableMoves.end(),
 		std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second))
@@ -30,10 +46,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 		return;
 	}
 
-	if (!FindNext())
-	{
-		tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>());
-	}
+
 
 	const int depth = 7;
 	const int countOfBestCandididates = 3;
@@ -120,77 +133,77 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
     }
 
 
-	for (int i = 0; i < countOfBestCandididates && !pq.empty(); i++)
-	{
-		tree->children_.emplace_back(std::make_shared<CalcNode>(
-				std::move(const_cast<Gomoku::Board&>(pq.top().first)),
-				std::weak_ptr<CalcNode>()));
-
-		pq.pop();
-	}
-
-	std::queue<std::pair<int /* depth */, std::shared_ptr<CalcNode>>> t{};
-	t.emplace(0, tree);
-
-	while (!t.empty() && !t.front().second->children_.empty())
-	{
-		for (const auto &child : t.front().second->children_)
-			t.emplace(t.front().first + 1, child);
-
-		t.pop();
-	}
-
-	while (t.front().first < depth && !	t.empty()) // + currentBoard.GetMovesList().size())
-	{
-		std::cout << "get: " << t.front().first << ", :" << t.size() << std::endl;
-
-		std::vector<std::future<std::vector<std::pair<Board, int>>>> futures2;
-
-		const auto &avlMoves = t.front().second->state_.GetAvailableMoves();
-
-		int tmp2 = avlMoves.size();
-
-		if (tmp < 10)
-			countOfThreads = 1;
-		else
-			countOfThreads = tmp2 / countInThread + (tmp2 % countInThread != 0);
-
-		futures2.reserve(countOfThreads);
-		for (int i = 0; i < countOfThreads; i++)
-		{
-			futures2.emplace_back(std::move(std::async(
-					findPerspectiveMoves, avlMoves.begin() + i * countInThread,
-					std::min(avlMoves.begin() + (i+1) * countInThread, avlMoves.end()),
-					t.front().second
-			)));
-		}
-
-		moves_pq pq2([this](const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
-			return score1WorseThenScore2(left.second, right.second);
-		});
-
-		for (int i = 0; i < countOfThreads; i++)
-		{
-			auto tmp22 = futures2[i].get();
-
-			for (int j = 0; j < countOfBestCandididates && j < tmp22.size(); j++)
-			{
-				pq2.emplace((tmp22[j]));
-			}
-		}
-
-		for (int i = 0; i < countOfBestCandididates && !pq2.empty(); i++)
-		{
-			t.front().second->children_.emplace_back(std::make_shared<CalcNode>(
-					std::move(const_cast<Gomoku::Board&>(pq2.top().first)),
-					t.front().second));
-			pq2.pop();
-
-			t.emplace(t.front().first + 1, t.front().second->children_.back());
-		}
-		t.pop();
-
-	}
+//	for (int i = 0; i < countOfBestCandididates && !pq.empty(); i++)
+//	{
+//		tree->children_.emplace_back(std::make_shared<CalcNode>(
+//				std::move(const_cast<Gomoku::Board&>(pq.top().first)),
+//				std::weak_ptr<CalcNode>()));
+//
+//		pq.pop();
+//	}
+//
+//	std::queue<std::pair<int /* depth */, std::shared_ptr<CalcNode>>> t{};
+//	t.emplace(0, tree);
+//
+//	while (!t.empty() && !t.front().second->children_.empty())
+//	{
+//		for (const auto &child : t.front().second->children_)
+//			t.emplace(t.front().first + 1, child);
+//
+//		t.pop();
+//	}
+//
+//	while (t.front().first < depth && !	t.empty()) // + currentBoard.GetMovesList().size())
+//	{
+//		std::cout << "get: " << t.front().first << ", :" << t.size() << std::endl;
+//
+//		std::vector<std::future<std::vector<std::pair<Board, int>>>> futures2;
+//
+//		const auto &avlMoves = t.front().second->state_.GetAvailableMoves();
+//
+//		int tmp2 = avlMoves.size();
+//
+//		if (tmp < 10)
+//			countOfThreads = 1;
+//		else
+//			countOfThreads = tmp2 / countInThread + (tmp2 % countInThread != 0);
+//
+//		futures2.reserve(countOfThreads);
+//		for (int i = 0; i < countOfThreads; i++)
+//		{
+//			futures2.emplace_back(std::move(std::async(
+//					findPerspectiveMoves, avlMoves.begin() + i * countInThread,
+//					std::min(avlMoves.begin() + (i+1) * countInThread, avlMoves.end()),
+//					t.front().second
+//			)));
+//		}
+//
+//		moves_pq pq2([this](const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
+//			return score1WorseThenScore2(left.second, right.second);
+//		});
+//
+//		for (int i = 0; i < countOfThreads; i++)
+//		{
+//			auto tmp22 = futures2[i].get();
+//
+//			for (int j = 0; j < countOfBestCandididates && j < tmp22.size(); j++)
+//			{
+//				pq2.emplace((tmp22[j]));
+//			}
+//		}
+//
+//		for (int i = 0; i < countOfBestCandididates && !pq2.empty(); i++)
+//		{
+//			t.front().second->children_.emplace_back(std::make_shared<CalcNode>(
+//					std::move(const_cast<Gomoku::Board&>(pq2.top().first)),
+//					t.front().second));
+//			pq2.pop();
+//
+//			t.emplace(t.front().first + 1, t.front().second->children_.back());
+//		}
+//		t.pop();
+//
+//	}
 
 	auto t2 = std::chrono::high_resolution_clock::now();
 	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
@@ -223,4 +236,23 @@ bool Gomoku::AI1::FindNext()
 
 	return false;
 }
+
+#pragma clang diagnostic push
+#pragma ide diagnostic ignored "EndlessLoop"
+
+void Gomoku::AI1::Worker()
+{
+	bool more = false;
+
+	while (true)
+	{
+		if (tree->state_.GetStoneCount() > 5 && !more)
+		{
+			std::cout << "Starting evaluation!" << std::endl;
+			more = true;
+		}
+
+	}
+}
+#pragma clang diagnostic pop
 

@@ -9,11 +9,17 @@
 #include <mutex>
 #include <atomic>
 #include "IPlayer.h"
-
+#include <thread>
+#include <queue>
 namespace Gomoku
 {
 	class AI1 : public IPlayer
 	{
+		[[noreturn]] [[noreturn]] void Worker();
+		std::queue<int>	jobs_;
+		std::mutex		jobs_mtx_;
+		std::atomic_int depth_{};
+
 	public:
 		static auto lessIntializer(Board::Side side)
 		{
@@ -71,7 +77,10 @@ namespace Gomoku
 				, score1WorseThenScore2(lessIntializer(side))
 				, Min(minInitializer(side))
 				, Max(minInitializer(side))
-		{}
+		{
+			std::thread t( [this](){ Worker(); } );
+			t.detach();
+		}
 
 
 		struct CalcNode
