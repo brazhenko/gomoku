@@ -15,13 +15,45 @@ namespace Gomoku
 {
 	class AI1 : public IPlayer
 	{
-		[[noreturn]] [[noreturn]] void Worker();
-		std::queue<int>	jobs_;
-		std::mutex		jobs_mtx_;
-		std::atomic_int depth_{};
+        using moves_pq = std::priority_queue<
+                std::pair<Board, int>,
+                std::vector<std::pair<Board, int>>,
+                std::function<bool
+                (const std::pair<Board, int> &left,
+                const std::pair<Board, int> &right)>>;
 
-	public:
-		static auto lessIntializer(Board::Side side)
+        struct CalcNode
+        {
+            CalcNode() = delete;
+            explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent)
+                    : parent_(std::move(parent))
+                    , state_(bs)
+            {}
+            explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent)
+                    : state_(bs)
+                    , parent_(std::move(parent))
+            {}
+
+            int positionScore = 0;
+            Board state_;
+
+            const std::weak_ptr<CalcNode> parent_;
+            std::vector<std::shared_ptr<CalcNode>> children_;
+        };
+
+
+        bool FindNext();
+        void Worker();
+        std::thread             workerThread_;
+        std::queue<std::pair<int /* depth */, std::shared_ptr<CalcNode>>>	jobs_;
+        std::mutex	            jobs_mtx_;
+        std::condition_variable jobs_cv_;
+        std::mutex              jobs_cv_mtx_;
+        std::atomic_int         depth_ = 4;
+
+		std::atomic_bool        work_ = true;
+    public:
+        static auto lessIntializer(Board::Side side)
 		{
 			std::function<bool(int score1, int score2)> ret;
 
@@ -34,7 +66,7 @@ namespace Gomoku
 
 			return ret;
 		}
-		static auto greaterIntializer(Board::Side side)
+        static auto greaterIntializer(Board::Side side)
 		{
 			std::function<bool(int score1, int score2)> ret;
 
@@ -47,7 +79,7 @@ namespace Gomoku
 
 			return ret;
 		}
-		static auto minInitializer(Board::Side side)
+        static auto minInitializer(Board::Side side)
 		{
 			if (Board::Side::White == side)
 				return -100;
@@ -66,10 +98,14 @@ namespace Gomoku
 			throw std::runtime_error("wrong side in minInitializer");
 		}
 
-		std::function<bool(int score1, int score2)> score1BetterThenScore2;
+        std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
-		int Min, Max;
+		const int Min, Max;
+        static constexpr std::chrono::milliseconds maxTimeToThink { 500 };
+        std::chrono::system_clock::time_point startThinking{};
+
+        Gomoku::Board::pcell nextMove {};
 
 		explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
 				: IPlayer(side, std::move(MakeMove), realBoard)
@@ -77,38 +113,20 @@ namespace Gomoku
 				, score1WorseThenScore2(lessIntializer(side))
 				, Min(minInitializer(side))
 				, Max(minInitializer(side))
-		{
-			std::thread t( [this](){ Worker(); } );
-			t.detach();
-		}
+				, workerThread_([this](){ Worker(); })
+		{}
 
+		~AI1()
+        {
+		    work_ = false;
+            { std::lock_guard<std::mutex> lg(jobs_mtx_); jobs_ = {}; }
+            jobs_cv_.notify_one();
 
-		struct CalcNode
-		{
-			CalcNode() = delete;
-			explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent)
-			: parent_(std::move(parent))
-			{
-				state_ = bs;
-			}
-			explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent)
-			: state_(bs)
-			, parent_(std::move(parent))
-			{}
+            workerThread_.join();
+        }
 
-			int positionScore = 0;
-			Board state_;
-
-            const std::weak_ptr<CalcNode> parent_;
-			std::vector<std::shared_ptr<CalcNode>> children_;
-		};
 
 		std::shared_ptr<CalcNode> tree = std::make_shared<CalcNode>(Board{}, std::weak_ptr<CalcNode>());
-
-		bool FindNext();
-
-		Gomoku::Board::pcell nextMove;
-
 		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override;
 
 		Board::MoveResult Ping() override;

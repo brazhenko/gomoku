@@ -145,59 +145,98 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Boa
 	const auto &upC = _cToUpLines.at({row, col});
 	const auto &downC = _cToDownLines.at({row, col});
 
+	int accHorizon = 0;
+    for (int i = std::max(col - 2, 0); i < std::min(col + 3, cells_in_line); i++)
+        accHorizon += (At(row, i) == side);
+
+	int accVertical = 0;
+    for (int i = std::max(row - 2, 0); i < std::min(row + 3, cells_in_line); i++)
+        accVertical += (At(i, col) == side);
+
+	int accUplines = 0;
+    for (int i = std::max(upC.second - 2, 0); i < std::min(row + 3, cells_in_line); i++)
+        accUplines += (At(upC.first, i) == side);
+
+	int accDownlines = 0;
+    for (int i = std::max(downC.second - 2, 0); i < std::min(row + 3, cells_in_line); i++)
+        accDownlines += (At(downC.first, i) == side);
+
+
 	if (Board::Side::White == side)
 	{
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_w, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_w, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three2_w, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three2_w, downC.first, downC.second);
+	    if (accHorizon > 1)
+        {
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three2_w, row, col);
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three3_w, row, col);
+            freeThreesCount -= CountFiguresPoints(board_, figure_free_three1_w, row, col);
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three4_w, row, col);
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three5_w, row, col);
+        }
 
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three3_w, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_w, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three3_w, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three3_w, downC.first, downC.second);
+	    if (accVertical > 1)
+        {
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_w, col, row);
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_w, col, row);
+            freeThreesCount -= CountFiguresPoints(vertical_, figure_free_three1_w, col, row);
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three4_w, col, row);
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three5_w, col, row);
+        }
 
-		freeThreesCount -= CountFiguresPoints(board_, figure_free_three1_w, row, col);
-		freeThreesCount -= CountFiguresPoints(vertical_, figure_free_three1_w, col, row);
-		freeThreesCount -= CountFiguresPoints(upLines_, figure_free_three1_w, upC.first, upC.second);
-		freeThreesCount -= CountFiguresPoints(downLines_, figure_free_three1_w, downC.first, downC.second);
+        if (accUplines > 1)
+        {
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three2_w, upC.first, upC.second);
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three3_w, upC.first, upC.second);
+            freeThreesCount -= CountFiguresPoints(upLines_, figure_free_three1_w, upC.first, upC.second);
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three4_w, upC.first, upC.second);
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three5_w, upC.first, upC.second);
+        }
 
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three4_w, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three4_w, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three4_w, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three4_w, downC.first, downC.second);
-
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three5_w, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three5_w, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three5_w, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three5_w, downC.first, downC.second);
+        if (accDownlines > 1)
+        {
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three2_w, downC.first, downC.second);
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three3_w, downC.first, downC.second);
+            freeThreesCount -= CountFiguresPoints(downLines_, figure_free_three1_w, downC.first, downC.second);
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three4_w, downC.first, downC.second);
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three5_w, downC.first, downC.second);
+        }
 	}
 	else if (Board::Side::Black == side)
 	{
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three2_b, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_b, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three2_b, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three2_b, downC.first, downC.second);
+        if (accHorizon)
+        {
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three2_b, row, col);
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three3_b, row, col);
+            freeThreesCount -= CountFiguresPoints(board_, figure_free_three1_b, row, col);
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three4_b, row, col);
+            freeThreesCount += CountFiguresPoints(board_, figure_free_three5_b, row, col);
+        }
 
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three3_b, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_b, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three3_b, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three3_b, downC.first, downC.second);
+        if (accVertical)
+        {
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_b, col, row);
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_b, col, row);
+            freeThreesCount -= CountFiguresPoints(vertical_, figure_free_three1_b, col, row);
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three4_b, col, row);
+            freeThreesCount += CountFiguresPoints(vertical_, figure_free_three5_b, col, row);
+        }
 
-		freeThreesCount -= CountFiguresPoints(board_, figure_free_three1_b, row, col);
-		freeThreesCount -= CountFiguresPoints(vertical_, figure_free_three1_b, col, row);
-		freeThreesCount -= CountFiguresPoints(upLines_, figure_free_three1_b, upC.first, upC.second);
-		freeThreesCount -= CountFiguresPoints(downLines_, figure_free_three1_b, downC.first, downC.second);
+        if (accUplines)
+        {
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three2_b, upC.first, upC.second);
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three3_b, upC.first, upC.second);
+            freeThreesCount -= CountFiguresPoints(upLines_, figure_free_three1_b, upC.first, upC.second);
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three4_b, upC.first, upC.second);
+            freeThreesCount += CountFiguresPoints(upLines_, figure_free_three5_b, upC.first, upC.second);
+        }
 
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three4_b, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three4_b, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three4_b, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three4_b, downC.first, downC.second);
-
-		freeThreesCount += CountFiguresPoints(board_, figure_free_three5_b, row, col);
-		freeThreesCount += CountFiguresPoints(vertical_, figure_free_three5_b, col, row);
-		freeThreesCount += CountFiguresPoints(upLines_, figure_free_three5_b, upC.first, upC.second);
-		freeThreesCount += CountFiguresPoints(downLines_, figure_free_three5_b, downC.first, downC.second);
+        if (accDownlines)
+        {
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three2_b, downC.first, downC.second);
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three3_b, downC.first, downC.second);
+            freeThreesCount -= CountFiguresPoints(downLines_, figure_free_three1_b, downC.first, downC.second);
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three4_b, downC.first, downC.second);
+            freeThreesCount += CountFiguresPoints(downLines_, figure_free_three5_b, downC.first, downC.second);
+        }
 	}
 
 	return freeThreesCount;
@@ -952,38 +991,37 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
 {
 	// Form available moves for next turn
 	for (int i = 0; i < cells_in_line; i++)
-	{
 		for (int j = 0; j < cells_in_line; j++)
 		{
-			if (Side::None == At(i, j))
-			{
-				// Check if move valid
-				if (IsMoveCapture(i, j, movePattern))
-				{
-					// Captures always valid
-					availableMoves_.emplace_back(i, j);
-					continue;
-				}
-				int freeThreesCount = 0, newFreeThreesCount = 0;
+			if (Side::None != At(i, j))
+                continue;
 
-				// Pretend to make move
-				SetStoneInternal(i, j, Side(movePattern.to_ulong()));
+			// Check if move valid
+            if (IsMoveCapture(i, j, movePattern))
+            {
+                // Captures always valid
+                availableMoves_.emplace_back(i, j);
+                continue;
+            }
 
-				if (WhiteMove())
-					newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});
-				else
-					newFreeThreesCount = CountFreeThreesLastMove(Side::Black, {i, j});
+            int newFreeThreesCount = 0;
 
-				// Two or more free threes NOT produced
-				// if (!(newFreeThreesCount > freeThreesCount + 1))
-				if (newFreeThreesCount < 2)
-					availableMoves_.emplace_back(i, j);
+            // Pretend to make move
+            SetStoneInternal(i, j, Side(movePattern.to_ulong()));
 
-				// Return back pretended move
-				SetStoneInternal(i, j, Side::None);
-			}
+            if (WhiteMove())
+                newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});
+            else
+                newFreeThreesCount = CountFreeThreesLastMove(Side::Black, {i, j});
+
+            // Two or more free threes NOT produced
+            // if (!(newFreeThreesCount > freeThreesCount + 1))
+            if (newFreeThreesCount < 2)
+                availableMoves_.emplace_back(i, j);
+
+            // Return back pretended move
+            SetStoneInternal(i, j, Side::None);
 		}
-	}
 }
 
 template<typename B>

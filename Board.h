@@ -118,6 +118,8 @@ namespace Gomoku
 		enum class MoveResult
 		{
 			Default = 0,
+			NotMyMove,
+			NotReadyToMove,
 			Capture,
 			WrongMove,
 			WhiteWin,

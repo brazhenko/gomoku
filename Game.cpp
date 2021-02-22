@@ -84,6 +84,9 @@ void Gomoku::Game::Pause()
 void Gomoku::Game::Stop()
 {
 	state_ = State::Main;
+
+	whitePlayer.reset();
+	blackPlayer.reset();
 	clock_.Stop();
 	board_.Reset();
 }

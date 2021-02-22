@@ -1179,17 +1179,24 @@ TEST(board, count_free_fours_random)
 	}
 }
 
-#include <boost/heap/priority_queue.hpp>
 TEST(datastructure, 1)
 {
+    Gomoku::Board b;
+    std::ifstream is("test_files/free_fours/random4_4.gg");
+    assert(is.is_open());
 
-	std::priority_queue<int>    bestMoves;
+    is >> b;
 
-	bestMoves.emplace(1);
-	bestMoves.emplace(3);
-	bestMoves.emplace(6);
-	bestMoves.emplace(6);
+    auto t1 = std::chrono::high_resolution_clock::now();
 
-	std::cerr << bestMoves.top() << std::endl;
-	assert(bestMoves.size() == 4);
+    std::vector<Gomoku::Board> v(100, b);
+    for (int i = 0; i < 100; i++)
+    {
+        v[i].MakeMove(v[i].GetAvailableMoves().front());
+    }
+
+    auto t2 = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
+
+    std::cout << "Time:" << duration << std::endl;
 }

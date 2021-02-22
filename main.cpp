@@ -11,7 +11,7 @@ int main()
 # if ONLYTEST
 	return 0;
 # endif
-//#endif
+//    return 0;
 
 	Gomoku::Game game{};
 
