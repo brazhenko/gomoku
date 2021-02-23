@@ -1181,22 +1181,12 @@ TEST(board, count_free_fours_random)
 
 TEST(datastructure, 1)
 {
-    Gomoku::Board b;
-    std::ifstream is("test_files/free_fours/random4_4.gg");
-    assert(is.is_open());
+	auto p = std::make_shared<int>(1);
+	std::weak_ptr<int> wp = p;
 
-    is >> b;
+	EXPECT_EQ(wp.expired(), false);
 
-    auto t1 = std::chrono::high_resolution_clock::now();
+	p.reset();
 
-    std::vector<Gomoku::Board> v(100, b);
-    for (int i = 0; i < 100; i++)
-    {
-        v[i].MakeMove(v[i].GetAvailableMoves().front());
-    }
-
-    auto t2 = std::chrono::high_resolution_clock::now();
-    auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - t1).count();
-
-    std::cout << "Time:" << duration << std::endl;
+	EXPECT_EQ(wp.expired(), true);
 }

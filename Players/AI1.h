@@ -22,29 +22,42 @@ namespace Gomoku
                 (const std::pair<Board, int> &left,
                 const std::pair<Board, int> &right)>>;
 
+        std::mutex treeRootMtx_;
+
         struct CalcNode
         {
             CalcNode() = delete;
-            explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent, bool maximize)
+            explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent, bool maximize, int positionScore)
                     : parent_(std::move(parent))
                     , state_(bs)
                     , maximize_(maximize)
+					, positionScore_(positionScore)
             {}
-            explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent, bool maximize)
+            explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent, bool maximize, int positionScore)
                     : state_(bs)
                     , parent_(std::move(parent))
 					, maximize_(maximize)
+					, positionScore_(positionScore)
             {}
 
-            [[nodiscard]] bool IsMax() const
-			{
-            	return false;
-			}
-
-
-            int positionScore = 0;
-            const bool maximize_ = false;
+			int positionScore_;
+			const bool maximize_ = false;
             Board state_;
+
+            [[nodiscard]] int Depth() const
+			{
+            	int ret = 1;
+
+				std::weak_ptr<CalcNode> ptr = parent_;
+
+				while (!ptr.expired())
+				{
+					ptr = ptr.lock()->parent_;
+					ret++;
+				}
+
+				return ret;
+			}
 
             const std::weak_ptr<CalcNode>			parent_;
             std::vector<std::shared_ptr<CalcNode>>	children_;
@@ -54,15 +67,16 @@ namespace Gomoku
         bool FindNext();
         void Worker();
         std::thread             workerThread_;
-        std::queue<std::pair<int /* depth */, std::shared_ptr<CalcNode>>>	jobs_;
+        std::queue<std::shared_ptr<CalcNode>>	jobs_;
         std::mutex	            jobs_mtx_;
         std::condition_variable jobs_cv_;
         std::mutex              jobs_cv_mtx_;
-        std::atomic_int         depth_ = 6;
+        std::atomic_int         depth_ = 5;
 
+        std::atomic_bool 		need_clean = false;
 		std::atomic_bool        work_ = true;
 		std::shared_ptr<CalcNode>	tree;
-
+		int 						best_{};
     public:
         static auto lessIntializer(Board::Side side)
 		{
@@ -113,7 +127,7 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
 		const int Min, Max;
-        static constexpr std::chrono::milliseconds maxTimeToThink { 500 };
+        static constexpr std::chrono::milliseconds maxTimeToThink { 2'000 };
         std::chrono::system_clock::time_point startThinking{};
 
         Gomoku::Board::pcell nextMove {};
@@ -125,7 +139,7 @@ namespace Gomoku
 				, Min(minInitializer(side))
 				, Max(minInitializer(side))
 				// Initializing calculating tree
-				, tree(std::make_shared<CalcNode>(realBoard, std::weak_ptr<CalcNode>(), yourTurn))
+				, tree(std::make_shared<CalcNode>(realBoard, std::weak_ptr<CalcNode>(), yourTurn, 0))
 				// Starting calculating thread
 				, workerThread_([this](){ Worker(); })
 
@@ -135,11 +149,16 @@ namespace Gomoku
 
 		~AI1()
         {
+			std::cout << "destructing" << std::endl;
 		    work_ = false;
-            { std::lock_guard<std::mutex> lg(jobs_mtx_); jobs_ = {}; }
+			std::cout << "destructing 2" << std::endl;
+
+            { std::lock_guard lg(jobs_mtx_); jobs_ = {}; }
             jobs_cv_.notify_one();
 
+			std::cout << "destructing 3" << std::endl;
             workerThread_.join();
+			std::cout << "destructing 4" << std::endl;
         }
 
 

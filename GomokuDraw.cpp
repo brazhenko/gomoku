@@ -380,7 +380,7 @@ namespace GomokuDraw
 
 	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
 	static int player1 = 0;
-	static int player2 = 0;
+	static int player2 = 1;
 	static bool enableEngine = true;
 
 	void DrawPlayer(const Gomoku::Game &game, bool isWhite)
