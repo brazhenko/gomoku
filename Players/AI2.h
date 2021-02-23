@@ -20,7 +20,7 @@ namespace Gomoku
 		{}
 
 
-		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override;
+		void YourTurn() override;
 
 		Board::MoveResult Ping() override;
 	};

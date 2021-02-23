@@ -154,12 +154,12 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Boa
         accVertical += (At(i, col) == side);
 
 	int accUplines = 0;
-    for (int i = std::max(upC.second - 2, 0); i < std::min(row + 3, cells_in_line); i++)
-        accUplines += (At(upC.first, i) == side);
+    for (int i = std::max(upC.second - 2, 0); i < std::min(upC.second + 3, cells_in_line); i++)
+        accUplines += ((Side((upLines_[upC.first] >> (i * bits_per_cell) & board_line {0b11}).to_ulong()) == side));
 
 	int accDownlines = 0;
-    for (int i = std::max(downC.second - 2, 0); i < std::min(row + 3, cells_in_line); i++)
-        accDownlines += (At(downC.first, i) == side);
+    for (int i = std::max(downC.second - 2, 0); i < std::min(downC.second + 3, cells_in_line); i++)
+        accDownlines += ((Side((downLines_[downC.first] >> (i * bits_per_cell) & board_line {0b11}).to_ulong()) == side));
 
 
 	if (Board::Side::White == side)
@@ -202,7 +202,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Boa
 	}
 	else if (Board::Side::Black == side)
 	{
-        if (accHorizon)
+        if (accHorizon > 1)
         {
             freeThreesCount += CountFiguresPoints(board_, figure_free_three2_b, row, col);
             freeThreesCount += CountFiguresPoints(board_, figure_free_three3_b, row, col);
@@ -211,7 +211,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Boa
             freeThreesCount += CountFiguresPoints(board_, figure_free_three5_b, row, col);
         }
 
-        if (accVertical)
+        if (accVertical > 1)
         {
             freeThreesCount += CountFiguresPoints(vertical_, figure_free_three2_b, col, row);
             freeThreesCount += CountFiguresPoints(vertical_, figure_free_three3_b, col, row);
@@ -220,7 +220,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Boa
             freeThreesCount += CountFiguresPoints(vertical_, figure_free_three5_b, col, row);
         }
 
-        if (accUplines)
+        if (accUplines > 1)
         {
             freeThreesCount += CountFiguresPoints(upLines_, figure_free_three2_b, upC.first, upC.second);
             freeThreesCount += CountFiguresPoints(upLines_, figure_free_three3_b, upC.first, upC.second);
@@ -229,7 +229,7 @@ int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Boa
             freeThreesCount += CountFiguresPoints(upLines_, figure_free_three5_b, upC.first, upC.second);
         }
 
-        if (accDownlines)
+        if (accDownlines > 1)
         {
             freeThreesCount += CountFiguresPoints(downLines_, figure_free_three2_b, downC.first, downC.second);
             freeThreesCount += CountFiguresPoints(downLines_, figure_free_three3_b, downC.first, downC.second);
@@ -336,8 +336,8 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	if (col + 3 < 19
 		&& int(this->At(row, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
 		&& int(this->At(row, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col + 3)) == (movePattern.to_ulong())
-			) {
+		&& int(this->At(row, col + 3)) == (movePattern.to_ulong()))
+	{
 
 		SetStoneInternal(row, col + 1, Side::None);
 		capturedStones.emplace_back(row, col + 1);
@@ -355,8 +355,8 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 		&& col + 3 < 19
 		&& int(this->At(row - 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
 		&& int(this->At(row - 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col + 3)) == (movePattern.to_ulong())
-			) {
+		&& int(this->At(row - 3, col + 3)) == (movePattern.to_ulong()))
+	{
 
 		SetStoneInternal(row - 1, col + 1, Side::None);
 		capturedStones.emplace_back(row - 1, col + 1);
@@ -373,8 +373,7 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	if (row - 3 >= 0
 		&& int(this->At(row - 1, col)) == (movePattern.to_ulong() ^ 0b11U)
 		&& int(this->At(row - 2, col)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col)) == (movePattern.to_ulong())
-			) {
+		&& int(this->At(row - 3, col)) == (movePattern.to_ulong())) {
 
 		SetStoneInternal(row - 1, col, Side::None);
 		capturedStones.emplace_back(row - 1, col);
@@ -392,8 +391,8 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 		&& col - 3 >= 0
 		&& int(this->At(row - 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
 		&& int(this->At(row - 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col - 3)) == (movePattern.to_ulong())
-			) {
+		&& int(this->At(row - 3, col - 3)) == (movePattern.to_ulong()))
+	{
 
 		SetStoneInternal(row - 1, col - 1, Side::None);
 		capturedStones.emplace_back(row - 1, col - 1);
@@ -410,8 +409,8 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	if (col - 3 >= 0
 		&& int(this->At(row, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
 		&& int(this->At(row, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col - 3)) == (movePattern.to_ulong())
-			) {
+		&& int(this->At(row, col - 3)) == (movePattern.to_ulong()))
+	{
 
 		SetStoneInternal(row, col - 1, Side::None);
 		capturedStones.emplace_back(row, col - 1);
@@ -429,8 +428,8 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 		&& col - 3 >= 0
 		&& int(this->At(row + 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
 		&& int(this->At(row + 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col - 3)) == (movePattern.to_ulong())
-			) {
+		&& int(this->At(row + 3, col - 3)) == (movePattern.to_ulong()))
+	{
 
 		SetStoneInternal(row + 1, col - 1, Side::None);
 		capturedStones.emplace_back(row + 1, col - 1);
@@ -502,12 +501,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	{
 		// Form avalable ending moves
 		FindMovesBreaksFifthInternal();
-		std::cout << "move: " << Gomoku::Board::MoveToString({row, col}) << std::endl;
-		for (const auto &move: availableMoves_)
-			std::cout << Gomoku::Board::MoveToString(move) << ";  ";
 
-
-		std::cout << std::endl;
 		if (availableMoves_.empty())
 		{
 			if (WhiteMove())
@@ -598,8 +592,11 @@ void Gomoku::Board::SetStoneInternal(int row, int col, Gomoku::Board::Side s)
 	downLines_[downline.first][downline.second * 2 + 1] = (unsigned(s) >> 1U) & 1U;
 }
 
-Gomoku::Board::Side Gomoku::Board::At(int row, int col) const
+Gomoku::Board::Side Gomoku::Board::At(pcell cell) const
 {
+	const int row = cell.first;
+	const int col = cell.second;
+
 	switch (
 			int(board_[row][col * 2]) |
 			int(board_[row][col * 2 + 1] << 1)
@@ -613,6 +610,11 @@ Gomoku::Board::Side Gomoku::Board::At(int row, int col) const
 	}
 
 	throw std::runtime_error("Unknown stone on board");
+}
+
+Gomoku::Board::Side Gomoku::Board::At(int row, int col) const
+{
+	return At(std::make_pair(row, col));
 }
 
 int Gomoku::Board::GetCapturePoints(Gomoku::Board::Side side) const

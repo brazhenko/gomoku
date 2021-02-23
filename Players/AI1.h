@@ -25,20 +25,29 @@ namespace Gomoku
         struct CalcNode
         {
             CalcNode() = delete;
-            explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent)
+            explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent, bool maximize)
                     : parent_(std::move(parent))
                     , state_(bs)
+                    , maximize_(maximize)
             {}
-            explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent)
+            explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent, bool maximize)
                     : state_(bs)
                     , parent_(std::move(parent))
+					, maximize_(maximize)
             {}
 
+            [[nodiscard]] bool IsMax() const
+			{
+            	return false;
+			}
+
+
             int positionScore = 0;
+            const bool maximize_ = false;
             Board state_;
 
-            const std::weak_ptr<CalcNode> parent_;
-            std::vector<std::shared_ptr<CalcNode>> children_;
+            const std::weak_ptr<CalcNode>			parent_;
+            std::vector<std::shared_ptr<CalcNode>>	children_;
         };
 
 
@@ -49,9 +58,11 @@ namespace Gomoku
         std::mutex	            jobs_mtx_;
         std::condition_variable jobs_cv_;
         std::mutex              jobs_cv_mtx_;
-        std::atomic_int         depth_ = 4;
+        std::atomic_int         depth_ = 6;
 
 		std::atomic_bool        work_ = true;
+		std::shared_ptr<CalcNode>	tree;
+
     public:
         static auto lessIntializer(Board::Side side)
 		{
@@ -107,14 +118,20 @@ namespace Gomoku
 
         Gomoku::Board::pcell nextMove {};
 
-		explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
+		explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
 				: IPlayer(side, std::move(MakeMove), realBoard)
 				, score1BetterThenScore2(greaterIntializer(side))
 				, score1WorseThenScore2(lessIntializer(side))
 				, Min(minInitializer(side))
 				, Max(minInitializer(side))
+				// Initializing calculating tree
+				, tree(std::make_shared<CalcNode>(realBoard, std::weak_ptr<CalcNode>(), yourTurn))
+				// Starting calculating thread
 				, workerThread_([this](){ Worker(); })
-		{}
+
+		{
+			if (yourTurn) AI1::YourTurn();
+		}
 
 		~AI1()
         {
@@ -126,8 +143,7 @@ namespace Gomoku
         }
 
 
-		std::shared_ptr<CalcNode> tree = std::make_shared<CalcNode>(Board{}, std::weak_ptr<CalcNode>());
-		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override;
+		void YourTurn() override;
 
 		Board::MoveResult Ping() override;
 	};

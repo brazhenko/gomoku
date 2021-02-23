@@ -8,15 +8,15 @@
 #include <future>
 #include <queue>
 
-void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, int>> &availableMoves)
+void Gomoku::AI1::YourTurn()
 {
     startThinking = std::chrono::system_clock::now();
 	myMove = true;
-	this->nextMove = availableMoves.front();
+	this->nextMove = currentBoard.GetAvailableMoves().front();
 
 	if (!FindNext())
 	{
-		tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>());
+		tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>(), true);
 	}
 
 	{
@@ -29,9 +29,9 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
     jobs_cv_.notify_one();
 
 	if (this->currentBoard.GetStoneCount() == 0
-		&& (std::find(availableMoves.begin(), availableMoves.end(),
+		&& (std::find(currentBoard.GetAvailableMoves().begin(), currentBoard.GetAvailableMoves().end(),
 		std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second))
-				!= availableMoves.end()))
+				!= currentBoard.GetAvailableMoves().end()))
 	{
 		this->nextMove = std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second);
 		return;
@@ -75,7 +75,7 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
     auto t1 = std::chrono::high_resolution_clock::now();
 
 
-    int tmp = availableMoves.size();
+    int tmp = currentBoard.GetAvailableMoves().size();
 	const int countInThread = 15;
 
 	if (tmp < 10) countOfThreads = 1;
@@ -85,8 +85,8 @@ void Gomoku::AI1::YourTurn(int row, int col, const std::vector<std::pair<int, in
 	for (int i = 0; i < countOfThreads; i++)
 	{
 		futures.emplace_back(std::move(std::async(
-				findPerspectiveMoves, availableMoves.begin() + i * countInThread,
-				std::min(availableMoves.begin() + (i+1) * countInThread, availableMoves.end()),
+				findPerspectiveMoves, currentBoard.GetAvailableMoves().begin() + i * countInThread,
+				std::min(currentBoard.GetAvailableMoves().begin() + (i+1) * countInThread, currentBoard.GetAvailableMoves().end()),
 				tree
 		)));
 	}
@@ -191,12 +191,13 @@ void Gomoku::AI1::Worker()
 
         while (std::lock_guard(jobs_mtx_), !jobs_.empty() && jobs_.front().first < depth_)
         {
-            {   // Pop out a new job to work on
+            {   // Pop out a new job (node) to work on
                 std::lock_guard<std::mutex> lg(jobs_mtx_);
                 var = jobs_.front();
                 jobs_.pop();
             }
 
+            // vector of job split in to pieces
             std::vector<std::future<std::vector<std::pair<Board, int>>>> futures;
             const auto &avlMoves = var.second->state_.GetAvailableMoves();
 
@@ -208,35 +209,34 @@ void Gomoku::AI1::Worker()
             else
                 countOfThreads = tmp / countInThread + (tmp % countInThread != 0);
 
+            // generate job pieces
             futures.reserve(countOfThreads);
             for (int i = 0; i < countOfThreads; i++)
-            {
                 futures.emplace_back(std::move(std::async(
                         findPerspectiveMoves, avlMoves.begin() + i * countInThread,
                         std::min(avlMoves.begin() + (i+1) * countInThread, avlMoves.end()),
-                        var.second
-                )));
-            }
+                        var.second)));
 
-
-            moves_pq pq2([this](const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
+            moves_pq pq([this](const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
                 return score1WorseThenScore2(left.second, right.second);
             });
 
+            // get countOfBestCandididates * countOfThreads best moves
             for (int i = 0; i < countOfThreads; i++)
             {
                 auto result = futures[i].get();
-
                 for (int j = 0; j < countOfBestCandididates && j < result.size(); j++)
-                    pq2.emplace((result[j]));
+                    pq.emplace((result[j]));
             }
 
-            for (int i = 0; i < countOfBestCandididates && !pq2.empty(); i++)
+            // put countOfBestCandididates best moves in jobs queue and calculation tree
+            for (int i = 0; i < countOfBestCandididates && !pq.empty(); i++)
             {
                 var.second->children_.emplace_back(std::make_shared<CalcNode>(
-                        std::move(const_cast<Gomoku::Board&>(pq2.top().first)),
-                        var.second));
-                pq2.pop();
+                        std::move(const_cast<Gomoku::Board&>(pq.top().first)),
+                        var.second,
+						var.second->maximize_ ^ true));
+                pq.pop();
 
                 std::lock_guard lg(jobs_mtx_);
                 jobs_.emplace(var.first + 1, var.second->children_.back());
@@ -257,4 +257,3 @@ void Gomoku::AI1::Worker()
         });
     }
 }
-

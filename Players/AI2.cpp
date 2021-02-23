@@ -4,7 +4,7 @@
 
 #include "AI2.h"
 
-void Gomoku::AI2::YourTurn(int row, int col, const std::vector<std::pair<int, int>> &availableMoves)
+void Gomoku::AI2::YourTurn()
 {
 
 }

@@ -18,14 +18,16 @@ namespace Gomoku
 	{
 		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 	public:
-		explicit Human(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
+		explicit Human(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
 				: IPlayer(side, std::move(MakeMove), realBoard)
-		{}
+		{
+			if (yourTurn) Human::YourTurn();
+		}
 
-		void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) override
+		void YourTurn() override
 		{
 			myMove = true;
-			availableMoves_ = {availableMoves.begin(), availableMoves.end()};
+			availableMoves_ = {currentBoard.GetAvailableMoves().begin(), currentBoard.GetAvailableMoves().end()};
 		}
 
 		Board::MoveResult Ping() override;

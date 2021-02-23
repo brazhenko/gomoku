@@ -39,7 +39,7 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 			{
 				auto ret = this->board_.MakeMove({row, col});
 				this->clock_.ChangeMove();
-				this->blackPlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
+				this->blackPlayer->YourTurn();
 				return ret;
 			}
 			return Board::MoveResult::Default;
@@ -52,21 +52,16 @@ void Gomoku::Game::Go(const std::string &player1, const std::string &player2, co
 			{
 				auto ret = this->board_.MakeMove({row, col});
 				this->clock_.ChangeMove();
-				this->whitePlayer->YourTurn(row, col, this->board_.GetAvailableMoves());
+				this->whitePlayer->YourTurn();
 				return ret;
 			}
 			return Board::MoveResult::Default;
 		};
 
-		whitePlayer = PlayerFactory(player1, Board::Side::White, MakeMoveWhite, board_);
-		blackPlayer = PlayerFactory(player2, Board::Side::Black, MakeMoveBlack, board_);
+		whitePlayer = PlayerFactory(player1, Board::Side::White, MakeMoveWhite, board_, board_.WhiteMove());
+		blackPlayer = PlayerFactory(player2, Board::Side::Black, MakeMoveBlack, board_, !board_.WhiteMove());
 
 		state_ = State::GameInProcess;
-
-		if (board_.WhiteMove())
-			whitePlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
-		else
-			blackPlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
 
 		clock_.Start();
 	}
@@ -106,12 +101,12 @@ void Gomoku::Game::TakeBack()
 		{
 			if (board_.WhiteMove())
 			{
-				this->whitePlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
+				this->whitePlayer->YourTurn();
 				this->blackPlayer->NotYourTurn();
 			}
 			else
 			{
-				this->blackPlayer->YourTurn(-1, -1, board_.GetAvailableMoves());
+				this->blackPlayer->YourTurn();
 				this->whitePlayer->NotYourTurn();
 			}
 		}
@@ -119,12 +114,12 @@ void Gomoku::Game::TakeBack()
 		{
 			if (board_.WhiteMove())
 			{
-				this->whitePlayer->YourTurn(tmp.back().first, tmp.back().second, board_.GetAvailableMoves());
+				this->whitePlayer->YourTurn();
 				this->blackPlayer->NotYourTurn();
 			}
 			else
 			{
-				this->blackPlayer->YourTurn(tmp.back().first, tmp.back().second, board_.GetAvailableMoves());
+				this->blackPlayer->YourTurn();
 				this->whitePlayer->NotYourTurn();
 			}
 		}

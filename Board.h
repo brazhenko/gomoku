@@ -206,6 +206,7 @@ namespace Gomoku
 		[[nodiscard]] const std::vector<pcell>& GetAvailableMoves() const;
 
 
+		[[nodiscard]] Side At(pcell cell) const;
 		[[nodiscard]] Side At(int row, int col) const;
 		[[nodiscard]] Side At(const std::string& move) const;
 

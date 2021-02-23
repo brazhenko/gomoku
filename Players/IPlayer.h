@@ -33,7 +33,7 @@ namespace Gomoku
 		{
 		}
 		virtual ~IPlayer() = default;
-		virtual void YourTurn(int row, int col, const std::vector<std::pair<int, int>>& availableMoves) = 0;
+		virtual void YourTurn() = 0;
 		void NotYourTurn()
 		{
 			myMove = false;
@@ -46,7 +46,8 @@ namespace Gomoku
 			const std::string& name,
 			Gomoku::Board::Side side,
 			const Gomoku::MakeMove_t& MakeMove,
-			const Gomoku::Board &bs);
+			const Gomoku::Board &bs,
+			bool yourTurn);
 }
 
 
