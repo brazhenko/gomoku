@@ -59,7 +59,7 @@ namespace Gomoku
 				return ret;
 			}
 
-            const std::weak_ptr<CalcNode>			parent_;
+            std::weak_ptr<CalcNode>			parent_;
             std::vector<std::shared_ptr<CalcNode>>	children_;
         };
 
@@ -73,7 +73,7 @@ namespace Gomoku
         std::mutex              jobs_cv_mtx_;
         std::atomic_int         depth_ = 5;
 
-        std::atomic_bool 		need_clean = false;
+        std::atomic_bool 		need_reload = false;
 		std::atomic_bool        work_ = true;
 		std::shared_ptr<CalcNode>	tree;
 		int 						best_{};
@@ -127,7 +127,7 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
 		const int Min, Max;
-        static constexpr std::chrono::milliseconds maxTimeToThink { 2'000 };
+        static constexpr std::chrono::milliseconds maxTimeToThink { 5'000 };
         std::chrono::system_clock::time_point startThinking{};
 
         Gomoku::Board::pcell nextMove {};
@@ -139,7 +139,8 @@ namespace Gomoku
 				, Min(minInitializer(side))
 				, Max(minInitializer(side))
 				// Initializing calculating tree
-				, tree(std::make_shared<CalcNode>(realBoard, std::weak_ptr<CalcNode>(), yourTurn, 0))
+				// , tree(std::make_shared<CalcNode>(realBoard, std::weak_ptr<CalcNode>(), yourTurn, 0))
+				, tree(std::make_shared<CalcNode>(Gomoku::Board{}, std::weak_ptr<CalcNode>(), yourTurn, 0))
 				// Starting calculating thread
 				, workerThread_([this](){ Worker(); })
 
@@ -149,16 +150,11 @@ namespace Gomoku
 
 		~AI1()
         {
-			std::cout << "destructing" << std::endl;
 		    work_ = false;
-			std::cout << "destructing 2" << std::endl;
 
             { std::lock_guard lg(jobs_mtx_); jobs_ = {}; }
             jobs_cv_.notify_one();
-
-			std::cout << "destructing 3" << std::endl;
             workerThread_.join();
-			std::cout << "destructing 4" << std::endl;
         }
 
 

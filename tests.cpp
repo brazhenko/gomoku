@@ -1186,7 +1186,7 @@ TEST(datastructure, 1)
 
 	EXPECT_EQ(wp.expired(), false);
 
-	p.reset();
+	wp.reset();
 
-	EXPECT_EQ(wp.expired(), true);
+	EXPECT_EQ(wp.expired(), false);
 }

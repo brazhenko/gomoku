@@ -10,39 +10,35 @@
 
 void Gomoku::AI1::YourTurn()
 {
-    startThinking = std::chrono::system_clock::now();
 	myMove = true;
+    startThinking = std::chrono::system_clock::now();
 
-	std::cout << "Started click" << std::endl;
+	std::cout << "Your turn!" << std::endl;
 
+	// setting first available move as default
 	this->nextMove = currentBoard.GetAvailableMoves().front();
-	need_clean = true;
-
+	// reload tree root in worker
+    need_reload = true;
     jobs_cv_.notify_one();
-
-//	if (this->currentBoard.GetStoneCount() == 0
-//		&& (std::find(currentBoard.GetAvailableMoves().begin(), currentBoard.GetAvailableMoves().end(),
-//		std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second))
-//				!= currentBoard.GetAvailableMoves().end()))
-//	{
-//		this->nextMove = std::make_pair(Board::StringToMove("j10").first, Board::StringToMove("j10").second);
-//		return;
-//	}
 }
 
 Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 {
 	if (!myMove) return Board::MoveResult::NotMyMove;
 
-	// Time to think ended up, returning best move calculated !
+
 	if (std::chrono::system_clock::now() >= startThinking + maxTimeToThink)
 	{
+        // Time to think ended up, returning best move calculated !
+//        std::cout << "Making Move" << std::endl;
 		myMove = false;
 
-		need_clean = true;
-		jobs_cv_.notify_one();
+		auto ret = MakeMove_(nextMove.first, nextMove.second);
 
-		return MakeMove_(nextMove.first, nextMove.second);
+        need_reload = true;
+        jobs_cv_.notify_one();
+
+        return ret;
 	}
 
 	return Board::MoveResult::NotReadyToMove;
@@ -56,6 +52,7 @@ bool Gomoku::AI1::FindNext()
 		if ((*it)->state_ == currentBoard)
 		{
 			tree = *it;
+			tree->parent_.reset();
 			return true;
 		}
 	}
@@ -86,24 +83,19 @@ void Gomoku::AI1::Worker()
             auto val = Gomoku::Engine::StaticPositionAnalize(copy);
             pm.emplace_back(std::move(copy), val);
 
-            std::cout << "log-" << std::endl;
         }
 
         std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates, pm.end()), pm.end(),
-		[this, &node, max] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
-			std::cout << "log±" << std::endl;
+		[this, max] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
 			if (max)
 				return score1BetterThenScore2(left.second, right.second);
 			return score1WorseThenScore2(left.second, right.second);
 		});
 
-
-
         return pm;
     };
 
     std::shared_ptr<CalcNode> var;
-
 
 	while (work_.load())
 	{
@@ -112,15 +104,19 @@ void Gomoku::AI1::Worker()
 
         while (true)
         {
-			if (need_clean)
+            if (!work_) return;
+
+			if (need_reload)
 			{
+                std::lock_guard lg(jobs_mtx_);
 				// cleaning
-				need_clean = false;
+				need_reload = false;
 				// Change tree root
 				if (!FindNext())
 				{
 					std::cout << "Not found, generating new" << std::endl;
 					tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>(), true, 0);
+					std::cout << "l0" << std::endl;
 				}
 				else
 					std::cout << "found child, replacing" << std::endl;
@@ -136,6 +132,7 @@ void Gomoku::AI1::Worker()
 
                 if (jobs_.empty() || jobs_.front()->Depth() > depth_)
 					break;
+
 
 //				std::cout << "Depth: " << jobs_.front()->Depth() << " size: " << jobs_.size() << std::endl;
                 var = jobs_.front();
@@ -155,7 +152,6 @@ void Gomoku::AI1::Worker()
 					continue;
 				}
             }
-
 
 
             // vector of job split in to pieces
@@ -226,8 +222,10 @@ void Gomoku::AI1::Worker()
 
         std::cout << "// Work done! Duration: " << duration << " | Jobs: " << jobs_.size() << " //" << std::endl;
 
+        if (!work_) return;
+
         // Lock the worker thread until some job appeared
-        std::unique_lock<std::mutex> lk(jobs_cv_mtx_);
+        std::unique_lock lk(jobs_cv_mtx_);
         jobs_cv_.wait(lk);
 
         std::cout << "Getting out of lock!" << std::endl;
