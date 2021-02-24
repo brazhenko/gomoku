@@ -66,12 +66,13 @@ namespace Gomoku
 
         bool FindNext();
         void Worker();
+
         std::thread             workerThread_;
         std::queue<std::shared_ptr<CalcNode>>	jobs_;
         std::mutex	            jobs_mtx_;
         std::condition_variable jobs_cv_;
         std::mutex              jobs_cv_mtx_;
-        std::atomic_int         depth_ = 5;
+        std::atomic_int         depth_ = 3;
 
         std::atomic_bool 		need_reload = false;
 		std::atomic_bool        work_ = true;
@@ -127,7 +128,7 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
 		const int Min, Max;
-        static constexpr std::chrono::milliseconds maxTimeToThink { 5'000 };
+        static constexpr std::chrono::milliseconds maxTimeToThink { 2'000 };
         std::chrono::system_clock::time_point startThinking{};
 
         Gomoku::Board::pcell nextMove {};
@@ -152,7 +153,11 @@ namespace Gomoku
         {
 		    work_ = false;
 
-            { std::lock_guard lg(jobs_mtx_); jobs_ = {}; }
+            {
+                std::lock_guard lg(jobs_mtx_);
+                jobs_ = {};
+            }
+
             jobs_cv_.notify_one();
             workerThread_.join();
         }

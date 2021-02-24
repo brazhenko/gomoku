@@ -30,8 +30,8 @@ namespace Gomoku
 		: side_{ side }
 		, MakeMove_{ std::move(MakeMove) }
 		, currentBoard( realBoard )
-		{
-		}
+		{}
+
 		virtual ~IPlayer() = default;
 		virtual void YourTurn() = 0;
 		void NotYourTurn()

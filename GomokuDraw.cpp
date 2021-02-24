@@ -115,7 +115,7 @@ namespace GomokuDraw
 		fprintf(stderr, "Glfw Error %d: %s\n", error, description);
 	}
 
-	static const char* gameModes[] = { "42", "Classic", "Omok" };
+	static const char* gameModes[] = { "42" };
 	static int gameModeId = 0;
 
 	static const char* gameTimes[] = { "1 minute", "3 minutes", "5 minutes", "10 minutes", "15 minutes" };

@@ -16,7 +16,11 @@ void Gomoku::AI1::YourTurn()
 	std::cout << "Your turn!" << std::endl;
 
 	// setting first available move as default
-	this->nextMove = currentBoard.GetAvailableMoves().front();
+	if (currentBoard.GetAvailableMoves().empty())
+        return;
+
+    this->nextMove = currentBoard.GetAvailableMoves().front();
+
 	// reload tree root in worker
     need_reload = true;
     jobs_cv_.notify_one();
@@ -26,15 +30,14 @@ Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 {
 	if (!myMove) return Board::MoveResult::NotMyMove;
 
-
 	if (std::chrono::system_clock::now() >= startThinking + maxTimeToThink)
 	{
         // Time to think ended up, returning best move calculated !
-//        std::cout << "Making Move" << std::endl;
-		myMove = false;
 
+        std::cout << "Making Move" << std::endl;
 		auto ret = MakeMove_(nextMove.first, nextMove.second);
 
+        myMove = false;
         need_reload = true;
         jobs_cv_.notify_one();
 
@@ -46,9 +49,11 @@ Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 
 bool Gomoku::AI1::FindNext()
 {
-	for (auto it = tree->children_.begin(); it != tree->children_.end(); it++)
+    std::cout << std::boolalpha << tree->maximize_ << " ";
+
+    for (auto it = tree->children_.begin(); it != tree->children_.end(); it++)
 	{
-		std::cout << Board::MoveToString((*it)->state_.GetMovesList().back()) << " ";
+		std::cout << Board::MoveToString((*it)->state_.GetMovesList().back()) << "~" << (*it)->positionScore_ << " ";
 		if ((*it)->state_ == currentBoard)
 		{
 			tree = *it;
@@ -67,8 +72,7 @@ void Gomoku::AI1::Worker()
 
     auto findPerspectiveMoves = [this](std::vector<Board::pcell>::const_iterator left,
                                        std::vector<Board::pcell>::const_iterator right,
-                                       const std::shared_ptr<CalcNode>& node,
-                                       bool max = true)
+                                       const std::shared_ptr<CalcNode>& node)
     {
         std::vector<std::pair<Board, int>> pm;
         pm.reserve(right - left);
@@ -86,8 +90,8 @@ void Gomoku::AI1::Worker()
         }
 
         std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates, pm.end()), pm.end(),
-		[this, max] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
-			if (max)
+		[this, &node] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
+			if (node->maximize_)
 				return score1BetterThenScore2(left.second, right.second);
 			return score1WorseThenScore2(left.second, right.second);
 		});
@@ -116,7 +120,7 @@ void Gomoku::AI1::Worker()
 				{
 					std::cout << "Not found, generating new" << std::endl;
 					tree = std::make_shared<CalcNode>(currentBoard, std::weak_ptr<CalcNode>(), true, 0);
-					std::cout << "l0" << std::endl;
+//					std::cout << "l0" << std::endl;
 				}
 				else
 					std::cout << "found child, replacing" << std::endl;
@@ -189,7 +193,6 @@ void Gomoku::AI1::Worker()
                     pq.emplace((result[j]));
             }
 
-
             // put countOfBestCandididates best moves in jobs queue and calculation tree
 			{
 				std::lock_guard lg(jobs_mtx_);
@@ -204,7 +207,7 @@ void Gomoku::AI1::Worker()
 					}
 
 					var->children_.emplace_back(std::make_shared<CalcNode>(
-							/*std::move(const_cast<Gomoku::Board&>( */
+							/* std::move(const_cast<Gomoku::Board&>() */
 							pq.top().first,
 							var,
 							var->maximize_ ^ true,
