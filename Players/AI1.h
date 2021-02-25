@@ -11,6 +11,7 @@
 #include "IPlayer.h"
 #include <thread>
 #include <queue>
+
 namespace Gomoku
 {
 	class AI1 : public IPlayer
@@ -22,45 +23,20 @@ namespace Gomoku
                 (const std::pair<Board, int> &left,
                 const std::pair<Board, int> &right)>>;
 
-        std::mutex treeRootMtx_;
-
-        struct CalcNode
+        struct CalcTreeNode
         {
-            CalcNode() = delete;
-            explicit CalcNode(const Board& bs, std::weak_ptr<CalcNode> parent, bool maximize, int positionScore)
-                    : parent_(std::move(parent))
-                    , state_(bs)
-                    , maximize_(maximize)
-					, positionScore_(positionScore)
-            {}
-            explicit CalcNode(Board&& bs, std::weak_ptr<CalcNode> parent, bool maximize, int positionScore)
-                    : state_(bs)
-                    , parent_(std::move(parent))
-					, maximize_(maximize)
-					, positionScore_(positionScore)
-            {}
+			int			positionScore_;
+			const bool	maximize_;
+			Board		state_;
 
-			int positionScore_;
-			const bool maximize_ = false;
-            Board state_;
+			std::weak_ptr<CalcTreeNode>					parent_;
+			std::vector<std::shared_ptr<CalcTreeNode>>	children_;
 
-            [[nodiscard]] int Depth() const
-			{
-            	int ret = 1;
+            CalcTreeNode() = delete;
+            explicit CalcTreeNode(const Board& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
+            explicit CalcTreeNode(Board&& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
 
-				std::weak_ptr<CalcNode> ptr = parent_;
-
-				while (!ptr.expired())
-				{
-					ptr = ptr.lock()->parent_;
-					ret++;
-				}
-
-				return ret;
-			}
-
-            std::weak_ptr<CalcNode>			parent_;
-            std::vector<std::shared_ptr<CalcNode>>	children_;
+            [[nodiscard]] int Depth() const;
         };
 
 
@@ -68,61 +44,22 @@ namespace Gomoku
         void Worker();
 
         std::thread             workerThread_;
-        std::queue<std::shared_ptr<CalcNode>>	jobs_;
+        std::queue<std::shared_ptr<CalcTreeNode>>	jobs_;
         std::mutex	            jobs_mtx_;
         std::condition_variable jobs_cv_;
         std::mutex              jobs_cv_mtx_;
         std::atomic_int         depth_ = 3;
-
+		static constexpr int	countOfBestCandididates = 5;
+		std::atomic_int         count_found = 0;
         std::atomic_bool 		need_reload = false;
-		std::atomic_bool        work_ = true;
-		std::shared_ptr<CalcNode>	tree;
+		std::atomic_bool        work_;
+		std::shared_ptr<CalcTreeNode>	tree;
 		int 						best_{};
     public:
-        static auto lessIntializer(Board::Side side)
-		{
-			std::function<bool(int score1, int score2)> ret;
-
-			if (side == Board::Side::White)
-				ret = std::less<int>{};
-			else if (side == Board::Side::Black)
-				ret = std::greater<int>{};
-			else
-				throw std::runtime_error("wrong side in lessIntializer");
-
-			return ret;
-		}
-        static auto greaterIntializer(Board::Side side)
-		{
-			std::function<bool(int score1, int score2)> ret;
-
-			if (side == Board::Side::White)
-				ret = std::greater<int>{};
-			else if (side == Board::Side::Black)
-				ret = std::less<int>{};
-			else
-				throw std::runtime_error("wrong side in greaterIntializer");
-
-			return ret;
-		}
-        static auto minInitializer(Board::Side side)
-		{
-			if (Board::Side::White == side)
-				return -100;
-			else if (Board::Side::Black == side)
-				return 100;
-
-			throw std::runtime_error("wrong side in minInitializer");
-		}
-		static auto maxInitializer(Board::Side side)
-		{
-			if (Board::Side::White == side)
-				return 100;
-			else if (Board::Side::Black == side)
-				return -100;
-
-			throw std::runtime_error("wrong side in minInitializer");
-		}
+        static std::function<bool(int score1, int score2)> lessIntializer(Board::Side side);
+        static std::function<bool(int score1, int score2)> greaterIntializer(Board::Side side);
+        static int minInitializer(Board::Side side);
+		static int maxInitializer(Board::Side side);
 
         std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
@@ -140,11 +77,11 @@ namespace Gomoku
 				, Min(minInitializer(side))
 				, Max(minInitializer(side))
 				// Initializing calculating tree
-				// , tree(std::make_shared<CalcNode>(realBoard, std::weak_ptr<CalcNode>(), yourTurn, 0))
-				, tree(std::make_shared<CalcNode>(Gomoku::Board{}, std::weak_ptr<CalcNode>(), yourTurn, 0))
+				// , tree(std::make_shared<CalcTreeNode>(realBoard, std::weak_ptr<CalcTreeNode>(), yourTurn, 0))
+				, tree(std::make_shared<CalcTreeNode>(Gomoku::Board{}, std::weak_ptr<CalcTreeNode>(), yourTurn, 0))
 				// Starting calculating thread
+				, work_(true)
 				, workerThread_([this](){ Worker(); })
-
 		{
 			if (yourTurn) AI1::YourTurn();
 		}
@@ -160,6 +97,8 @@ namespace Gomoku
 
             jobs_cv_.notify_one();
             workerThread_.join();
+
+            std::cerr << "Found in tree: " << count_found << std::endl;
         }
 
 

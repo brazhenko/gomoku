@@ -122,13 +122,13 @@ int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 	static std::atomic_int c = 0;
 //	std::cerr << "////eval:" << c++ << "////" << std::endl;
 
-	if (m.find(bs) == m.end())
+//	if (m.find(bs) == m.end())
 	{
 		auto t = internal_(bs);
 
-		m[bs] = t;
+//		m[bs] = t;
 		return t;
 	}
 
-	return m.at(bs);
+//	return m.at(bs);
 }
