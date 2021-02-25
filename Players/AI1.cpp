@@ -8,10 +8,43 @@
 #include <future>
 #include <queue>
 
+Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
+		: IPlayer(side, std::move(MakeMove), realBoard)
+		, score1BetterThenScore2(GreaterIntializer(side))
+		, score1WorseThenScore2(LessIntializer(side))
+		, min_(MinInitializer(side))
+		, max_(MaxInitializer(side))
+		// Initializing calculating tree
+		// , tree(std::make_shared<CalcTreeNode>(realBoard, std::weak_ptr<CalcTreeNode>(), yourTurn, 0))
+		, tree(std::make_shared<CalcTreeNode>(Gomoku::Board{}, std::weak_ptr<CalcTreeNode>(), true, 0))
+		// Starting calculating thread
+		, work_(true)
+		, workerThread_([this](){ Worker(); })
+{
+	if (yourTurn) AI1::YourTurn();
+}
+
+Gomoku::AI1::~AI1()
+{
+	work_ = false;
+
+	{
+		std::lock_guard lg(jobsMtx_);
+		jobs_ = {};
+	}
+
+	jobsCv_.notify_one();
+	workerThread_.join();
+
+	std::cerr << "Found in tree: " << count_found << std::endl;
+}
+
+
+
 void Gomoku::AI1::YourTurn()
 {
 	myMove = true;
-    startThinking = std::chrono::system_clock::now();
+	startedThinkingAt_ = std::chrono::system_clock::now();
 
 	std::cout << "Your turn!" << std::endl;
 
@@ -19,27 +52,50 @@ void Gomoku::AI1::YourTurn()
 	if (currentBoard.GetAvailableMoves().empty())
         return;
 
-    this->nextMove = currentBoard.GetAvailableMoves().front();
+	{
+		std::lock_guard lg(nextMoveMtx_);
+		nextMove_ = currentBoard.GetAvailableMoves().front();
+	}
+
 
 	// reload tree root in worker
-    need_reload = true;
-    jobs_cv_.notify_one();
+    needReload_ = true;
+    jobsCv_.notify_one();
 }
 
 Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 {
 	if (!myMove) return Board::MoveResult::NotMyMove;
 
-	if (std::chrono::system_clock::now() >= startThinking + maxTimeToThink)
+	if (std::chrono::system_clock::now() >= startedThinkingAt_ + maxTimeToThink_)
 	{
         // Time to think ended up, returning best move calculated !
 
         std::cout << "Making Move" << std::endl;
-		auto ret = MakeMove_(nextMove.first, nextMove.second);
+
+		Gomoku::Board::MoveResult ret;
+        {
+			std::lock_guard lg(nextMoveMtx_);
+			std::lock_guard lg2 {jobsMtx_};
+
+			for (auto &child : tree->children_)
+			{
+				std::cout << Board::MoveToString(child->state_.GetMovesList().back()) << "~" << child->positionScore_ << ";";
+			}
+//			nextMove_ =  (*std::max_element(
+//					tree->children_.begin(),
+//					tree->children_.end(),
+//				   [this](const std::shared_ptr<CalcTreeNode> &l, const std::shared_ptr<CalcTreeNode> &r){
+//						   return score1WorseThenScore2(l->positionScore_, r->positionScore_);
+//				   }))->state_.GetMovesList().back();
+
+			ret = MakeMove_(nextMove_.first, nextMove_.second);
+		}
+
 
         myMove = false;
-        need_reload = true;
-        jobs_cv_.notify_one();
+		needReload_ = true;
+        jobsCv_.notify_one();
 
         return ret;
 	}
@@ -88,11 +144,11 @@ void Gomoku::AI1::Worker()
 
         }
 
-        std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates, pm.end()), pm.end(),
-		[this, &node] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
+        std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates_, pm.end()), pm.end(),
+						  [this, &node] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
 			if (node->maximize_)
-				return score1BetterThenScore2(left.second, right.second);
-			return score1WorseThenScore2(left.second, right.second);
+				return left.second > right.second;
+			return left.second < right.second;
 		});
 
         return pm;
@@ -107,18 +163,19 @@ void Gomoku::AI1::Worker()
 
         while (true)
         {
+
             if (!work_) return;
 
-			if (need_reload)
+			if (needReload_)
 			{
-                std::lock_guard lg(jobs_mtx_);
+                std::lock_guard lg(jobsMtx_);
 				// cleaning
-				need_reload = false;
+				needReload_ = false;
 				// Change tree root
 				if (!FindNext())
 				{
 					std::cout << "Not found, generating new" << std::endl;
-					tree = std::make_shared<CalcTreeNode>(currentBoard, std::weak_ptr<CalcTreeNode>(), true, 0);
+					tree = std::make_shared<CalcTreeNode>(currentBoard, std::weak_ptr<CalcTreeNode>(), !tree->maximize_, 0);
 //					std::cout << "l0" << std::endl;
 				}
 				else
@@ -131,13 +188,18 @@ void Gomoku::AI1::Worker()
 				// Empty queue
 				jobs_ = {};
 				jobs_.emplace(tree);
-				best_ = Min;
+				best_ = min_;
 			}
 
-            {   // Pop out a new job of break!
-                std::lock_guard lg(jobs_mtx_);
 
-                if (jobs_.empty() || jobs_.front()->Depth() > depth_) break;
+
+			// Pop out a new job or break!
+            {
+                std::lock_guard lg(jobsMtx_);
+
+                if (jobs_.empty()
+                	|| jobs_.front()->Depth() > depth_ /* Tree is fully built */)
+                	break;
 
 //				std::cout << "Depth: " << jobs_.front()->Depth() << " size: " << jobs_.size() << std::endl;
                 var = jobs_.front();
@@ -146,18 +208,22 @@ void Gomoku::AI1::Worker()
                 // costyl
 				if (var->Depth() == 2 && score1BetterThenScore2(var->positionScore_, this->best_))
 				{
-					this->nextMove = var->state_.GetMovesList().back();
+					this->nextMove_ = var->state_.GetMovesList().back();
 					this->best_ = var->positionScore_;
 				}
+
 
                 if (!var->children_.empty())
 				{
                 	for (auto &child : var->children_)
                 		jobs_.push(child);
+
+                	// go and take new job!
 					continue;
 				}
             }
 
+//			std::cout << "test1" << std::endl;
 
             // vector of job split in to pieces
             std::vector<std::future<std::vector<std::pair<Board, int>>>> futures;
@@ -181,32 +247,33 @@ void Gomoku::AI1::Worker()
 
             moves_pq pq([this, &var](const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
 				if (var->maximize_)
-					return score1WorseThenScore2(left.second, right.second);
-				return score1BetterThenScore2(left.second, right.second);
+					return (left.second < right.second);
+				return (left.second > right.second);
             });
 
-			std::cout << "bug2" << std::endl;
+//			std::cout << "test2" << std::endl;
 
-            // get countOfBestCandididates * countOfThreads best moves
+            // get countOfBestCandididates_ * countOfThreads best moves
             for (int i = 0; i < countOfThreads; i++)
             {
                 auto result = futures[i].get();
-                for (int j = 0; j < countOfBestCandididates && j < result.size(); j++)
-                    pq.emplace((result[j]));
+
+                for (int j = 0; j < countOfBestCandididates_ && j < result.size(); j++)
+                    pq.emplace(std::move(result[j]));
             }
 
-			std::cout << "bug3" << std::endl;
+//			std::cout << "bug3" << std::endl;
 
-            // put countOfBestCandididates best moves in jobs queue and calculation tree
+            // put countOfBestCandididates_ best moves in jobs queue and calculation tree
 			{
-				std::lock_guard lg(jobs_mtx_);
+				std::lock_guard lg(jobsMtx_);
 
-				for (int i = 0; i < countOfBestCandididates && !pq.empty(); i++)
+				for (int i = 0; i < countOfBestCandididates_ && !pq.empty(); i++)
 				{
 					// costyl
 					if (var->Depth() == 2 && score1BetterThenScore2(var->positionScore_, this->best_))
 					{
-						this->nextMove = var->state_.GetMovesList().back();
+						this->nextMove_ = var->state_.GetMovesList().back();
 						this->best_ = var->positionScore_;
 					}
 
@@ -220,6 +287,14 @@ void Gomoku::AI1::Worker()
 
 					jobs_.emplace(var->children_.back());
 				}
+
+				std::weak_ptr<CalcTreeNode> iterator = var;
+				while (!iterator.expired())
+				{
+					auto var2 = iterator.lock();
+					var2->UpdatePositionScore();
+					iterator = var2->parent_;
+				}
 			}
 
         }
@@ -232,58 +307,58 @@ void Gomoku::AI1::Worker()
         if (!work_) return;
 
         // Lock the worker thread until some job appeared
-        std::unique_lock lk(jobs_cv_mtx_);
-        jobs_cv_.wait(lk);
+        std::unique_lock lk(jobsCvMtx_);
+        jobsCv_.wait(lk);
 
         std::cout << "Getting out of lock!" << std::endl;
     }
 	std::cout << "Worker died" << std::endl;
 }
 
-int Gomoku::AI1::maxInitializer(Gomoku::Board::Side side)
+int Gomoku::AI1::MaxInitializer(Gomoku::Board::Side side)
 {
 	if (Board::Side::White == side)
 		return 100;
 	else if (Board::Side::Black == side)
 		return -100;
 
-	throw std::runtime_error("wrong side in minInitializer");
+	throw std::runtime_error("wrong side in MaxInitializer");
 }
 
-int Gomoku::AI1::minInitializer(Gomoku::Board::Side side)
+int Gomoku::AI1::MinInitializer(Gomoku::Board::Side side)
 {
 	if (Board::Side::White == side)
 		return -100;
 	else if (Board::Side::Black == side)
 		return 100;
 
-	throw std::runtime_error("wrong side in minInitializer");
+	throw std::runtime_error("wrong side in MinInitializer");
 }
 
-std::function<bool(int score1, int score2)> Gomoku::AI1::greaterIntializer(Gomoku::Board::Side side)
+std::function<bool(int score1, int score2)> Gomoku::AI1::GreaterIntializer(Gomoku::Board::Side side)
 {
 	std::function<bool(int score1, int score2)> ret;
 
 	if (side == Board::Side::White)
-		ret = std::greater<int>{};
+		ret = std::greater<int> ();
 	else if (side == Board::Side::Black)
-		ret = std::less<int>{};
+		ret = std::less<int> ();
 	else
-		throw std::runtime_error("wrong side in greaterIntializer");
+		throw std::runtime_error("wrong side in GreaterIntializer");
 
 	return ret;
 }
 
-std::function<bool(int score1, int score2)> Gomoku::AI1::lessIntializer(Gomoku::Board::Side side)
+std::function<bool(int score1, int score2)> Gomoku::AI1::LessIntializer(Gomoku::Board::Side side)
 {
 	std::function<bool(int score1, int score2)> ret;
 
 	if (side == Board::Side::White)
-		ret = std::less<int>{};
+		ret = std::less<int> ();
 	else if (side == Board::Side::Black)
-		ret = std::greater<int>{};
+		ret = std::greater<int> ();
 	else
-		throw std::runtime_error("wrong side in lessIntializer");
+		throw std::runtime_error("wrong side in LessIntializer");
 
 	return ret;
 }
@@ -317,4 +392,30 @@ Gomoku::AI1::CalcTreeNode::CalcTreeNode(Gomoku::Board &&bs, std::weak_ptr<CalcTr
 		, maximize_(maximize)
 		, positionScore_(positionScore)
 {}
+
+void Gomoku::AI1::CalcTreeNode::UpdatePositionScore()
+{
+	int newPositionScore;
+
+	if (children_.empty()) return;
+
+	if (maximize_)
+	{
+		newPositionScore = (*std::max_element(children_.begin(),
+				children_.end(),
+				[this](const std::shared_ptr<CalcTreeNode> &l, const std::shared_ptr<CalcTreeNode> &r){
+					return l->positionScore_ < r->positionScore_;
+		}))->positionScore_;
+	}
+	else
+	{
+		newPositionScore = (*std::min_element(children_.begin(),
+				  children_.end(),
+				  [this](const std::shared_ptr<CalcTreeNode> &l, const std::shared_ptr<CalcTreeNode> &r){
+					  return l->positionScore_ < r->positionScore_;
+				  }))->positionScore_;
+	}
+
+	this->positionScore_ = newPositionScore;
+}
 

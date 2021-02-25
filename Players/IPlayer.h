@@ -13,7 +13,7 @@
 
 namespace Gomoku
 {
-	using MakeMove_t=std::function<Gomoku::Board::MoveResult(int row, int col)>;
+	using MakeMove_t=std::function<Gomoku::Board::MoveResult (int row, int col)>;
 
 	class IPlayer
 	{

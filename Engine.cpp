@@ -13,7 +13,7 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 	// Edge cases
 	{
-		// Game ended (fifth)
+		// Game ended
 		if (bs.GetLastMoveResult() == Board::MoveResult::Draw)
 			return 0;
 		if (bs.GetLastMoveResult() == Board::MoveResult::WhiteWin)
@@ -59,6 +59,9 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 		if (t1 && bs.WhiteMove()) return 15;
 		if (t2 && !bs.WhiteMove()) return -15;
+
+		if (t1 > 1 && t2 == 0) return 13;
+		if (t2 > 1 && t1 == 0) return -13;
 
 		ret += (t1 - t2) * freeThreeCoef;
 	}
@@ -118,17 +121,12 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 {
 	static std::unordered_map<Gomoku::Board, int> m;
-
 	static std::atomic_int c = 0;
-//	std::cerr << "////eval:" << c++ << "////" << std::endl;
 
-//	if (m.find(bs) == m.end())
 	{
 		auto t = internal_(bs);
 
-//		m[bs] = t;
 		return t;
 	}
 
-//	return m.at(bs);
 }
