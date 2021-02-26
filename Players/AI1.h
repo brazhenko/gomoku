@@ -33,6 +33,8 @@ namespace Gomoku
             void UpdatePositionScore();
         };
 
+		std::string TreeToString() const;
+
 		using moves_pq = std::priority_queue<
 				std::pair<Board, int>,
 				std::vector<std::pair<Board, int>>,
@@ -40,17 +42,17 @@ namespace Gomoku
 				(const std::pair<Board, int> &left,
 				 const std::pair<Board, int> &right)>>;
 
-		std::queue<std::shared_ptr<CalcTreeNode>>	jobs_;
+		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
         std::mutex	            jobsMtx_;
         std::condition_variable jobsCv_;
         std::mutex              jobsCvMtx_;
         std::atomic_int         depth_ = 5;
 		static constexpr int	countOfBestCandididates_ = 3;
 		std::atomic_int         count_found = 0;
-        std::atomic_bool 		needReload_ = false;
+        std::atomic_bool 		needReload_ = true;
+		std::shared_ptr<CalcTreeNode>	tree;
 		std::atomic_bool        work_;
 		std::thread             workerThread_;
-		std::shared_ptr<CalcTreeNode>	tree;
 		int 					best_{};
 
 		std::function<bool(int score1, int score2)> score1BetterThenScore2;
@@ -77,6 +79,8 @@ namespace Gomoku
 
 		void YourTurn() override;
 		Board::MoveResult Ping() override;
+
+		std::string ToString() const;
 	};
 }
 

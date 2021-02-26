@@ -561,10 +561,13 @@ size_t Gomoku::Board::hash() const
 
 bool Gomoku::Board::TakeBackMove()
 {
-	if (moves_.empty()) return false;
+	if (moves_.size() < 2) return false;
+
+	moves_.pop_back();
 	moves_.pop_back();
 
 	*this = Board(moves_);
+
 	return true;
 }
 
