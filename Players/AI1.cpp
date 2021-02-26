@@ -82,12 +82,13 @@ Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 			{
 				std::cout << Board::MoveToString(child->state_.GetMovesList().back()) << "~" << child->positionScore_ << ";";
 			}
-//			nextMove_ =  (*std::max_element(
-//					tree->children_.begin(),
-//					tree->children_.end(),
-//				   [this](const std::shared_ptr<CalcTreeNode> &l, const std::shared_ptr<CalcTreeNode> &r){
-//						   return score1WorseThenScore2(l->positionScore_, r->positionScore_);
-//				   }))->state_.GetMovesList().back();
+
+			nextMove_ =  (*std::max_element(
+					tree->children_.begin(),
+					tree->children_.end(),
+				   [this](const std::shared_ptr<CalcTreeNode> &l, const std::shared_ptr<CalcTreeNode> &r){
+						   return score1WorseThenScore2(l->positionScore_, r->positionScore_);
+				   }))->state_.GetMovesList().back();
 
 			ret = MakeMove_(nextMove_.first, nextMove_.second);
 		}
