@@ -216,7 +216,6 @@ namespace Gomoku
 
         [[nodiscard]] bool IsCellHasStoneNearby(pcell cell, int eps=1) const;
 
-
 		[[nodiscard]] std::string ToPgnString() const;
 
 		// I/O of board
