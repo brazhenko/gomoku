@@ -120,7 +120,6 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 {
-	static std::unordered_map<Gomoku::Board, int> m;
 	static std::atomic_int c = 0;
 
 	{

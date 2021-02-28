@@ -12,7 +12,6 @@ namespace Gomoku
 {
 	class AI2 : public IPlayer
 	{
-		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
 
 	public:
 		explicit AI2(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)

@@ -16,20 +16,14 @@
 #include <fstream>
 #include <mutex>
 
-/// Description
-struct pairhash {
-public:
-	template <typename T, typename U>
-	std::size_t operator()(const std::pair<T, U> &x) const
-	{
-		return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
-	}
-};
+
 
 
 namespace Gomoku
 {
-    /// @brief describes the rules of Gomoku42 game
+    /// @brief Gomoku::Board if main class of Gomoku42 game. \n
+    /// Game rules and a bit more are implemented here.
+
 	class Board
 	{
 	public:
@@ -56,6 +50,16 @@ namespace Gomoku
 		{
 			board_line 	data;
 			int			size{};
+		};
+
+		/// @brief hasher for std::pair<T, U>
+		struct PairHash {
+		public:
+			template <typename T, typename U>
+			std::size_t operator()(const std::pair<T, U> &x) const
+			{
+				return std::hash<T>()(x.first) ^ std::hash<U>()(x.second);
+			}
 		};
 
         /// @brief `XXXXX`
@@ -179,7 +183,7 @@ namespace Gomoku
 		/// The initial `board_` stores it row by row and we have no opportunity
 		/// to look up in verticles and diagonals. \n
 		/// Obviously we generate the following projections: \n
-		/// horizonal (general one), `board`
+		/// horizonal (general one), `board_`
 		/// @code{}
 		///	______
 		///
@@ -238,13 +242,13 @@ namespace Gomoku
 		/// `board_ -> upLines_`,
 		/// `board_ -> downLines_`. \n
 		/// `_cToVerticles`, `_cToUpLines`, `_cToDownLines` are the respective mentioned mappings.
-		const static std::unordered_map<pcell, pcell, pairhash> _cToVerticles;
+		const static std::unordered_map<pcell, pcell, PairHash> _cToVerticles;
 
-		/// @brief Read _cToVerticles before
-		const static std::unordered_map<pcell, pcell, pairhash> _cToUpLines;
+		/// @brief Read `_cToVerticles` before
+		const static std::unordered_map<pcell, pcell, PairHash> _cToUpLines;
 
-		/// @brief Read _cToVerticles before
-		const static std::unordered_map<pcell, pcell, pairhash> _cToDownLines;
+		/// @brief Read `_cToVerticles` before
+		const static std::unordered_map<pcell, pcell, PairHash> _cToDownLines;
 
 		std::vector<pcell> availableMoves_;
 
@@ -330,10 +334,10 @@ namespace Gomoku
 		/// @brief current move pattern, 0b01 - white, 0b10 - black
 		board_line movePattern_ {0b01 };
 
-		/// Moves history
+		/// @brief Moves history
 		std::vector<pcell> moves_;
 
-		// Default MoveResult
+		/// @brief move result
 		MoveResult lastMoveResult_ = MoveResult::Default;
 
 		/// @brief Internal functions generates available moves ONLY IF there is a five on a board
@@ -343,13 +347,13 @@ namespace Gomoku
 		void GenerateAvailableMovesInternal();
 
 		/// @brief Performs a "capture" as if `move` is a last one
-		/// @param move "last move"
+		/// @param [in] move "last move"
 		/// @return vector of cells wich were captured
 		std::vector<pcell> MakeCaptureInternal(pcell move);
 
 		/// @brief Internal MakeMove function. Really is not supposed to be called. Call MakeMove instead
-		/// @param row row index
-		/// @param col column index
+		/// @param [in] row row index
+		/// @param [in] col column index
 		/// @return result code
 		MoveResult MakeMoveInternal(int row, int col);
 
@@ -361,37 +365,37 @@ namespace Gomoku
 
 		/// @brief Internal function counts `shape` entries in `lines`
 		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
-		/// @param lines lines where to search
-		/// @param shape shape to search for
-		/// @param diagonal is `lines` diagonal
+		/// @param [in] lines lines where to search
+		/// @param [in] shape shape to search for
+		/// @param [in] diagonal is `lines` diagonal
 		/// @return count of `shape` entries in `lines`
 		template<typename B>
 		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal = false) const;
 
 		/// @brief Internal function counts `shape` entries in `lines` touches beginning wall
 		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
-		/// @param lines lines where to search
-		/// @param shape shape to search for
-		/// @param diagonal is `lines` diagonal
+		/// @param [in] lines lines where to search
+		/// @param [in] shape shape to search for
+		/// @param [in] diagonal is `lines` diagonal
 		/// @return count of `shape` entries in `lines`
 		template<typename B>
 		int CountFiguresBeginRow(const B &lines, const GomokuShape &shape, bool diagonal = false) const;
 
 		/// @brief Internal function counts `shape` entries in `lines` touches ending wall
 		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
-		/// @param lines lines where to search
-		/// @param shape shape to search for
-		/// @param diagonal is `lines` diagonal
+		/// @param [in] lines lines where to search
+		/// @param [in] shape shape to search for
+		/// @param [in] diagonal is `lines` diagonal
 		/// @return count of `shape` entries in `lines`
 		template<typename B>
 		int CountFiguresEndRow(const B &lines, const GomokuShape &shape, bool diagonal = false) const;
 
 		/// @brief Internal function counts `shape` entries in `lines`, `{row, col}` is a part of `shape`
 		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
-		/// @param lines lines where to search
-		/// @param shape shape to search for
-		/// @param row row coordinate of cell
-		/// @param col column coordinate of cell
+		/// @param [in] lines lines where to search
+		/// @param [in] shape shape to search for
+		/// @param [in] row row coordinate of cell
+		/// @param [in] col column coordinate of cell
 		/// @return count of `shape` entries in `lines`
 		template<typename B>
 		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int row, int col) const;
@@ -448,7 +452,7 @@ namespace Gomoku
 		/// @return count of free threes
 		[[nodiscard]] int CountFreeThrees(Side side) const;
 
-		/// @brief Counts how many so-called flanked threes particular player has. \n
+		/// @brief Counts how many so-called flanked threes particular player has \n
 		/// @param [in] side
 		/// @return count of flanked threes
 		[[nodiscard]] int CountHalfFreeThrees(Side side) const;
@@ -460,7 +464,7 @@ namespace Gomoku
 		[[nodiscard]] int CountFreeThreesLastMove(Side side, pcell lastMove) const;
 
 		/// @brief Counts how many so-called free fours particular player has
-		/// @param side player
+		/// @param [in] side player
 		/// @return count of free fours
 		[[nodiscard]] int CountHalfFreeFours(Side side) const;
 
@@ -539,7 +543,7 @@ namespace Gomoku
         /// @return `true` if has, `false` otherwise
         [[nodiscard]] bool IsCellHasStoneNearby(pcell cell, int eps=1) const;
 
-        /// @brief Converts object to Portable Game Notation string
+        /// @brief Converts object to portable game notation string
         /// @return pgn string
 		[[nodiscard]] std::string ToPgnString() const;
 
@@ -551,16 +555,6 @@ namespace Gomoku
 
         /// @brief equ operator
         friend bool operator==(const Gomoku::Board& left, const Gomoku::Board& right);
-	};
-}
-
-// Helper
-namespace std {
-	template <>
-	struct hash<Gomoku::Board> {
-		std::size_t operator()(const Gomoku::Board& k) const {
-			return k.hash();
-		}
 	};
 }
 

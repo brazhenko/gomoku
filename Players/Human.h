@@ -16,7 +16,7 @@ namespace Gomoku
 {
 	class Human : public IPlayer
 	{
-		std::unordered_set<std::pair<int, int>, pairhash> availableMoves_;
+		std::unordered_set<std::pair<int, int>, Gomoku::Board::PairHash> availableMoves_;
 	public:
 		explicit Human(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
 				: IPlayer(side, std::move(MakeMove), realBoard)

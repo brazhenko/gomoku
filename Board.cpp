@@ -10,9 +10,8 @@
 #include "PGNGame.h"
 #include <algorithm>
 
-// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal2 lines x, y respectively)
-const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> Gomoku::Board::_cToVerticles = [](){
-	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> ret;
+const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Board::PairHash> Gomoku::Board::_cToVerticles = [](){
+	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, PairHash> ret;
 	for (int j = 0; j < cells_in_line; j++)
 		for (int i = 0; i < cells_in_line; i++)
 			ret.insert({{i, j}, {j, i}});
@@ -20,8 +19,8 @@ const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> G
 	return ret;
 }();
 
-const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> Gomoku::Board::_cToUpLines = [](){
-	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> ret;
+const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Board::PairHash> Gomoku::Board::_cToUpLines = [](){
+	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, PairHash> ret;
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
 	for (int line = 1; line <= diagonal_count; line++)
 	{
@@ -34,8 +33,8 @@ const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> G
 	return ret;
 }();
 
-const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> Gomoku::Board::_cToDownLines = [](){
-	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, pairhash> ret;
+const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Board::PairHash> Gomoku::Board::_cToDownLines = [](){
+	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, PairHash> ret;
 	constexpr int diagonal_count = cells_in_line * 2 - 1;
 	for (int line = 1; line <= diagonal_count; line++)
 	{
