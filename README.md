@@ -44,7 +44,7 @@ cmake -DCMAKE_BUILD_TYPE="Release" . && make
 ## License
 [MIT](https://choosealicense.com/licenses/mit/)
 
-
+http://algolist.ru/games/alphabeta.php
 
 
 

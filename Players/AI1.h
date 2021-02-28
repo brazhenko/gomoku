@@ -12,6 +12,8 @@
 #include <thread>
 #include <queue>
 
+// http://web.cs.ucla.edu/~rosen/161/notes/alphabeta.html
+
 namespace Gomoku
 {
 	class AI1 : public IPlayer
@@ -21,6 +23,9 @@ namespace Gomoku
 			int			positionScore_;
 			const bool	maximize_;
 			Board		state_;
+
+			int alpha = std::numeric_limits<int>::min();
+			int beta = std::numeric_limits<int>::max();
 
 			std::weak_ptr<CalcTreeNode>					parent_;
 			std::vector<std::shared_ptr<CalcTreeNode>>	children_;
@@ -45,18 +50,16 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
-        std::atomic_int         depth_ = 5;
+        std::atomic_int         depth_ = 3;
 		static constexpr int	countOfBestCandididates_ = 3;
 		std::atomic_int         count_found = 0;
         std::atomic_bool 		needReload_ = false;
-		std::shared_ptr<CalcTreeNode>	tree;
+		std::shared_ptr<CalcTreeNode>	tree_;
 
-		int 					best_{};
 		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
 		std::mutex	            jobsMtx_;
 		std::condition_variable jobsCv_;
 		std::mutex              jobsCvMtx_;
-
 
 		std::atomic_bool        work_;
 		std::thread             workerThread_;
