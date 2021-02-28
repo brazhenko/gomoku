@@ -313,12 +313,36 @@ namespace Gomoku
 		/// @return internal representation of a move, e.g. `{10, 3}`
 		static pcell StringToMove(const std::string &s);
 
-
+		/// @brief Counts how many `shape` are on the board
+		/// @param [in] shape
+		/// @return count
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
+
+		/// @brief Checks if there a `shape` on board
+		/// @param [in] shape
+		/// @return `true` if found, `false` if not
 		[[nodiscard]] bool IsThereFigureOnBoard(const GomokuShape &shape) const;
+
+		/// @brief Counts how many so-called free threes particular player has. \n
+		/// Free three is a figure that can become a free four in just one move
+		/// @param [in] side player side
+		/// @return count of free threes
 		[[nodiscard]] int CountFreeThrees(Side side) const;
+
+		/// @brief Counts how many so-called flanked threes particular player has. \n
+		/// @param [in] side
+		/// @return count of flanked threes
 		[[nodiscard]] int CountHalfFreeThrees(Side side) const;
+
+		/// @brief Counts how many so-called free threes were formed with `lastMove`.
+		/// @param [in] side player
+		/// @param [in] lastMove "last move"
+		/// @return count of free threes formed with `lastMove`
 		[[nodiscard]] int CountFreeThreesLastMove(Side side, pcell lastMove) const;
+
+		/// @brief Counts how many so-called free fours particular player has
+		/// @param side player
+		/// @return count of free fours
 		[[nodiscard]] int CountHalfFreeFours(Side side) const;
 
 		/// @brief Checks if putting a movePattern in call will trigger a capture
@@ -331,7 +355,8 @@ namespace Gomoku
 		/// @return vector of moves which were made during the game
 		[[nodiscard]] const std::vector<pcell>& GetMovesList() const;
 
-
+		/// @brief Hash method
+		/// @return hashsum
 		[[nodiscard]] size_t hash() const;
 
 		/// @brief Who's turn?
