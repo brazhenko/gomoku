@@ -252,7 +252,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				continue;
 
 			// Valid move can be only a capture one
-			if (!IsMoveCapture(i, j, movePattern))
+			if (!IsMoveCapture(i, j, movePattern_))
 				continue;
 
 			// Pretending capture
@@ -285,7 +285,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 
 			// Return all `captured` stones back
 			for (const auto &c : captured)
-				SetStoneInternal(c.first, c.second, Side(movePattern.to_ulong() ^ 0b11U));
+				SetStoneInternal(c.first, c.second, Side(movePattern_.to_ulong() ^ 0b11U));
 
 		}
 }
@@ -297,9 +297,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair up
 	if (row + 3 < 19
-		&& int(this->At(row + 1, col)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 2, col)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col)) == (movePattern.to_ulong())
+		&& int(this->At(row + 1, col)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row + 2, col)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row + 3, col)) == (movePattern_.to_ulong())
 			) {
 
 		SetStoneInternal(row + 1, col, Side::None);
@@ -316,9 +316,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair up right
 	if (row + 3 < 19
 		&& col + 3 < 19
-		&& int(this->At(row + 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col + 3)) == (movePattern.to_ulong())
+		&& int(this->At(row + 1, col + 1)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row + 2, col + 2)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row + 3, col + 3)) == (movePattern_.to_ulong())
 			) {
 
 		SetStoneInternal(row + 1, col + 1, Side::None);
@@ -334,9 +334,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair right
 	if (col + 3 < 19
-		&& int(this->At(row, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col + 3)) == (movePattern.to_ulong()))
+		&& int(this->At(row, col + 1)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row, col + 2)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row, col + 3)) == (movePattern_.to_ulong()))
 	{
 
 		SetStoneInternal(row, col + 1, Side::None);
@@ -353,9 +353,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair down right
 	if (row - 3 >= 0
 		&& col + 3 < 19
-		&& int(this->At(row - 1, col + 1)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 2, col + 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col + 3)) == (movePattern.to_ulong()))
+		&& int(this->At(row - 1, col + 1)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row - 2, col + 2)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row - 3, col + 3)) == (movePattern_.to_ulong()))
 	{
 
 		SetStoneInternal(row - 1, col + 1, Side::None);
@@ -371,9 +371,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair down
 	if (row - 3 >= 0
-		&& int(this->At(row - 1, col)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 2, col)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col)) == (movePattern.to_ulong())) {
+		&& int(this->At(row - 1, col)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row - 2, col)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row - 3, col)) == (movePattern_.to_ulong())) {
 
 		SetStoneInternal(row - 1, col, Side::None);
 		capturedStones.emplace_back(row - 1, col);
@@ -389,9 +389,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair down left
 	if (row - 3 >= 0
 		&& col - 3 >= 0
-		&& int(this->At(row - 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col - 3)) == (movePattern.to_ulong()))
+		&& int(this->At(row - 1, col - 1)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row - 2, col - 2)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row - 3, col - 3)) == (movePattern_.to_ulong()))
 	{
 
 		SetStoneInternal(row - 1, col - 1, Side::None);
@@ -407,9 +407,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair left
 	if (col - 3 >= 0
-		&& int(this->At(row, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col - 3)) == (movePattern.to_ulong()))
+		&& int(this->At(row, col - 1)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row, col - 2)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row, col - 3)) == (movePattern_.to_ulong()))
 	{
 
 		SetStoneInternal(row, col - 1, Side::None);
@@ -426,9 +426,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair up left
 	if (row + 3 < 19
 		&& col - 3 >= 0
-		&& int(this->At(row + 1, col - 1)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 2, col - 2)) == (movePattern.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col - 3)) == (movePattern.to_ulong()))
+		&& int(this->At(row + 1, col - 1)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row + 2, col - 2)) == (movePattern_.to_ulong() ^ 0b11U)
+		&& int(this->At(row + 3, col - 3)) == (movePattern_.to_ulong()))
 	{
 
 		SetStoneInternal(row + 1, col - 1, Side::None);
@@ -461,7 +461,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	// Add to move history
 	moves_.emplace_back(row, col);
 	// Put stone on board
-	SetStoneInternal(row, col, Side(movePattern.to_ulong()));
+	SetStoneInternal(row, col, Side(movePattern_.to_ulong()));
 	// Delete cell from available ones
 
 	// Make captures if exist
@@ -495,7 +495,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	}
 
 	// Change move
-	movePattern ^= 0b11;
+	movePattern_ ^= 0b11;
 
 	if (fivesCount > 0)
 	{
@@ -643,7 +643,7 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::Board &bs)
 	is
 		>> bs.WhiteCapturePoints
 		>> bs.BlackCapturePoints
-		>> bs.movePattern;
+		>> bs.movePattern_;
 
 	for (int i = Gomoku::Board::cells_in_line - 1; i > -1; i--)
 	{
@@ -673,9 +673,9 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::Board &bs)
 std::ostream &Gomoku::operator<<(std::ostream &os, const Gomoku::Board &bs)
 {
 	os
-		<< bs.GetCapturePoints(Gomoku::Board::Side::White)
-		<< " " << bs.GetCapturePoints(Gomoku::Board::Side::Black)
-		<< " " << bs.movePattern << std::endl;
+            << bs.GetCapturePoints(Gomoku::Board::Side::White)
+            << " " << bs.GetCapturePoints(Gomoku::Board::Side::Black)
+            << " " << bs.movePattern_ << std::endl;
 
 	for (int i = 18; i >= 0; i--)
 	{
@@ -700,7 +700,7 @@ std::ostream &Gomoku::operator<<(std::ostream &os, const Gomoku::Board &bs)
 
 bool Gomoku::Board::WhiteMove() const
 {
-	return movePattern == 0b01;
+	return movePattern_ == 0b01;
 }
 
 const std::vector<Gomoku::Board::pcell> &Gomoku::Board::GetMovesList() const
@@ -1002,7 +1002,7 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
                 continue;
 
 			// Check if move valid
-            if (IsMoveCapture(i, j, movePattern))
+            if (IsMoveCapture(i, j, movePattern_))
             {
                 // Captures always valid
                 availableMoves_.emplace_back(i, j);
@@ -1012,7 +1012,7 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
             int newFreeThreesCount = 0;
 
             // Pretend to make move
-            SetStoneInternal(i, j, Side(movePattern.to_ulong()));
+            SetStoneInternal(i, j, Side(movePattern_.to_ulong()));
 
             if (WhiteMove())
                 newFreeThreesCount = CountFreeThreesLastMove(Side::White, {i, j});

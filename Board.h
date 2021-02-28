@@ -176,15 +176,81 @@ namespace Gomoku
 		int BlackCapturePoints = 0;
 
 		// Normal board: array of rows, board_[1][2] == board["c2"]
+		/// @brief just normal board \n
+
+        /// \code{}
+        /// .X.. - board_[3] = 00 01 00 00
+        /// ...X - board_[2] = 00 00 00 01
+        /// O.X. - board_[1] = 10 00 01 00
+        /// .O.. - board_[0] = 00 10 00 00
+        ///  \endcode
 		std::array<board_line, 19> board_{};
 
-		// Twisted lines of board
+        /// @brief vertical mapping of the board \n
+
+        /// if board_ is
+        /// \code{}
+        /// .X.. - board_[3] = 00 01 00 00
+        /// ...X - board_[2] = 00 00 00 01
+        /// O.X. - board_[1] = 10 00 01 00
+        /// .O.. - board_[0] = 00 10 00 00
+        ///  \endcode
+
+        /// vertical_ is
+        /// \code{}
+        /// .O.. - vertical_[3]
+        /// O..X - vertical_[2]
+        /// .X.. - vertical_[1]
+        /// ..X. - vertical_[0]
+        ///  \endcode
 		std::array<board_line, 19> vertical_{};
+
+        /// @brief diagonal1 mapping of the board \n
+
+        /// if board_ is
+        /// \code{}
+        /// .X.. - board_[3] = 00 01 00 00
+        /// ...X - board_[2] = 00 00 00 01
+        /// O.X. - board_[1] = 10 00 01 00
+        /// .O.. - board_[0] = 00 10 00 00
+        ///  \endcode
+
+        /// upLines_ is
+        /// \code{}
+        /// .    - upLines_[0]
+        /// OO   - upLines_[1]
+        /// ...  - upLines_[2]
+        /// ..X. - upLines_[3]
+        /// X..  - upLines_[4]
+        /// .X   - upLines_[5]
+        /// .    - upLines_[6]
+        ///  \endcode
 		std::array<board_line, 38> upLines_{};
+
+        /// @brief diagonal2 mapping of the board \n
+
+        /// if board_ is
+        /// \code{}
+        /// .X.. - board_[3] = 00 01 00 00
+        /// ...X - board_[2] = 00 00 00 01
+        /// O.X. - board_[1] = 10 00 01 00
+        /// .O.. - board_[0] = 00 10 00 00
+        ///  \endcode
+
+        /// downLines_ is
+        /// \code{}
+        /// .    - downLines_[0]
+        /// ..   - downLines_[1]
+        /// OXX  - downLines_[2]
+        /// .... - downLines_[3]
+        /// O..  - downLines_[4]
+        /// .X   - downLines_[5]
+        /// .    - downLines_[6]
+        ///  \endcode
 		std::array<board_line, 38> downLines_{};
 
-		// Pattern of current move stone to put on board
-		board_line movePattern { 0b01 };
+		/// @brief current move pattern, 0b01 - white, 0b10 - black
+		board_line movePattern_ {0b01 };
 
 		/// Moves history
 		std::vector<pcell> moves_;
@@ -219,6 +285,7 @@ namespace Gomoku
 	public:
 	    /// @brief Default ctor
 		Board();
+
 	    /// @brief Costructs a board from a list of moves.
 	    /// @param [in] moves list of moves
 		explicit Board(const std::vector<pcell> &moves);
@@ -226,9 +293,13 @@ namespace Gomoku
 		/// @brief the board becomes new as default constructed
 		void Reset();
 
+		/// @brief Undo one move (2 semi-moves)
+		/// @return true if success, false if not
 		bool TakeBackMove();
 
-
+        /// @brief function with obvious purpose
+        /// @param [in] move
+        /// @return // TODO
 		MoveResult MakeMove(pcell move);
 
 		/// @brief converts internal representation of board cell to human one
