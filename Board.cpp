@@ -86,8 +86,11 @@ Gomoku::Board::Board(const std::vector<Gomoku::Board::pcell> &moves)
 	std::cout << duration << std::endl;
 }
 
-bool Gomoku::Board::IsMoveCapture(int row, int col, Gomoku::Board::board_line mvPtrn) const
+bool Gomoku::Board::IsMoveCapture(pcell cell, Gomoku::Board::board_line mvPtrn) const
 {
+    const int& row = cell.first;
+    const int& col = cell.second;
+
 	return
 			(row + 3 < 19
 			 && int(this->At(row + 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
@@ -252,7 +255,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				continue;
 
 			// Valid move can be only a capture one
-			if (!IsMoveCapture(i, j, movePattern_))
+			if (!IsMoveCapture({i, j}, movePattern_))
 				continue;
 
 			// Pretending capture
@@ -1002,7 +1005,7 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
                 continue;
 
 			// Check if move valid
-            if (IsMoveCapture(i, j, movePattern_))
+            if (IsMoveCapture({i, j}, movePattern_))
             {
                 // Captures always valid
                 availableMoves_.emplace_back(i, j);

@@ -80,8 +80,8 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		const auto& avm = bs.GetAvailableMoves();
 		for (const auto &move : avm)
 		{
-			bool t1 = bs.IsMoveCapture(move.first, move.second, 0b01);
-			bool t2 = bs.IsMoveCapture(move.first, move.second, 0b10);
+			bool t1 = bs.IsMoveCapture(move, 0b01);
+			bool t2 = bs.IsMoveCapture(move, 0b10);
 
 			if (t1 && t2)
 			{
