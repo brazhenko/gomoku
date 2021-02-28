@@ -163,9 +163,87 @@ namespace Gomoku
 		};
 
 	private:
-		// Mappings of coodinates: (Normal x, y) -> (Vericle, Diagonal1, Diagonal1 lines x, y respectively)
+		/// @brief It was decided that we have to store four projections of the board
+		/// to have an opportunity to search for figures quickly
+		///
+		/// We have to find _XXX__ on board:
+		///
+		/// @code{}
+		///	______
+		///	____X_
+		///	___X__
+		///	__X___
+		///	______
+		/// ______
+		/// @endcode
+		/// The initial `board_` stores it row by row and we have no opportunity
+		/// to look up in verticles and diagonals. \n
+		/// Obviously we generate the following projections: \n
+		/// horizonal (general one), `board`
+		/// @code{}
+		///	______
+		///
+		///	____X_
+		///
+		///	___X__
+		///
+		///	__X___
+		///
+		///	______
+		///
+		/// ______
+		/// @endcode
+
+		/// `vertical_`
+		/// @code{}
+		///	_ _ _ _ _ _
+		///	_ _ _ _ X _
+		///	_ _ _ X _ _
+		///	_ _ X _ _ _
+		///	_ _ _ _ _ _
+		/// _ _ _ _ _ _
+		/// @endcode
+
+		/// `upLines_`
+		/// @code{}
+		///	_/_/_/_/_/_
+		/// / / / / / /
+		///	_/_/_/_/X/_
+		/// / / / / / /
+		///	_/_/_/X/_/_
+		/// / / / / / /
+		///	_/_/X/_/_/_
+		/// / / / / / /
+		///	_/_/_/_/_/_
+		/// / / / / / /
+		/// _/_/_/_/_/_
+		/// @endcode
+
+		/// `downLines_`
+		/// @code{}
+		///	_\_\_\_\_\_
+		/// \ \ \ \ \ \
+		///	_\_\_\_\X\_
+		/// \ \ \ \ \ \
+		///	_\_\_\X\_\_
+		/// \ \ \ \ \ \
+		///	_\_\X\_\_\_
+		/// \ \ \ \ \ \
+		///	_\_\_\_\_\_
+		/// \ \ \ \ \ \
+		/// _\_\_\_\_\_
+		/// @endcode
+
+		/// After that we need mappings `board_ -> vertical_`,
+		/// `board_ -> upLines_`,
+		/// `board_ -> downLines_`. \n
+		/// `_cToVerticles`, `_cToUpLines`, `_cToDownLines` are the respective mentioned mappings.
 		const static std::unordered_map<pcell, pcell, pairhash> _cToVerticles;
+
+		/// @brief Read _cToVerticles before
 		const static std::unordered_map<pcell, pcell, pairhash> _cToUpLines;
+
+		/// @brief Read _cToVerticles before
 		const static std::unordered_map<pcell, pcell, pairhash> _cToDownLines;
 
 		std::vector<pcell> availableMoves_;
@@ -333,28 +411,33 @@ namespace Gomoku
 		/// @return `true` if success, `false` if not
 		bool TakeBackMove();
 
-        /// @brief function with obvious purpose
-        /// @param [in] move
-        /// @return // TODO
+        /// @brief function with obvious purpose, makes move depending on result of `WhiteMove()`
+        /// @param [in] move move to make
+        /// @return
+        /// `MoveResult::Default` - move was made successfully \n
+		///	`MoveResult::WrongMove` - move was not made (move passed was not in `GetAvailableMoves()`) \n
+		///	`MoveResult::WhiteWin` - move led to victory of white player \n
+		///	`MoveResult::BlackWin` - move led to victory of black player \n
+		///	`MoveResult::Draw` - move led to draw
 		MoveResult MakeMove(pcell move);
 
 		/// @brief converts internal representation of board cell to human one
 		/// @param [in] move internal representation of board cell, e.g. `{0, 1}`,
 		///     move MUST be a valid one otherwise behaviour is undefined
-		/// @return human representation of a move, e.g. "j10"
+		/// @return human representation of a move, e.g. `"j10"`
 		static std::string MoveToString(const pcell &move);
 
 		/// @brief converts human representation of board cell to internal
-		/// @param [in] s string representation, e.g. "j10"
+		/// @param [in] s string representation, e.g. `"j10"`
 		/// @return internal representation of a move, e.g. `{10, 3}`
 		static pcell StringToMove(const std::string &s);
 
 		/// @brief Counts how many `shape` are on the board
 		/// @param [in] shape
-		/// @return count
+		/// @return count of `shape` on the board
 		[[nodiscard]] int CountFigureOverBoard(const GomokuShape &shape) const;
 
-		/// @brief Checks if there a `shape` on board
+		/// @brief Checks if a `shape` on board
 		/// @param [in] shape
 		/// @return `true` if found, `false` if not
 		[[nodiscard]] bool IsThereFigureOnBoard(const GomokuShape &shape) const;
@@ -370,7 +453,7 @@ namespace Gomoku
 		/// @return count of flanked threes
 		[[nodiscard]] int CountHalfFreeThrees(Side side) const;
 
-		/// @brief Counts how many so-called free threes were formed with `lastMove`.
+		/// @brief Counts how many so-called free threes were formed with `lastMove`
 		/// @param [in] side player
 		/// @param [in] lastMove "last move"
 		/// @return count of free threes formed with `lastMove`
@@ -381,7 +464,7 @@ namespace Gomoku
 		/// @return count of free fours
 		[[nodiscard]] int CountHalfFreeFours(Side side) const;
 
-		/// @brief Checks if putting a movePattern in call will trigger a capture
+		/// @brief Checks if putting a `movePattern` in `cell` will trigger a capture
 		/// @param [in] cell
 		/// @param [in] movePattern
 		/// @return `true` if will trigger `false` if not
@@ -396,7 +479,7 @@ namespace Gomoku
 		[[nodiscard]] size_t hash() const;
 
 		/// @brief Who's turn?
-		/// @return `true` White's turn
+		/// @return `true` if White's turn,
 		///         `false` otherwise
 		[[nodiscard]] bool WhiteMove() const;
 
@@ -410,24 +493,24 @@ namespace Gomoku
 
         /// @brief What is on a particular cell?
         /// @param [in] cell cell
-        /// @return `Side::None` if cell is empty
-        ///         `Side::White` if White stone
-        ///         `Side::Black` if Black stone
+		/// @return `Side::None` if cell is empty \n
+		///         `Side::White` if White stone \n
+		///         `Side::Black` if Black stone \n
 		[[nodiscard]] Side At(pcell cell) const;
 
 		/// @brief What is on a particular cell?
 		/// @param [in] row row of a cell
 		/// @param [in] col column of a cell
-		/// @return `Side::None` if cell is empty
-        ///         `Side::White` if White stone
-        ///         `Side::Black` if Black stone
+		/// @return `Side::None` if cell is empty \n
+		///         `Side::White` if White stone \n
+		///         `Side::Black` if Black stone \n
 		[[nodiscard]] Side At(int row, int col) const;
 
 		/// @brief What is on a particular cell?
 		/// @param [in] move string repr. of cell
-		/// @return `Side::None` if cell is empty
-        ///         `Side::White` if White stone
-        ///         `Side::Black` if Black stone
+		/// @return `Side::None` if cell is empty \n
+        ///         `Side::White` if White stone \n
+        ///         `Side::Black` if Black stone \n
 		[[nodiscard]] Side At(const std::string& move) const;
 
 		/// @brief How many capture points player has?
@@ -439,7 +522,7 @@ namespace Gomoku
 		/// @return result code of last move
 		[[nodiscard]] MoveResult GetLastMoveResult() const;
 
-        /// @brief Checks if particular cell has a stone in its locality of radius eps \n
+        /// @brief Checks if particular cell has a stone in its locality of radius eps. \n
         /// Example:
         /// V is a target cell, XO are stones
         /// @code{}
@@ -449,7 +532,7 @@ namespace Gomoku
         /// ........O..
         /// ...........
         ///  @endcode
-        /// if `eps` <= 3 return is `false`, if `eps` > 3 return is `true`
+        /// if `eps <= 3` return is `false`, if `eps > 3` return is `true`
 
         /// @param [in] cell cell
         /// @param [in] eps epsilon, locality "radius"
