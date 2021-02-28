@@ -33,13 +33,23 @@ namespace Gomoku
 	class Board
 	{
 	public:
-		// Global constants
-		static constexpr int bits_per_cell = 2;
+	    /// @brief game board is a square, cells_in_line is a side length
 		static constexpr int cells_in_line = 19;
+
+	private:
+	    /// @brief internal constant, number of bits represent a cell: \n
+	    /// 0b00 - empty, 0b01 - white, 0b10 - black.
+        static constexpr int bits_per_cell = 2;
+
+	    /// @brief just help constant
 		static constexpr int bits_per_line = cells_in_line * bits_per_cell;
 
+    public:
+	    /// @brief bit representation of a string
 		using board_line = std::bitset<bits_per_line>;
-		using pcell = std::pair<int, int>; // cell coordinate pair, {row, col}
+
+		/// @brief cell coordinate pair, {row, col}
+		using pcell = std::pair<int, int>;
 
 		/// @brief helper class for searching typical figures on board
 		struct GomokuShape
@@ -65,7 +75,7 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_four5_w {0b01'00'010101, 5};
 		/// @brief [XXXX_, `[` is a wall
 		constexpr static GomokuShape figure_half_four6_special_w { 0b0001010101, 5 };
-		/// @brief _XXXX]
+		/// @brief _XXXX], `]` is a wall
 		constexpr static GomokuShape figure_half_four7_special_w { 0b0101010100, 5 };
 		/// @brief __XXX__
 		constexpr static GomokuShape figure_free_three1_w { 0b0000'010101'0000, 7 };
@@ -105,9 +115,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_four4_b { 0b1010'00'1010, 5};
 		/// @brief O_OOO
 		constexpr static GomokuShape figure_half_four5_b { 0b101010'00'10, 5};
-        /// @brief [OOOO_
+        /// @brief [OOOO_, `[` is a wall
 		constexpr static GomokuShape figure_half_four6_special_b { 0b0010101010, 5 };
-		/// @brief _OOOO]
+		/// @brief _OOOO], `]` is a wall
 		constexpr static GomokuShape figure_half_four7_special_b { 0b1010101000, 5 };
 		/// @brief __OOO__
 		constexpr static GomokuShape figure_free_three1_b { 0b0000'101010'0000, 7 };
