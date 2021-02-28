@@ -259,7 +259,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				continue;
 
 			// Pretending capture
-			auto captured = MakeCapture({i, j});
+			auto captured = MakeCaptureInternal({i, j});
 			if (captured.empty())
 				continue;
 
@@ -293,16 +293,17 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 		}
 }
 
-std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
+std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 {
 	std::vector<pcell> capturedStones;
     const int row = move.first, col = move.second;
+    const int centerStone = int(At(move));
 
 	// capture pair up
 	if (row + 3 < 19
-		&& int(this->At(row + 1, col)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 2, col)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col)) == (movePattern_.to_ulong())
+		&& int(this->At(row + 1, col)) == (centerStone ^ 0b11U)
+		&& int(this->At(row + 2, col)) == (centerStone ^ 0b11U)
+		&& int(this->At(row + 3, col)) == centerStone
 			) {
 
 		SetStoneInternal(row + 1, col, Side::None);
@@ -319,9 +320,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair up right
 	if (row + 3 < 19
 		&& col + 3 < 19
-		&& int(this->At(row + 1, col + 1)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 2, col + 2)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col + 3)) == (movePattern_.to_ulong())
+		&& int(this->At(row + 1, col + 1)) == (centerStone ^ 0b11U)
+		&& int(this->At(row + 2, col + 2)) == (centerStone ^ 0b11U)
+		&& int(this->At(row + 3, col + 3)) == centerStone
 			) {
 
 		SetStoneInternal(row + 1, col + 1, Side::None);
@@ -337,9 +338,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair right
 	if (col + 3 < 19
-		&& int(this->At(row, col + 1)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col + 2)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col + 3)) == (movePattern_.to_ulong()))
+		&& int(this->At(row, col + 1)) == (centerStone ^ 0b11U)
+		&& int(this->At(row, col + 2)) == (centerStone ^ 0b11U)
+		&& int(this->At(row, col + 3)) == (centerStone))
 	{
 
 		SetStoneInternal(row, col + 1, Side::None);
@@ -356,9 +357,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair down right
 	if (row - 3 >= 0
 		&& col + 3 < 19
-		&& int(this->At(row - 1, col + 1)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 2, col + 2)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col + 3)) == (movePattern_.to_ulong()))
+		&& int(this->At(row - 1, col + 1)) == (centerStone ^ 0b11U)
+		&& int(this->At(row - 2, col + 2)) == (centerStone ^ 0b11U)
+		&& int(this->At(row - 3, col + 3)) == (centerStone))
 	{
 
 		SetStoneInternal(row - 1, col + 1, Side::None);
@@ -374,9 +375,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair down
 	if (row - 3 >= 0
-		&& int(this->At(row - 1, col)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 2, col)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col)) == (movePattern_.to_ulong())) {
+		&& int(this->At(row - 1, col)) == (centerStone ^ 0b11U)
+		&& int(this->At(row - 2, col)) == (centerStone ^ 0b11U)
+		&& int(this->At(row - 3, col)) == (centerStone)) {
 
 		SetStoneInternal(row - 1, col, Side::None);
 		capturedStones.emplace_back(row - 1, col);
@@ -392,9 +393,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair down left
 	if (row - 3 >= 0
 		&& col - 3 >= 0
-		&& int(this->At(row - 1, col - 1)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 2, col - 2)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row - 3, col - 3)) == (movePattern_.to_ulong()))
+		&& int(this->At(row - 1, col - 1)) == (centerStone ^ 0b11U)
+		&& int(this->At(row - 2, col - 2)) == (centerStone ^ 0b11U)
+		&& int(this->At(row - 3, col - 3)) == (centerStone))
 	{
 
 		SetStoneInternal(row - 1, col - 1, Side::None);
@@ -410,9 +411,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 
 	// capture pair left
 	if (col - 3 >= 0
-		&& int(this->At(row, col - 1)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col - 2)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row, col - 3)) == (movePattern_.to_ulong()))
+		&& int(this->At(row, col - 1)) == (centerStone ^ 0b11U)
+		&& int(this->At(row, col - 2)) == (centerStone ^ 0b11U)
+		&& int(this->At(row, col - 3)) == (centerStone))
 	{
 
 		SetStoneInternal(row, col - 1, Side::None);
@@ -429,9 +430,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCapture(pcell move)
 	// capture pair up left
 	if (row + 3 < 19
 		&& col - 3 >= 0
-		&& int(this->At(row + 1, col - 1)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 2, col - 2)) == (movePattern_.to_ulong() ^ 0b11U)
-		&& int(this->At(row + 3, col - 3)) == (movePattern_.to_ulong()))
+		&& int(this->At(row + 1, col - 1)) == (centerStone ^ 0b11U)
+		&& int(this->At(row + 2, col - 2)) == (centerStone ^ 0b11U)
+		&& int(this->At(row + 3, col - 3)) == (centerStone))
 	{
 
 		SetStoneInternal(row + 1, col - 1, Side::None);
@@ -468,7 +469,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	// Delete cell from available ones
 
 	// Make captures if exist
-	if (!MakeCapture({row, col}).empty())
+	if (!MakeCaptureInternal({row, col}).empty())
 		ret = MoveResult::Capture;
 
 	availableMoves_ = {};
@@ -1033,12 +1034,12 @@ void Gomoku::Board::GenerateAvailableMovesInternal()
 }
 
 template<typename B>
-int Gomoku::Board::CountFiguresPoints(const B &lines, const Gomoku::Board::GomokuShape &shape, int x, int y) const {
+int Gomoku::Board::CountFiguresPoints(const B &lines, const Gomoku::Board::GomokuShape &shape, int row, int col) const {
 	int ret = 0;
 
-	const auto& row_ = lines[x];
+	const auto& row_ = lines[row];
 
-	for (int i = std::max(0, y - shape.size + 1); i <= y; i++) //std::min(y + shape.size, cells_in_line - shape.size)
+	for (int i = std::max(0, col - shape.size + 1); i <= col; i++) //std::min(col + shape.size, cells_in_line - shape.size)
 	{
 		auto copy = (row_
 				<< ((cells_in_line - i - shape.size) * bits_per_cell)

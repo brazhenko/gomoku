@@ -260,10 +260,19 @@ namespace Gomoku
 
 		/// @brief Internal functions generates available moves ONLY IF there is a five on a board
 		void FindMovesBreaksFifthInternal();
-		/// General available moves generator
+
+		/// @brief General available moves generator
 		void GenerateAvailableMovesInternal();
 
-		std::vector<pcell> MakeCapture(pcell move);
+		/// @brief Performs a "capture" as if `move` is a last one
+		/// @param move "last move"
+		/// @return vector of cells wich were captured
+		std::vector<pcell> MakeCaptureInternal(pcell move);
+
+		/// @brief Internal MakeMove function. Really is not supposed to be called. Call MakeMove instead
+		/// @param row row index
+		/// @param col column index
+		/// @return result code
 		MoveResult MakeMoveInternal(int row, int col);
 
 		/// @brief Sets particular cell as occupied with a stone removes stone
@@ -272,15 +281,42 @@ namespace Gomoku
 		/// @param [in] s side of a stone. May me `Side::None`
 		void SetStoneInternal(int row, int col, Side s);
 
-		// Const methods
+		/// @brief Internal function counts `shape` entries in `lines`
+		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
+		/// @param lines lines where to search
+		/// @param shape shape to search for
+		/// @param diagonal is `lines` diagonal
+		/// @return count of `shape` entries in `lines`
 		template<typename B>
-		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
+		int CountFigures(const B &lines, const GomokuShape &shape, bool diagonal = false) const;
+
+		/// @brief Internal function counts `shape` entries in `lines` touches beginning wall
+		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
+		/// @param lines lines where to search
+		/// @param shape shape to search for
+		/// @param diagonal is `lines` diagonal
+		/// @return count of `shape` entries in `lines`
 		template<typename B>
-		int CountFiguresBeginRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
+		int CountFiguresBeginRow(const B &lines, const GomokuShape &shape, bool diagonal = false) const;
+
+		/// @brief Internal function counts `shape` entries in `lines` touches ending wall
+		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
+		/// @param lines lines where to search
+		/// @param shape shape to search for
+		/// @param diagonal is `lines` diagonal
+		/// @return count of `shape` entries in `lines`
 		template<typename B>
-		int CountFiguresEndRow(const B &lines, const GomokuShape &shape, bool diagonal=false) const;
+		int CountFiguresEndRow(const B &lines, const GomokuShape &shape, bool diagonal = false) const;
+
+		/// @brief Internal function counts `shape` entries in `lines`, `{row, col}` is a part of `shape`
+		/// @tparam B interable, consists of bitsets, supposed to be one of `board_`, `vertical_`, `upLines_` or `downLines_`
+		/// @param lines lines where to search
+		/// @param shape shape to search for
+		/// @param row row coordinate of cell
+		/// @param col column coordinate of cell
+		/// @return count of `shape` entries in `lines`
 		template<typename B>
-		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int x, int y) const;
+		int CountFiguresPoints(const B &lines, const GomokuShape &shape, int row, int col) const;
 
 	public:
 	    /// @brief Default ctor
@@ -406,13 +442,13 @@ namespace Gomoku
         /// @brief Checks if particular cell has a stone in its locality of radius eps \n
         /// Example:
         /// V is a target cell, XO are stones
-        /// \code{}
+        /// @code{}
         /// ...........
         /// ...........
         /// ....V...X..
         /// ........O..
         /// ...........
-        ///  \endcode
+        ///  @endcode
         /// if `eps` <= 3 return is `false`, if `eps` > 3 return is `true`
 
         /// @param [in] cell cell
@@ -420,7 +456,7 @@ namespace Gomoku
         /// @return `true` if has, `false` otherwise
         [[nodiscard]] bool IsCellHasStoneNearby(pcell cell, int eps=1) const;
 
-        /// @brief Converts object to portable game notation string
+        /// @brief Converts object to Portable Game Notation string
         /// @return pgn string
 		[[nodiscard]] std::string ToPgnString() const;
 
