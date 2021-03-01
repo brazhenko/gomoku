@@ -18,15 +18,24 @@
 
 namespace Gomoku
 {
+	/// @brief Facade for manipulating all game abstractions
 	class Game
 	{
 	public:
+		/// @brief white player object
 		std::unique_ptr<Gomoku::IPlayer> whitePlayer;
+		/// @brief black player object
 		std::unique_ptr<Gomoku::IPlayer> blackPlayer;
 
+		/// @brief board of current game
 		Gomoku::Board board_;
+		/// @brief engibe instance
 		Gomoku::Engine engine;
 
+		/// @brief clock object
+		Gomoku::ChessClock clock_;
+
+		/// @brief state of the game
 		enum class State
 		{
 			Start = 0,
@@ -38,15 +47,27 @@ namespace Gomoku
 			GameEndedDraw
 		};
 		State state_ = State::Main;
-		Gomoku::ChessClock clock_;
 
+		/// @brief default ctor
 		Game();
+
+		/// @brief start/continue the game
+		/// @param player1 string repr of white player
+		/// @param player2 string repr of black player
+		/// @param gameVersion string repr of game version
+		/// @param gameTime string repr of time control
 		void Go(const std::string &player1,
 				const std::string &player2,
 				const std::string &gameVersion,
 				const std::string &gameTime);
+
+		/// @brief pause the game
 		void Pause();
+
+		/// @brief stop the game
 		void Stop();
+
+		/// @brief make a takeback
 		void TakeBack();
 	};
 }

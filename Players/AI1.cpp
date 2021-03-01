@@ -236,13 +236,13 @@ void Gomoku::AI1::Worker()
     {
         traverser.emplace(1, pr);
 
+		std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
+				  << std::setw(4) << std::setfill(' ')
+				  << ((!pr->state_.GetMovesList().empty()) ? Board::MoveToString(pr->state_.GetMovesList().back()) : "no")
+				  << " " << pr->maximize_ << "]" << "\n";
+
         while (pr->Depth() < this->depth_)
         {
-//            std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
-//                      << std::setw(4) << std::setfill(' ')
-//                      << ((!pr->state_.GetMovesList().empty()) ? Board::MoveToString(pr->state_.GetMovesList().back()) : "no")
-//                      << " " << pr->maximize_ << "]" << "\n";
-
             if (pr->children_.empty())
                 GenerateChildren(pr);
 
@@ -254,6 +254,13 @@ void Gomoku::AI1::Worker()
 
             traverser.emplace(1, pr->children_[0]);
             pr = pr->children_[0];
+            std::tie(pr->alpha, pr->beta) = std::tie(pr->parent_.lock()->alpha, pr->parent_.lock()->beta);
+
+
+			std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
+					  << std::setw(4) << std::setfill(' ')
+					  << ((!pr->state_.GetMovesList().empty()) ? Board::MoveToString(pr->state_.GetMovesList().back()) : "no")
+					  << " " << pr->maximize_ << "]" << "\n";
         }
     };
 
@@ -296,10 +303,44 @@ void Gomoku::AI1::Worker()
                 auto pair = traverser.top();
                 traverser.pop();
 
-//                std::cout << "|" << std::setw(3) << std::setfill(' ') << pair.second->positionScore_
-//                          << std::setw(4) << std::setfill(' ')
-//                          << ((!pair.second->state_.GetMovesList().empty()) ? Board::MoveToString(pair.second->state_.GetMovesList().back()) : "no")
-//                          << " " << pair.second->maximize_ << "]" << "\n" ;
+                /// Counting alpha-beta!
+                if (pair.second->maximize_)
+				{
+                	if (pair.second->children_.empty())
+					{
+						pair.second->alpha = std::max(pair.second->alpha, pair.second->positionScore_);
+					}
+                	else
+					{
+						pair.second->alpha = (*std::max_element(
+								pair.second->children_.begin(),
+								pair.second->children_.end(),
+								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
+									return l->positionScore_ < r->positionScore_;
+								}))->positionScore_;
+					}
+				}
+                else
+				{
+					if (pair.second->children_.empty())
+					{
+						pair.second->beta = std::min(pair.second->beta, pair.second->positionScore_);
+					}
+					else
+					{
+						pair.second->beta = (*std::min_element(
+								pair.second->children_.begin(),
+								pair.second->children_.end(),
+								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
+									return l->positionScore_ < r->positionScore_;
+								}))->positionScore_;
+					}
+				}
+
+                std::cout << "|" << std::setw(3) << std::setfill(' ') << pair.second->positionScore_
+                          << std::setw(4) << std::setfill(' ')
+                          << ((!pair.second->state_.GetMovesList().empty()) ? Board::MoveToString(pair.second->state_.GetMovesList().back()) : "no")
+                          << " " << pair.second->maximize_ << "]" << "\n" ;
 
                 if (pair.first < pair.second->children_.size())
                 {
@@ -373,7 +414,6 @@ std::function<bool(int score1, int score2)> Gomoku::AI1::LessIntializer(Gomoku::
 
 	return ret;
 }
-
 
 int Gomoku::AI1::CalcTreeNode::Depth() const
 {

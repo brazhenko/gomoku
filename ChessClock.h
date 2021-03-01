@@ -17,8 +17,8 @@ namespace Gomoku
     /// two-side chess clock that simulates real chess clock :)
 	class ChessClock
 	{
-		bool WhiteMove_ = true;
-		bool PauseOn_ = true;
+		bool WhiteMove_ { true };
+		bool PauseOn_ = { true };
 
 		std::chrono::system_clock::time_point startWhite_{};
 		std::chrono::system_clock::time_point startBlack_{};
