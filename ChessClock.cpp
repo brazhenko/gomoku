@@ -28,86 +28,87 @@ std::string Gomoku::ChessClock::DurationToString(const std::chrono::duration<dou
 
 
 Gomoku::ChessClock::ChessClock(int whiteSeconds, int blackSeconds, bool whiteMove)
-		: whiteTimeLeft{whiteSeconds * 1000 }
-		, blackTimeLeft{blackSeconds * 1000 }
-		, WhiteMove{ whiteMove }
-		, PauseOn { true }
+		: whiteTimeLeft_{ whiteSeconds * 1000 }
+		, blackTimeLeft_{ blackSeconds * 1000 }
+		, WhiteMove_{ whiteMove }
+		, PauseOn_ { true }
 {}
 
 void Gomoku::ChessClock::Start()
 {
-	PauseOn = false;
-
 	auto tmp = std::chrono::system_clock::now();
 
-	startWhite = tmp;
-	startBlack = tmp;
+    startWhite_ = tmp;
+    startBlack_ = tmp;
+
+    PauseOn_ = false;
 }
 
 void Gomoku::ChessClock::Pause()
 {
-	if (PauseOn) return;
+	if (PauseOn_) return;
 
-	if (WhiteMove)
+	if (WhiteMove_)
 	{
-		whiteTimeLeft
-				= std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (std::chrono::system_clock::now() - startWhite));
+		whiteTimeLeft_
+				= std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft_ - (std::chrono::system_clock::now() - startWhite_));
 	}
 	else
 	{
-		blackTimeLeft
-				= std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (std::chrono::system_clock::now() - startBlack));
+		blackTimeLeft_
+				= std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft_ - (std::chrono::system_clock::now() - startBlack_));
 	}
 
-	PauseOn = true;
+    PauseOn_ = true;
 }
 
 void Gomoku::ChessClock::Continue()
 {
 	auto tmp = std::chrono::system_clock::now();
 
-	startWhite = tmp;
-	startBlack = tmp;
-	PauseOn = false;
+    startWhite_ = tmp;
+    startBlack_ = tmp;
+
+    PauseOn_ = false;
 }
 
 void Gomoku::ChessClock::Stop()
 {
-	whiteTimeLeft = std::chrono::milliseconds(0);
-	blackTimeLeft = std::chrono::milliseconds(0);
+	whiteTimeLeft_ = std::chrono::milliseconds(0);
+	blackTimeLeft_ = std::chrono::milliseconds(0);
 
-	whiteTimeSpentForLastMove = {};
-	blackTimeSpentForLastMove = {};
+    whiteTimeSpentForLastMove_ = {};
+    blackTimeSpentForLastMove_ = {};
 
-	WhiteMove = true;
-	PauseOn = true;
+    WhiteMove_ = true;
+    PauseOn_ = true;
 }
 
 void Gomoku::ChessClock::ChangeMove()
 {
-	if (!PauseOn)
+	if (!PauseOn_)
 	{
 		auto now = std::chrono::system_clock::now();
 
 		// Refreshing clock values
-		if (WhiteMove)
+		if (WhiteMove_)
 		{
-			auto tmp =  std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft - (now - startWhite));
-			this->whiteTimeSpentForLastMove = whiteTimeLeft - tmp;
+			auto tmp =  std::chrono::duration_cast<std::chrono::milliseconds>(whiteTimeLeft_ - (now - startWhite_));
+			this->whiteTimeSpentForLastMove_ = whiteTimeLeft_ - tmp;
 
-			whiteTimeLeft = tmp;
-			startBlack = now;
+			whiteTimeLeft_ = tmp;
+            startBlack_ = now;
 		}
 		else
 		{
-			auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft - (now - startBlack));
-			this->blackTimeSpentForLastMove = blackTimeLeft - tmp;
+			auto tmp = std::chrono::duration_cast<std::chrono::milliseconds>(blackTimeLeft_ - (now - startBlack_));
+			this->blackTimeSpentForLastMove_ = blackTimeLeft_ - tmp;
 
-			blackTimeLeft = tmp;
-			startWhite =  now;
+			blackTimeLeft_ = tmp;
+            startWhite_ =  now;
 		}
 	}
-	WhiteMove ^= true;
+    WhiteMove_ ^= true;
 }
 
 [[nodiscard]] bool Gomoku::ChessClock::WhiteTimeLeft() const
@@ -115,10 +116,10 @@ void Gomoku::ChessClock::ChangeMove()
 	auto nw = std::chrono::system_clock::now();
 
 	std::chrono::duration<double> timeLeft{};
-	if (!WhiteMove || PauseOn)
-		timeLeft = whiteTimeLeft;
+	if (!WhiteMove_ || PauseOn_)
+		timeLeft = whiteTimeLeft_;
 	else
-		timeLeft = whiteTimeLeft - (nw - startWhite);
+		timeLeft = whiteTimeLeft_ - (nw - startWhite_);
 
 	if (timeLeft <= std::chrono::milliseconds(0))
 		return false;
@@ -131,10 +132,10 @@ void Gomoku::ChessClock::ChangeMove()
 
 	std::chrono::duration<double> timeLeft{};
 
-	if (WhiteMove || PauseOn)
-		timeLeft = blackTimeLeft;
+	if (WhiteMove_ || PauseOn_)
+		timeLeft = blackTimeLeft_;
 	else
-		timeLeft = blackTimeLeft - (nw - startBlack);
+		timeLeft = blackTimeLeft_ - (nw - startBlack_);
 
 	if (timeLeft <= std::chrono::milliseconds(0))
 		return false;
@@ -146,10 +147,10 @@ void Gomoku::ChessClock::ChangeMove()
 	auto nw = std::chrono::system_clock::now();
 
 	std::chrono::duration<double> timeLeft{};
-	if (!WhiteMove || PauseOn)
-		timeLeft = whiteTimeLeft;
+	if (!WhiteMove_ || PauseOn_)
+		timeLeft = whiteTimeLeft_;
 	else
-		timeLeft = whiteTimeLeft - (nw - startWhite);
+		timeLeft = whiteTimeLeft_ - (nw - startWhite_);
 
 	return DurationToString(timeLeft);
 }
@@ -160,20 +161,20 @@ void Gomoku::ChessClock::ChangeMove()
 
 	std::chrono::duration<double> timeLeft{};
 
-	if (WhiteMove || PauseOn)
-		timeLeft = blackTimeLeft;
+	if (WhiteMove_ || PauseOn_)
+		timeLeft = blackTimeLeft_;
 	else
-		timeLeft = blackTimeLeft - (nw - startBlack);
+		timeLeft = blackTimeLeft_ - (nw - startBlack_);
 
 	return DurationToString(timeLeft);
 }
 
 [[nodiscard]] std::string Gomoku::ChessClock::GetTimeSpentWhite() const
 {
-	return DurationToString(whiteTimeSpentForLastMove);
+	return DurationToString(whiteTimeSpentForLastMove_);
 }
 
 [[nodiscard]] std::string Gomoku::ChessClock::GetTimeSpentBlack() const
 {
-	return DurationToString(blackTimeSpentForLastMove);
+	return DurationToString(blackTimeSpentForLastMove_);
 }

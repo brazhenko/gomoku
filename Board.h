@@ -407,7 +407,7 @@ namespace Gomoku
 		/// @return `true` if success, `false` if not
 		bool TakeBackMove();
 
-        /// @brief function with obvious purpose, makes move depending on result of `WhiteMove()`
+        /// @brief function with obvious purpose, makes move depending on result of `WhiteMove_()`
         /// @param [in] move move to make
         /// @return
         /// `MoveResult::Default` - move was made successfully \n
