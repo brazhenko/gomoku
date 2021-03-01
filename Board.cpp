@@ -9,6 +9,8 @@
 #include <vector>
 #include "PGNGame.h"
 #include <algorithm>
+#include <sstream>
+#include <iostream>
 
 const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Board::PairHash> Gomoku::Board::_cToVerticles = [](){
 	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, PairHash> ret;
@@ -270,7 +272,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				fifthCount += CountFigures(vertical_, figure_five_w);
 				fifthCount += CountFigures(upLines_, figure_five_w, true);
 				fifthCount += CountFigures(downLines_, figure_five_w, true);
-				BlackCapturePoints -= (int(captured.size()) / 2);
+                BlackCapturePoints_ -= (int(captured.size()) / 2);
 			}
 			else
 			{
@@ -278,7 +280,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				fifthCount += CountFigures(vertical_, figure_five_b);
 				fifthCount += CountFigures(upLines_, figure_five_b, true);
 				fifthCount += CountFigures(downLines_, figure_five_b, true);
-				WhiteCapturePoints -= (int(captured.size()) / 2);
+                WhiteCapturePoints_ -= (int(captured.size()) / 2);
 			}
 
 			// Capture destroys five => add it to available moves list
@@ -311,9 +313,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row + 2, col);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair up right
@@ -330,9 +332,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row + 2, col + 2);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair right
@@ -348,9 +350,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row, col + 2);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair down right
@@ -367,9 +369,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row - 2, col + 2);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair down
@@ -384,9 +386,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row - 2, col);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair down left
@@ -403,9 +405,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row - 2, col - 2);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair left
@@ -421,9 +423,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row, col - 2);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	// capture pair up left
@@ -440,9 +442,9 @@ std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
 		capturedStones.emplace_back(row + 2, col - 2);
 
 		if (WhiteMove())
-			WhiteCapturePoints++;
+			WhiteCapturePoints_++;
 		else
-			BlackCapturePoints++;
+			BlackCapturePoints_++;
 	}
 
 	return capturedStones;
@@ -473,9 +475,9 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 
 	availableMoves_ = {};
 
-	if (WhiteMove() && WhiteCapturePoints >= 5)
+	if (WhiteMove() && WhiteCapturePoints_ >= 5)
 		return MoveResult::WhiteWin;
-	if (!WhiteMove() && BlackCapturePoints >= 5)
+	if (!WhiteMove() && BlackCapturePoints_ >= 5)
 		return MoveResult::BlackWin;
 	int fivesCount = 0;
 
@@ -626,9 +628,9 @@ Gomoku::Board::Side Gomoku::Board::At(int row, int col) const
 int Gomoku::Board::GetCapturePoints(Gomoku::Board::Side side) const
 {
 	if (Side::White == side)
-		return WhiteCapturePoints;
+		return WhiteCapturePoints_;
 	else if (Side::Black == side)
-		return BlackCapturePoints;
+		return BlackCapturePoints_;
 	return -1;
 }
 
@@ -644,8 +646,8 @@ std::istream &Gomoku::operator>>(std::istream &is, Gomoku::Board &bs)
 
 	int a, b;
 	is
-		>> bs.WhiteCapturePoints
-		>> bs.BlackCapturePoints
+		>> bs.WhiteCapturePoints_
+		>> bs.BlackCapturePoints_
 		>> bs.movePattern_;
 
 	for (int i = Gomoku::Board::cells_in_line - 1; i > -1; i--)
@@ -766,8 +768,8 @@ bool Gomoku::Board::IsThereFigureOnBoard(const Gomoku::Board::GomokuShape &shape
 bool Gomoku::operator==(const Gomoku::Board &left, const Gomoku::Board &right)
 {
     return left.board_ == right.board_
-     	&& left.WhiteCapturePoints == right.WhiteCapturePoints
-     	&& left.WhiteCapturePoints == right.BlackCapturePoints;
+     	&& left.WhiteCapturePoints_ == right.WhiteCapturePoints_
+     	&& left.WhiteCapturePoints_ == right.BlackCapturePoints_;
 }
 
 Gomoku::Board::MoveResult Gomoku::Board::GetLastMoveResult() const

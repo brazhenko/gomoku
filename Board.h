@@ -6,18 +6,10 @@
 #define GOMOKU_BOARD_H
 
 #include <vector>
-#include <cstdint>
 #include <array>
-#include <unordered_set>
 #include <bitset>
-#include <iostream>
-#include <sstream>
 #include <unordered_map>
 #include <fstream>
-#include <mutex>
-
-
-
 
 namespace Gomoku
 {
@@ -53,8 +45,8 @@ namespace Gomoku
 		};
 
 		/// @brief hasher for std::pair<T, U>
-		struct PairHash {
-		public:
+		struct PairHash
+        {
 			template <typename T, typename U>
 			std::size_t operator()(const std::pair<T, U> &x) const
 			{
@@ -253,11 +245,10 @@ namespace Gomoku
 		std::vector<pcell> availableMoves_;
 
 		/// @brief White captured black stones count
-		int WhiteCapturePoints = 0;
+		int WhiteCapturePoints_ = 0;
 		/// @brief Black captured white stones count
-		int BlackCapturePoints = 0;
+		int BlackCapturePoints_ = 0;
 
-		// Normal board: array of rows, board_[1][2] == board["c2"]
 		/// @brief just normal board \n
 
         /// \code{}
@@ -266,6 +257,7 @@ namespace Gomoku
         /// O.X. - board_[1] = 10 00 01 00
         /// .O.. - board_[0] = 00 10 00 00
         ///  \endcode
+        /// `board_[1][2] == board["c2"]`
 		std::array<board_line, 19> board_{};
 
         /// @brief vertical mapping of the board \n
@@ -340,7 +332,7 @@ namespace Gomoku
 		/// @brief move result
 		MoveResult lastMoveResult_ = MoveResult::Default;
 
-		/// @brief Internal functions generates available moves ONLY IF there is a five on a board
+		/// @brief Internal function generates available moves ONLY IF there is a five on a board
 		void FindMovesBreaksFifthInternal();
 
 		/// @brief General available moves generator

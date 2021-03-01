@@ -7,6 +7,8 @@
 #include <map>
 #include <future>
 #include <queue>
+#include <iostream>
+#include <sstream>
 
 Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
 		: IPlayer(side, std::move(MakeMove), realBoard)
@@ -196,6 +198,8 @@ void Gomoku::AI1::Worker()
 				// Empty queue
 				jobs_ = {};
 				jobs_.emplace_back(tree_);
+
+
 			}
 
 			// Pop out a new job or break!
@@ -319,7 +323,6 @@ void Gomoku::AI1::Worker()
 
 		toLeft(tree_);
 
-
 		while (!st.empty()) // has next?
 		{
 			// get next
@@ -327,26 +330,17 @@ void Gomoku::AI1::Worker()
 			auto pair = st.top();
 			st.pop();
 
+            std::cout << "[" << std::setw(3) << std::setfill(' ') << pair.second->positionScore_
+                      << std::setw(4) << std::setfill(' ')
+                      << ((!pair.second->state_.GetMovesList().empty()) ? Board::MoveToString(pair.second->state_.GetMovesList().back()) : "no")
+                      << " " << pair.second->maximize_ << "]" << std::endl;
 
-			if (pair.first + 1 == pair.second->children_.size())
-			{
-				// Last child in this node!
-				toLeft(pair.second->children_[pair.first]);
-			}
-			else if (!pair.second->children_.empty())
-			{
-				st.emplace(pair.first + 1, pair.second);
-				toLeft(pair.second->children_[pair.first]);
-			}
-
-
-			std::cout << "[" << std::setw(3) << std::setfill(' ') << pair.second->positionScore_
-				 << std::setw(4) << std::setfill(' ')
-				 << ((!pair.second->state_.GetMovesList().empty()) ? Board::MoveToString(pair.second->state_.GetMovesList().back()) : "no")
-				 << " " << pair.second->maximize_ << "]" << std::endl;
-
+            if (pair.first < pair.second->children_.size())
+            {
+                st.emplace(pair.first + 1, pair.second);
+                toLeft(pair.second->children_[pair.first]);
+            }
 		}
-
 
         if (!work_) return;
 

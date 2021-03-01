@@ -58,6 +58,10 @@ namespace Gomoku
 
 		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
 		std::mutex	            jobsMtx_;
+
+        std::stack<std::pair<int /* depth */, std::shared_ptr<CalcTreeNode>>> jobs2_;
+        std::mutex	            jobs2Mtx_;
+
 		std::condition_variable jobsCv_;
 		std::mutex              jobsCvMtx_;
 
