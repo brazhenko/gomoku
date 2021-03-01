@@ -24,18 +24,19 @@ namespace Gomoku
 	public:
 		/// @brief white player object
 		std::unique_ptr<Gomoku::IPlayer> whitePlayer;
+
 		/// @brief black player object
 		std::unique_ptr<Gomoku::IPlayer> blackPlayer;
 
 		/// @brief board of current game
 		Gomoku::Board board_;
-		/// @brief engibe instance
+		/// @brief engine instance
 		Gomoku::Engine engine;
 
 		/// @brief clock object
 		Gomoku::ChessClock clock_;
 
-		/// @brief state of the game
+		/// @brief state type of the game
 		enum class State
 		{
 			Start = 0,
@@ -46,6 +47,8 @@ namespace Gomoku
 			GameEndedBlackWin,
 			GameEndedDraw
 		};
+
+		/// @brief state of the game
 		State state_ = State::Main;
 
 		/// @brief default ctor
