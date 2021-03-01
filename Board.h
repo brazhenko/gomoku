@@ -13,7 +13,7 @@
 
 namespace Gomoku
 {
-    /// @brief Gomoku::Board if main class of Gomoku42 game. \n
+    /// @brief Gomoku::Board is main class of Gomoku42 game. \n
     /// Game rules and a bit more are implemented here.
 
 	class Board

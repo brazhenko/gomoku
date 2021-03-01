@@ -50,17 +50,16 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
-        std::atomic_int         depth_ = 3;
+        std::atomic_int         depth_ = 5;
 		static constexpr int	countOfBestCandididates_ = 3;
 		std::atomic_int         count_found = 0;
         std::atomic_bool 		needReload_ = false;
 		std::shared_ptr<CalcTreeNode>	tree_;
 
-		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
+//		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
 		std::mutex	            jobsMtx_;
 
-        std::stack<std::pair<int /* depth */, std::shared_ptr<CalcTreeNode>>> jobs2_;
-        std::mutex	            jobs2Mtx_;
+//        std::stack<std::pair<int /* depth */, std::shared_ptr<CalcTreeNode>>> jobs2_;
 
 		std::condition_variable jobsCv_;
 		std::mutex              jobsCvMtx_;
@@ -77,6 +76,7 @@ namespace Gomoku
 
 		bool FindNext();
 		void Worker();
+        void GenerateChildren(std::shared_ptr<CalcTreeNode> &node);
 
 		static std::function<bool(int score1, int score2)> LessIntializer(Board::Side side);
 		static std::function<bool(int score1, int score2)> GreaterIntializer(Board::Side side);
