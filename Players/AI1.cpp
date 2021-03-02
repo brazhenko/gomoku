@@ -41,8 +41,6 @@ Gomoku::AI1::~AI1()
 	std::cerr << "Found in tree: " << count_found << std::endl;
 }
 
-
-
 void Gomoku::AI1::YourTurn()
 {
 	myMove = true;
@@ -199,7 +197,10 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
         auto result = futures[i].get();
 
         for (int j = 0; j < countOfBestCandididates_ && j < result.size(); j++)
-            pq.emplace(std::move(result[j]));
+		{
+			pq.emplace(std::move(result[j]));
+		}
+
     }
 
     //	std::cout << "bug3" << std::endl;
@@ -214,6 +215,8 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
                     node,
                     node->maximize_ ^ true,
                     pq.top().second));
+
+			node->children_.back()->positionScore_ = node->maximize_ ? -101 : 101;
 
             pq.pop();
         }
@@ -236,10 +239,14 @@ void Gomoku::AI1::Worker()
     {
         traverser.emplace(1, pr);
 
+		std::tie(pr->alpha, pr->beta) = pr->parent_.expired()
+										? std::make_pair(std::numeric_limits<int>::min(), std::numeric_limits<int>::max())
+										: std::make_pair(pr->parent_.lock()->alpha, pr->parent_.lock()->beta);
+
 		std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
 				  << std::setw(4) << std::setfill(' ')
 				  << ((!pr->state_.GetMovesList().empty()) ? Board::MoveToString(pr->state_.GetMovesList().back()) : "no")
-				  << " " << pr->maximize_ << "]" << "\n";
+				  << " " << pr->maximize_ << " a: " << pr->alpha << " b: " << pr->beta << "]" << "\n";
 
         while (pr->Depth() < this->depth_)
         {
@@ -248,7 +255,7 @@ void Gomoku::AI1::Worker()
 
             if (pr->children_.empty())
             {
-                std::cout << "break" << std::endl;
+                std::cout << "break or prune" << std::endl;
                 break;
             }
 
@@ -260,7 +267,7 @@ void Gomoku::AI1::Worker()
 			std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
 					  << std::setw(4) << std::setfill(' ')
 					  << ((!pr->state_.GetMovesList().empty()) ? Board::MoveToString(pr->state_.GetMovesList().back()) : "no")
-					  << " " << pr->maximize_ << "]" << "\n";
+					  << " " << pr->maximize_ << " a: " << pr->alpha << " b: " << pr->beta << "]" << "\n";
         }
     };
 
@@ -285,8 +292,7 @@ void Gomoku::AI1::Worker()
                     if (!currentBoard.GetMovesList().empty())
                         std::cout << Board::MoveToString(currentBoard.GetMovesList().back()) << " ";
 
-                    tree_ = std::make_shared<CalcTreeNode>(currentBoard, std::weak_ptr<CalcTreeNode>(),
-                                                           !tree_->maximize_, 0);
+                    tree_ = std::make_shared<CalcTreeNode>(currentBoard, std::weak_ptr<CalcTreeNode>(), !tree_->maximize_, 0);
                 }
 
                 traverser = {};
@@ -298,8 +304,6 @@ void Gomoku::AI1::Worker()
                 if (traverser.empty())
                 	break;
 
-//				std::cout << "Depth: " << jobs_.front()->Depth() << " size: " << jobs_.size() << std::endl;
-
                 auto pair = traverser.top();
                 traverser.pop();
 
@@ -308,52 +312,75 @@ void Gomoku::AI1::Worker()
 				{
                 	if (pair.second->children_.empty())
 					{
+						pair.second->positionScore_ = Engine::StaticPositionAnalize(pair.second->state_);
 						pair.second->alpha = std::max(pair.second->alpha, pair.second->positionScore_);
 					}
                 	else
 					{
-						pair.second->alpha = (*std::max_element(
+						pair.second->alpha = std::max((*std::max_element(
 								pair.second->children_.begin(),
 								pair.second->children_.end(),
 								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
 									return l->positionScore_ < r->positionScore_;
-								}))->positionScore_;
+								}))->positionScore_, pair.second->alpha=);
 					}
+					pair.second->positionScore_ = pair.second->alpha;
 				}
                 else
 				{
 					if (pair.second->children_.empty())
 					{
+						pair.second->positionScore_ = Engine::StaticPositionAnalize(pair.second->state_);
 						pair.second->beta = std::min(pair.second->beta, pair.second->positionScore_);
 					}
 					else
 					{
-						pair.second->beta = (*std::min_element(
+						pair.second->beta = std::min((*std::min_element(
 								pair.second->children_.begin(),
 								pair.second->children_.end(),
 								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
 									return l->positionScore_ < r->positionScore_;
-								}))->positionScore_;
+								}))->positionScore_, pair.second->beta);
 					}
+					pair.second->positionScore_ = pair.second->beta;
 				}
 
                 std::cout << "|" << std::setw(3) << std::setfill(' ') << pair.second->positionScore_
                           << std::setw(4) << std::setfill(' ')
                           << ((!pair.second->state_.GetMovesList().empty()) ? Board::MoveToString(pair.second->state_.GetMovesList().back()) : "no")
-                          << " " << pair.second->maximize_ << "]" << "\n" ;
+                          << " " << pair.second->maximize_ << " a: " << pair.second->alpha << " b: " << pair.second->beta << "]" << "\n" ;
 
                 if (pair.first < pair.second->children_.size())
                 {
-                    traverser.emplace(pair.first + 1, pair.second);
-                    ToLeft(pair.second->children_[pair.first]);
+                	if (pair.second->alpha < pair.second->beta)
+					{
+                		traverser.emplace(pair.first + 1, pair.second);
+						ToLeft(pair.second->children_[pair.first]);
+					}
+                	else
+					{
+                		std::cout << "Pruned! a: " << pair.second->alpha << ", b: " << pair.second->beta << std::endl;
+					}
                 }
             }
 
         }
 
+
+
+
+
+
+
+
+
+
+
+
+        // Work done...
+
         std::cout << "// Work done! Duration: " << std::chrono::duration_cast<std::chrono::milliseconds>(std::chrono::high_resolution_clock::now() - t1).count() <<  " //" << std::endl;
 		std::cout << this->TreeToString() << std::endl;
-
 
         if (!work_) return;
 
