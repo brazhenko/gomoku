@@ -1180,10 +1180,12 @@ TEST(board, count_free_fours_random)
 }
 
 #include "Players/AI2.h"
+#include "Players/AI1.h"
 
 TEST(datastructure, 1)
 {
-    auto bot = Gomoku::PlayerFactory("TestAI", Gomoku::Board::Side::White, Gomoku::MakeMove_t{}, Gomoku::Board{}, false);
-
-
+//    auto bot = Gomoku::PlayerFactory("TestAI", Gomoku::Board::Side::White, Gomoku::MakeMove_t{}, Gomoku::Board{}, false);
+	Gomoku::AI1 ai1(Gomoku::Board::Side::White, Gomoku::MakeMove_t{}, Gomoku::Board{}, false, true);
+//	while (true)
+//		;
 }

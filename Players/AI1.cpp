@@ -37,21 +37,21 @@ Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Go
     , toleft(true)
     , work_(true)
     , tree_([this](){
-        auto t = std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 0);
+        auto t = std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 13);
 
         t->children_ = {
-            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), false, 0),
-            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), false, 0)
+            std::make_shared<CalcTreeNode>(Board({{1, 1}}), t, false, 12),
+            std::make_shared<CalcTreeNode>(Board({{1, 2}}), t, false, 45)
         };
 
         t->children_[0]->children_ = {
-            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 3),
-            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 17)
+            std::make_shared<CalcTreeNode>(Board({{1, 3}}), t->children_[0], true, 3),
+            std::make_shared<CalcTreeNode>(Board({{1, 4}}), t->children_[0], true, 17)
         };
 
         t->children_[1]->children_ = {
-                std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 2),
-                std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 20)
+                std::make_shared<CalcTreeNode>(Board({{1, 5}}), t->children_[1], true, 2),
+                std::make_shared<CalcTreeNode>(Board({{1, 6}}), t->children_[1], true, 20)
         };
 
         return t;
@@ -252,8 +252,6 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
                     node->maximize_ ^ true,
                     pq.top().second));
 
-			node->children_.back()->positionScore_ = node->maximize_ ? -101 : 101;
-
             pq.pop();
         }
 
@@ -269,6 +267,8 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
 
 void Gomoku::AI1::Worker()
 {
+	std::cout << this->TreeToString() << std::endl;
+
     std::stack<std::pair<int /* i */, std::shared_ptr<CalcTreeNode>>> traverser;
 
     auto ToLeft = [this, &traverser](std::shared_ptr<CalcTreeNode> pr)
@@ -276,7 +276,7 @@ void Gomoku::AI1::Worker()
         traverser.emplace(1, pr);
 
 		std::tie(pr->alpha, pr->beta) = pr->parent_.expired()
-										? std::make_pair(std::numeric_limits<int>::min(), std::numeric_limits<int>::max())
+										? std::make_pair(-1000, +1000)
 										: std::make_pair(pr->parent_.lock()->alpha, pr->parent_.lock()->beta);
 
 		std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
@@ -296,6 +296,7 @@ void Gomoku::AI1::Worker()
             }
 
             traverser.emplace(1, pr->children_[0]);
+
             pr = pr->children_[0];
             std::tie(pr->alpha, pr->beta) = std::tie(pr->parent_.lock()->alpha, pr->parent_.lock()->beta);
 
@@ -351,39 +352,27 @@ void Gomoku::AI1::Worker()
                 /// Counting alpha-beta!
                 if (pair.second->maximize_)
 				{
-                	if (pair.second->children_.empty())
+                	if (!pair.second->parent_.expired())
 					{
-						pair.second->positionScore_ = Engine::StaticPositionAnalize(pair.second->state_);
-						pair.second->alpha = std::max(pair.second->alpha, pair.second->positionScore_);
+                		pair.second->parent_.lock()->beta = std::min(pair.second->parent_.lock()->beta, pair.second->positionScore_);
+						pair.second->parent_.lock()->positionScore_ = std::min(pair.second->parent_.lock()->beta, pair.second->positionScore_);
 					}
                 	else
 					{
-						pair.second->alpha = std::max((*std::max_element(
-								pair.second->children_.begin(),
-								pair.second->children_.end(),
-								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
-									return l->positionScore_ < r->positionScore_;
-								}))->positionScore_, pair.second->alpha);
+                		std::cout << "[root]" << std::endl;
 					}
-					pair.second->positionScore_ = pair.second->alpha;
 				}
                 else
 				{
-					if (pair.second->children_.empty())
+					if (!pair.second->parent_.expired())
 					{
-						pair.second->positionScore_ = Engine::StaticPositionAnalize(pair.second->state_);
-						pair.second->beta = std::min(pair.second->beta, pair.second->positionScore_);
+						pair.second->parent_.lock()->alpha = std::max(pair.second->parent_.lock()->alpha, pair.second->positionScore_);
+						pair.second->parent_.lock()->positionScore_ = std::max(pair.second->parent_.lock()->alpha, pair.second->positionScore_);
 					}
 					else
 					{
-						pair.second->beta = std::min((*std::min_element(
-								pair.second->children_.begin(),
-								pair.second->children_.end(),
-								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
-									return l->positionScore_ < r->positionScore_;
-								}))->positionScore_, pair.second->beta);
+						std::cout << "[root]" << std::endl;
 					}
-					pair.second->positionScore_ = pair.second->beta;
 				}
 
                 std::cout << "|" << std::setw(3) << std::setfill(' ') << pair.second->positionScore_
@@ -504,8 +493,8 @@ Gomoku::AI1::CalcTreeNode::CalcTreeNode(const Gomoku::Board &bs, std::weak_ptr<C
 		, state_(bs)
 		, maximize_(maximize)
 		, positionScore_(positionScore)
-		, alpha([&parent]()->int { return !parent.expired() ? parent.lock()->alpha : std::numeric_limits<int>::min(); }())
-		, beta([&parent]()->int { return !parent.expired() ? parent.lock()->beta : std::numeric_limits<int>::max(); }())
+		, alpha([&parent]()->int { return !parent.expired() ? parent.lock()->alpha : -1000; }())
+		, beta([&parent]()->int { return !parent.expired() ? parent.lock()->beta : 1000; }())
 {}
 
 Gomoku::AI1::CalcTreeNode::CalcTreeNode(Gomoku::Board &&bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore)
@@ -513,8 +502,8 @@ Gomoku::AI1::CalcTreeNode::CalcTreeNode(Gomoku::Board &&bs, std::weak_ptr<CalcTr
 		, parent_(std::move(parent))
 		, maximize_(maximize)
 		, positionScore_(positionScore)
-        , alpha([&parent]()->int { return !parent.expired() ? parent.lock()->alpha : std::numeric_limits<int>::min(); }())
-        , beta([&parent]()->int { return !parent.expired() ? parent.lock()->beta : std::numeric_limits<int>::max(); }())
+        , alpha([&parent]()->int { return !parent.expired() ? parent.lock()->alpha : -1000; }())
+        , beta([&parent]()->int { return !parent.expired() ? parent.lock()->beta : +1000; }())
 {}
 
 

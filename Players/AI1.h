@@ -24,8 +24,8 @@ namespace Gomoku
 			const bool	maximize_;
 			Board		state_;
 
-			int alpha = std::numeric_limits<int>::min();
-			int beta = std::numeric_limits<int>::max();
+			int alpha = -1000;
+			int beta = +1000;
 
 			std::weak_ptr<CalcTreeNode>					parent_;
 			std::vector<std::shared_ptr<CalcTreeNode>>	children_;
@@ -72,7 +72,7 @@ namespace Gomoku
 		Gomoku::Board::pcell 	nextMove_ {};
 
 		const int min_, max_;
-		static constexpr std::chrono::milliseconds maxTimeToThink_  { 10'000 };
+		static constexpr std::chrono::milliseconds maxTimeToThink_  { 3'000 };
 		std::chrono::system_clock::time_point startedThinkingAt_{};
 
 		bool FindNext();
