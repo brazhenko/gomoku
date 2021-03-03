@@ -33,7 +33,7 @@ namespace Gomoku
             CalcTreeNode() = delete;
             explicit CalcTreeNode(const Board& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
             explicit CalcTreeNode(Board&& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
-
+            explicit CalcTreeNode(std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
             [[nodiscard]] int Depth() const;
             void UpdatePositionScore();
         };
@@ -51,9 +51,10 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
         std::atomic_int         depth_ = 5;
-		static constexpr int	countOfBestCandididates_ = 3;
+        int	countOfBestCandididates_ = 3;
 		std::atomic_int         count_found = 0;
         std::atomic_bool 		needReload_ = false;
+        bool toleft = true;
 		std::shared_ptr<CalcTreeNode>	tree_;
 
 //		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
@@ -64,7 +65,7 @@ namespace Gomoku
 		std::condition_variable jobsCv_;
 		std::mutex              jobsCvMtx_;
 
-		std::atomic_bool        work_;
+		bool                    work_;
 		std::thread             workerThread_;
 
 		std::mutex				nextMoveMtx_;
@@ -80,11 +81,13 @@ namespace Gomoku
 
 		static std::function<bool(int score1, int score2)> LessIntializer(Board::Side side);
 		static std::function<bool(int score1, int score2)> GreaterIntializer(Board::Side side);
+
 		static int MinInitializer(Board::Side side);
 		static int MaxInitializer(Board::Side side);
     public:
 		AI1() = delete;
 		explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn);
+        explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn, bool test);
 		~AI1();
 
 		void YourTurn() override;
@@ -93,7 +96,21 @@ namespace Gomoku
 	};
 }
 
+namespace Gomoku
+{
+    class TestAI1 : public Gomoku::AI1
+    {
+    public:
+        explicit TestAI1() = delete;
+        explicit TestAI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
+                : Gomoku::AI1(side, MakeMove, realBoard, yourTurn)
+        {
 
+        }
+
+
+    };
+}
 
 
 #endif //GOMOKU_AI1_H

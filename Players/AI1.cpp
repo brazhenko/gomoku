@@ -26,6 +26,42 @@ Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Go
 	if (yourTurn) AI1::YourTurn();
 }
 
+Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn, bool test)
+    : IPlayer(side, std::move(MakeMove), realBoard)
+    , score1BetterThenScore2(GreaterIntializer(side))
+    , score1WorseThenScore2(LessIntializer(side))
+    , min_(MinInitializer(side))
+    , max_(MaxInitializer(side))
+    , depth_(3)
+    , countOfBestCandididates_(2)
+    , toleft(true)
+    , work_(true)
+    , tree_([this](){
+        auto t = std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 0);
+
+        t->children_ = {
+            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), false, 0),
+            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), false, 0)
+        };
+
+        t->children_[0]->children_ = {
+            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 3),
+            std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 17)
+        };
+
+        t->children_[1]->children_ = {
+                std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 2),
+                std::make_shared<CalcTreeNode>(std::weak_ptr<CalcTreeNode>(), true, 20)
+        };
+
+        return t;
+    }())
+    , workerThread_([this](){ Worker(); })
+
+{
+
+}
+
 Gomoku::AI1::~AI1()
 {
 	work_ = false;
@@ -273,7 +309,7 @@ void Gomoku::AI1::Worker()
 
     std::pair<int /* depth */, std::shared_ptr<CalcTreeNode>> var;
 
-	while (work_.load())
+	while (work_)
 	{
 	    std::cout << "// Work start! //" << std::endl;
         auto t1 = std::chrono::high_resolution_clock::now();
@@ -298,6 +334,11 @@ void Gomoku::AI1::Worker()
                 traverser = {};
                 ToLeft(tree_);
 			}
+            if (toleft)
+            {
+                toleft = false;
+                ToLeft(tree_);
+            }
 
 			// Pop out a new job or break!
             {
@@ -322,7 +363,7 @@ void Gomoku::AI1::Worker()
 								pair.second->children_.end(),
 								[](std::shared_ptr<CalcTreeNode> &l, std::shared_ptr<CalcTreeNode> &r){
 									return l->positionScore_ < r->positionScore_;
-								}))->positionScore_, pair.second->alpha=);
+								}))->positionScore_, pair.second->alpha);
 					}
 					pair.second->positionScore_ = pair.second->alpha;
 				}
@@ -476,6 +517,15 @@ Gomoku::AI1::CalcTreeNode::CalcTreeNode(Gomoku::Board &&bs, std::weak_ptr<CalcTr
         , beta([&parent]()->int { return !parent.expired() ? parent.lock()->beta : std::numeric_limits<int>::max(); }())
 {}
 
+
+Gomoku::AI1::CalcTreeNode::CalcTreeNode(std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore)
+        : parent_(std::move(parent))
+        , maximize_(maximize)
+        , positionScore_(positionScore)
+        , alpha([&parent]()->int { return !parent.expired() ? parent.lock()->alpha : -101; }())
+        , beta([&parent]()->int { return !parent.expired() ? parent.lock()->beta : +101; }())
+{}
+
 void Gomoku::AI1::CalcTreeNode::UpdatePositionScore()
 {
 	int newPositionScore;
@@ -501,6 +551,7 @@ void Gomoku::AI1::CalcTreeNode::UpdatePositionScore()
 
 	this->positionScore_ = newPositionScore;
 }
+
 
 std::string Gomoku::AI1::TreeToString() const
 {
@@ -546,5 +597,7 @@ std::string Gomoku::AI1::TreeToString() const
 
 	return s;
 }
+
+
 
 

@@ -8,6 +8,10 @@
 
 #include "IPlayer.h"
 
+
+
+
+
 namespace Gomoku
 {
 	class AI2 : public IPlayer

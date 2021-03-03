@@ -1179,14 +1179,11 @@ TEST(board, count_free_fours_random)
 	}
 }
 
+#include "Players/AI2.h"
+
 TEST(datastructure, 1)
 {
-	auto p = std::make_shared<int>(1);
-	std::weak_ptr<int> wp = p;
+    auto bot = Gomoku::PlayerFactory("TestAI", Gomoku::Board::Side::White, Gomoku::MakeMove_t{}, Gomoku::Board{}, false);
 
-	EXPECT_EQ(wp.expired(), false);
 
-	wp.reset();
-
-	EXPECT_EQ(wp.expired(), false);
 }
