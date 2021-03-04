@@ -72,7 +72,7 @@ namespace Gomoku
 		Gomoku::Board::pcell 	nextMove_ {};
 
 		const int min_, max_;
-		static constexpr std::chrono::milliseconds maxTimeToThink_  { 3'000 };
+		static constexpr std::chrono::milliseconds maxTimeToThink_  {  6'000 };
 		std::chrono::system_clock::time_point startedThinkingAt_{};
 
 		bool FindNext();

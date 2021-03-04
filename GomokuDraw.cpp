@@ -578,7 +578,11 @@ namespace GomokuDraw
 			std::ifstream ifs { fileDialogBoardPos.GetSelected().string() };
 
 			if (ifs.is_open())
+			{
 				ifs >> game.board_;
+				std::cout << "//////AVL MOVES COUNT: " << game.board_.GetAvailableMoves().size() << std::endl;
+			}
+
 			else
 				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
 

@@ -999,6 +999,8 @@ int Gomoku::Board::CountHalfFreeThrees(Gomoku::Board::Side side) const
 
 void Gomoku::Board::GenerateAvailableMovesInternal()
 {
+	availableMoves_.clear();
+
 	// Form available moves for next turn
 	for (int i = 0; i < cells_in_line; i++)
 		for (int j = 0; j < cells_in_line; j++)

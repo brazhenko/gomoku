@@ -96,6 +96,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_three5_w { 0b00'01010001'10, 6 };
 		/// @brief `_XX_XO`
 		constexpr static GomokuShape figure_half_three6_w { 0b10'01000101'00, 6 };
+		/// @brief `X_X_X_X`
+		constexpr static GomokuShape figure_dots_w { 0b01'00'01'00'01'00'01, 7 };
+
 
 		/// @brief `OOOOO`
 		constexpr static GomokuShape figure_five_b { 0b1010101010, 5};
@@ -137,6 +140,9 @@ namespace Gomoku
 		constexpr static GomokuShape figure_half_three5_b { 0b0010'1000'1001, 6 };
 		/// @brief `_OO_OX`
 		constexpr static GomokuShape figure_half_three6_b { 0b0110'0010'1000, 6 };
+		/// @brief `O_O_O_O`
+		constexpr static GomokuShape figure_dots_b { 0b10'00'10'00'10'00'10, 7 };
+
 
 		/// @brief Main identifier of player side. White = Cross = `X` = Red. Black = Zero = `O` = Blue.
 		enum class Side

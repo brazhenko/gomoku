@@ -126,6 +126,8 @@ Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 						   return score1WorseThenScore2(l->positionScore_, r->positionScore_);
 				   }))->state_.GetMovesList().back();
 
+			std::cerr << TreeToString() << std::endl;
+
 			ret = MakeMove_(nextMove_.first, nextMove_.second);
 		}
 
@@ -183,8 +185,14 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
             auto copy = node->state_;
             copy.MakeMove(*left);
             auto val = Gomoku::Engine::StaticPositionAnalize(copy);
+
+            if (!copy.GetMovesList().empty())
+				std::cout << Board::MoveToString(copy.GetMovesList().back()) << " " << val << " ";
+
             pm.emplace_back(std::move(copy), val);
-        }
+		}
+//        std::cout << std::endl;
+
 
 
         std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates_, pm.end()), pm.end(),
@@ -236,33 +244,23 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
 		{
 			pq.emplace(std::move(result[j]));
 		}
-
     }
 
-    //	std::cout << "bug3" << std::endl;
 
     // put countOfBestCandididates_ best moves in jobs queue and calculation tree
-    {
-        for (int i = 0; i < countOfBestCandididates_ && !pq.empty(); i++)
-        {
-            node->children_.emplace_back(std::make_shared<CalcTreeNode>(
-                    /* std::move(const_cast<Gomoku::Board&>() */
-                    pq.top().first,
-                    node,
-                    node->maximize_ ^ true,
-                    pq.top().second));
 
-            pq.pop();
-        }
+	for (int i = 0; i < countOfBestCandididates_ && !pq.empty(); i++)
+	{
+		node->children_.emplace_back(std::make_shared<CalcTreeNode>(
+				/* std::move(const_cast<Gomoku::Board&>() */
+				pq.top().first,
+				node,
+				node->maximize_ ^ true,
+				pq.top().second));
 
-        std::weak_ptr<CalcTreeNode> iterator = node;
-        while (!iterator.expired())
-        {
-            auto var2 = iterator.lock();
-            var2->UpdatePositionScore();
-            iterator = var2->parent_;
-        }
-    }
+		pq.pop();
+	}
+
 }
 
 void Gomoku::AI1::Worker()
@@ -343,6 +341,7 @@ void Gomoku::AI1::Worker()
 
 			// Pop out a new job or break!
             {
+            	std::lock_guard lg(jobsMtx_);
                 if (traverser.empty())
                 	break;
 
@@ -355,7 +354,7 @@ void Gomoku::AI1::Worker()
                 	if (!pair.second->parent_.expired())
 					{
                 		pair.second->parent_.lock()->beta = std::min(pair.second->parent_.lock()->beta, pair.second->positionScore_);
-						pair.second->parent_.lock()->positionScore_ = std::min(pair.second->parent_.lock()->beta, pair.second->positionScore_);
+						pair.second->parent_.lock()->positionScore_ = std::min(pair.second->parent_.lock()->positionScore_, pair.second->positionScore_);
 					}
                 	else
 					{
@@ -367,7 +366,7 @@ void Gomoku::AI1::Worker()
 					if (!pair.second->parent_.expired())
 					{
 						pair.second->parent_.lock()->alpha = std::max(pair.second->parent_.lock()->alpha, pair.second->positionScore_);
-						pair.second->parent_.lock()->positionScore_ = std::max(pair.second->parent_.lock()->alpha, pair.second->positionScore_);
+						pair.second->parent_.lock()->positionScore_ = std::max(pair.second->parent_.lock()->positionScore_, pair.second->positionScore_);
 					}
 					else
 					{

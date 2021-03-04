@@ -32,6 +32,14 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 	}
 
 	{
+		// cheat shapes
+		auto t1 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_dots_w);
+		auto t2 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_dots_b);
+
+		if (t1 && bs.WhiteMove()) return +30;
+		if (t2 && !bs.WhiteMove()) return -30;
+	}
+	{
 		// free fours
 		auto b1 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_w);
 		auto b2 = bs.IsThereFigureOnBoard(Gomoku::Board::figure_free_four_b);
@@ -42,13 +50,15 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 		if (bs.WhiteMove() && (b1 || t1))
 			return +40;
-		if (!bs.WhiteMove() && (b1 || t1))
+		if (!bs.WhiteMove() && (b2|| t2))
 			return -40;
 
-		if (b1) return 30;
-		if (b2) return -30;
+		if (t1 > 1) return +35;
+		if (t2 > 1) return -35;
 
 		ret += (t1 - t2) * halfFreeFourCoef;
+
+
 	}
 
 	{
