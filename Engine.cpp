@@ -57,8 +57,6 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		if (t2 > 1) return -35;
 
 		ret += (t1 - t2) * halfFreeFourCoef;
-
-
 	}
 
 	{
@@ -75,6 +73,7 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 		ret += (t1 - t2) * freeThreeCoef;
 	}
+
 	{
 		// half free and flanked threes
 		auto t1 = bs.CountHalfFreeThrees(Board::Side::White);
@@ -109,7 +108,6 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		ret += (potentalWhiteCaptures - potentalBlackCaptures) * potentialCaptureCoef;
 	}
 
-
 	{
 		// Captures
 		auto t1 = bs.GetCapturePoints(Gomoku::Board::Side::White);
@@ -130,12 +128,5 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 {
-	static std::atomic_int c = 0;
-
-	{
-		auto t = internal_(bs);
-
-		return t;
-	}
-
+	auto t = internal_(bs);
 }
