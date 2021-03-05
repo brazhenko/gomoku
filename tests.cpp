@@ -7,6 +7,7 @@
 #include "Board.h"
 #include <fstream>
 #include "Board.h"
+
 // Тесты пишутся с помощью вот таких макросов:
 // TEST(группа_тестов, название теста)
 // {
@@ -1182,20 +1183,8 @@ TEST(board, count_free_fours_random)
 #include "Players/AI2.h"
 #include "Players/AI1.h"
 #include "Engine.h"
-TEST(datastructure, 1)
+
+TEST(test, test)
 {
-//    auto bot = Gomoku::PlayerFactory("TestAI", Gomoku::Board::Side::White, Gomoku::MakeMove_t{}, Gomoku::Board{}, false);
-//	Gomoku::AI1 ai1(Gomoku::Board::Side::White, Gomoku::MakeMove_t{}, Gomoku::Board{}, false, true);
-//	while (true)
-//		;
-
-
-	{
-		std::ifstream is("/Users/lreznak-/Desktop/gomoku_04-03-202118-26-22.gg");
-		assert(is.is_open());
-		Gomoku::Board b;
-		is >> b;
-		std::cout << "Eval: " << Gomoku::Engine::StaticPositionAnalize(b);
-	}
 
 }

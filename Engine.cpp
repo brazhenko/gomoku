@@ -48,9 +48,9 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 		auto t1 = bs.CountHalfFreeFours(Board::Side::White);
 		auto t2 = bs.CountHalfFreeFours(Board::Side::Black);
 
-		if (b1 || (bs.WhiteMove() || t1))
+		if (b1 || (bs.WhiteMove() && t1))
 			return +40;
-		if (b2 && (!bs.WhiteMove() || t2))
+		if (b2 || (!bs.WhiteMove() && t2))
 			return -40;
 
 		if (t1 > 1) return +35;
