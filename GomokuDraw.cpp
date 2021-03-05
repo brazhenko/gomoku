@@ -253,6 +253,20 @@ namespace GomokuDraw
 		return ret;
 	}
 
+	void Render()
+	{
+		const ImVec4 clear_color = ImVec4(1.45f, 0.55f, 0.60f, 1.00f);
+		// Rendering
+		ImGui::Render();
+		int display_w, display_h;
+		glfwGetFramebufferSize(window, &display_w, &display_h);
+		glViewport(0, 0, display_w, display_h);
+		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT);
+		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+		glfwSwapBuffers(window);
+	}
+
 	void DrawSome()
 	{
 		ImGui::SetNextWindowSize(ImVec2{1280, 720});
@@ -261,13 +275,10 @@ namespace GomokuDraw
 				ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoBackground
 						| ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings
 						| ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoBringToFrontOnFocus);
-
-
 		ImGui::GetWindowDrawList()->AddImage((void*)(intptr_t)textures.at("background").my_image_texture, ImVec2{0, 0}, ImVec2{1280, 720});
-
-#if DEBUG
+		#if DEBUG
 		ImGui::Text("Application average %.3f ms/frame (%.1f FPS)", 1000.0f / ImGui::GetIO().Framerate, ImGui::GetIO().Framerate);
-#endif
+		#endif
 	}
 
 	constexpr float textureCellSide = 28.0;
@@ -279,6 +290,12 @@ namespace GomokuDraw
 
 	constexpr float boardSizePixels = 570.0;
 	constexpr int cellSide = 30;
+
+	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+	static int player1 = 0;
+	static int player2 = 1;
+	static bool enableEngine = true;
+	static char real_public_path[PATH_MAX + 1] = {0};
 
 	// Mouse MUST be inside the board !
 	std::pair<int, int> MouseCoordinatesToStonePosition(float x_, float y_)
@@ -300,9 +317,19 @@ namespace GomokuDraw
 	bool MouseInsideBoard()
 	{
 		const auto &mPt = ImGui::GetMousePos();
-
 		return upperLeftBoard_x <= mPt.x && mPt.x < downRightBoard_x
 			   && upperLeftBoard_y <= mPt.y && mPt.y < downRightBoard_y;
+	}
+
+	void ForbiddenCursor()
+	{
+		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
+		ImGui::GetWindowDrawList()->AddImage(
+			(void*)(intptr_t)textures.at("forbidden").my_image_texture,
+			// Координата верхнего левого угла
+			ImVec2{ImGui::GetMousePos().x, ImGui::GetMousePos().y},
+			// Координата нижнего правого угла
+			ImVec2{ImGui::GetMousePos().x + 15, ImGui::GetMousePos().y + 15});
 	}
 
 	void DrawStone(float xCoordinate, float yCoordinate, int type)
@@ -310,9 +337,9 @@ namespace GomokuDraw
 		if (type == 1)
 			ImGui::GetWindowDrawList()->AddImage(
 				(void*)(intptr_t)textures.at("fantom_stone_red").my_image_texture,
-                // Координата верхнего левого угла
+				// Координата верхнего левого угла
 				ImVec2{ xCoordinate, yCoordinate },
-                // Координата нижнего правого угла
+				// Координата нижнего правого угла
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 		else if (type == 2)
 			ImGui::GetWindowDrawList()->AddImage(
@@ -331,26 +358,12 @@ namespace GomokuDraw
 				ImVec2{xCoordinate + textureCellSide, yCoordinate + textureCellSide});
 	}
 
-	void ForbiddenCursor()
-	{
-		ImGui::SetMouseCursor(ImGuiMouseCursor_None);
-
-		ImGui::GetWindowDrawList()->AddImage(
-				(void*)(intptr_t)textures.at("forbidden").my_image_texture,
-				// Координата верхнего левого угла
-				ImVec2{ImGui::GetMousePos().x, ImGui::GetMousePos().y},
-				// Координата нижнего правого угла
-				ImVec2{ImGui::GetMousePos().x + 15, ImGui::GetMousePos().y + 15});
-	}
-
 	void DrawStones(const Gomoku::Board &bs)
 	{
-		// Draw all stones on the board
 		for (int row = 0; row < Gomoku::Board::cells_in_line; row++)
 			for (int col = 0; col < Gomoku::Board::cells_in_line; col++)
 			{
 				auto stoneType = bs.At(row, col);
-
 				if (stoneType == Gomoku::Board::Side::White)
 				{
 					auto placeToDraw = GomokuDraw::StonePositionToPrintCoorinates({row, col});
@@ -364,298 +377,32 @@ namespace GomokuDraw
 			}
 	}
 
-	void Render()
+	void DrawGameMoves(const Gomoku::Board &bs)
 	{
-		const ImVec4 clear_color = ImVec4(1.45f, 0.55f, 0.60f, 1.00f);
-		// Rendering
-		ImGui::Render();
-		int display_w, display_h;
-		glfwGetFramebufferSize(window, &display_w, &display_h);
-		glViewport(0, 0, display_w, display_h);
-		glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
-		glClear(GL_COLOR_BUFFER_BIT);
-		ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
-		glfwSwapBuffers(window);
-	}
-
-	void Cleanup()
-	{
-		// Cleanup
-		ImGui_ImplOpenGL3_Shutdown();
-		ImGui_ImplGlfw_Shutdown();
-		ImGui::DestroyContext();
-
-		glfwDestroyWindow(window);
-		glfwTerminate();
-	}
-
-	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
-	static int player1 = 0;
-	static int player2 = 1;
-	static bool enableEngine = true;
-
-	void DrawPlayer(const Gomoku::Game &game, bool isWhite)
-	{
-		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::Board::Side::White : Gomoku::Board::Side::Black);
-		ImGui::BeginGroup();
+		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
+		ImGui::SetNextWindowPos(ImVec2{660, 370});
+		ImGui::Begin("Game", nullptr);
+		int helper = 0;
+		for (int i = 0; i < bs.GetMovesList().size(); i += 2)
 		{
-			{
-				ImDrawList* draw_list = ImGui::GetWindowDrawList();
-				ImVec2 pos = ImGui::GetCursorScreenPos();
-				for (int i = 0; i < 5; i++) {
-					ImVec2 marker_min = ImVec2(pos.x + 21 * i , pos.y);
-					ImVec2 marker_max = ImVec2(pos.x + 21 * i + 15, pos.y + 15);
-					int color = i > 4 - count ? 0 : 255;
-					draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(isWhite ? color : 0, 0, isWhite ? 0 : color, 255));
-				}
-				// ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
-				ImGui::Dummy(ImVec2(15.0f, 4.0f));
-			}
-			ImGui::Text("    ");
-
-			if (game.state_ != Gomoku::Game::State::Main)
-				MakeNextObjectInActive();
-
-			if (isWhite)
-				ImGui::Combo("    ##1", &player1, items, IM_ARRAYSIZE(items)); 
+			if (i + 1 < bs.GetMovesList().size())
+				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s % 3s  ",
+						i/2 + 1,
+						Gomoku::Board::MoveToString(bs.GetMovesList()[i]).c_str(),
+						Gomoku::Board::MoveToString(bs.GetMovesList()[i + 1]).c_str());
 			else
-				ImGui::Combo("    ##2", &player2, items, IM_ARRAYSIZE(items));
-
-			if (game.state_ != Gomoku::Game::State::Main)
-				MakeNextObjectActive();
-
-			ImDrawList* draw_list = ImGui::GetWindowDrawList();
-			static float wrap_width = 70.0f;
-			ImGui::Text("Time left");
-			ImVec2 pos = ImGui::GetCursorScreenPos();
-			ImVec2 marker_min = ImVec2(pos.x, pos.y);
-			ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
-			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
-
-			// TODO проверить, что тут нормальное условие в ифе
-			if ((isWhite && game.board_.WhiteMove()) || (!isWhite && !game.board_.WhiteMove()))
-				draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
-			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
-			ImGui::Dummy(ImVec2(15.0f, 4.0f));
-			// ImGui::Dummy(ImVec2(15.0f, 1.0f));
-			// ImGui::SameLine();
-
-			if (isWhite)
-			    ImGui::Text(" %s", game.clock_.GetTimeLeftWhite().c_str());
-            else
-                ImGui::Text(" %s", game.clock_.GetTimeLeftBlack().c_str());
-
-			ImGui::PopTextWrapPos();
-			ImGui::Dummy(ImVec2(15.0f, 10.0f));
-
-			ImGui::Text("Last move time:");
-			pos = ImGui::GetCursorScreenPos();
-			marker_min = ImVec2(pos.x, pos.y);
-			marker_max = ImVec2(pos.x + wrap_width, pos.y + 25);
-			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
-			ImGui::Dummy(ImVec2(15.0f, 2.0f));
-			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
-			if (isWhite)
-				ImGui::Text(" %s", game.clock_.GetTimeSpentWhite().c_str());
-			else
-				ImGui::Text(" %s", game.clock_.GetTimeSpentBlack().c_str());
-
-			ImGui::PopTextWrapPos();
-		}
-		ImGui::EndGroup();
-	}
-
-
-	void DrawButtons(Gomoku::Game &game)
-	{
-		ImGui::BeginGroup();
-		{
-		    // Start button
-			auto tmp = game.state_;
-			if (tmp == Gomoku::Game::State::GameInProcess
-				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
-			   	|| tmp == Gomoku::Game::State::GameEndedBlackWin
-			  	|| tmp == Gomoku::Game::State::GameEndedDraw
-			  	)
-				MakeNextObjectInActive();
-			if (ImGui::Button("start"))
-				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
-			if (tmp == Gomoku::Game::State::GameInProcess
-				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
-				|| tmp == Gomoku::Game::State::GameEndedBlackWin
-				|| tmp == Gomoku::Game::State::GameEndedDraw)
-				MakeNextObjectActive();
-
-            // Pause button
+				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s ...",
+						i/2 + 1,
+						Gomoku::Board::MoveToString(bs.GetMovesList()[i]).c_str());
+			helper++;
 			ImGui::SameLine();
-			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
-				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
-				|| tmp == Gomoku::Game::State::GameEndedBlackWin
-				|| tmp == Gomoku::Game::State::GameEndedDraw)
-				MakeNextObjectInActive();
-			if (ImGui::Button("pause"))
-				game.Pause();
-			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
-				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
-				|| tmp == Gomoku::Game::State::GameEndedBlackWin
-				|| tmp == Gomoku::Game::State::GameEndedDraw)
-				MakeNextObjectActive();
-
-			// Stop button
-			ImGui::SameLine();
-			if (tmp == Gomoku::Game::State::Main)
-				MakeNextObjectInActive();
-			if (ImGui::Button("stop"))
-				game.Stop();
-			if (tmp == Gomoku::Game::State::Main)
-				MakeNextObjectActive();
-
-			// Restart button
-			ImGui::SameLine();
-			if (ImGui::Button("restart"))
+			if (helper == 5)
 			{
-				game.Stop();
-				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
-			}
-
-			// Takeback button
-			ImGui::SameLine();
-			if (ImGui::Button("takeback"))
-				game.TakeBack();
-
-		}
-		ImGui::EndGroup();
-	}
-
-
-	/**
-	 * Returns the path to the current user's desktop.
-	 */
-	static char *path2desktop()
-	{
-		static char real_public_path[PATH_MAX + 1] = {0};
-		if (real_public_path[0])
-			return real_public_path;
-		strcpy(real_public_path, getenv("HOME"));
-		memcpy(real_public_path + strlen(real_public_path), "/Desktop", 8);
-		return real_public_path;
-	}
-
-	void DrawFilesButtons(Gomoku::Game &game)
-	{
-		ImGui::Dummy(ImVec2(20.0f, 9.0f));
-		ImGui::BeginGroup();
-		if (ImGui::Button("save fen"))
-		{
-			std::stringstream fn;
-			auto t = std::time(nullptr);
-			auto tm = *std::localtime(&t);
-
-			fn << path2desktop()
-				 << "/gomoku_"
-				 << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
-				 << ".gg";
-
-			std::cerr << "path: " << fn.str() << std::endl;
-
-			std::ofstream ofs { fn.str() };
-
-			if (ofs.is_open())
-				ofs << game.board_ << std::endl;
-			else
-				std::cerr << "Cannot open file: " << fn.str() << std::endl;
-		}
-
-		ImGui::Dummy(ImVec2(20.0f, 4.0f));
-
-		if (ImGui::Button("load fen"))
-			fileDialogBoardPos.Open();
-
-		fileDialogBoardPos.Display();
-
-		if(fileDialogBoardPos.HasSelected())
-		{
-			std::ifstream ifs { fileDialogBoardPos.GetSelected().string() };
-
-			if (ifs.is_open())
-			{
-				ifs >> game.board_;
-				std::cout << "//////AVL MOVES COUNT: " << game.board_.GetAvailableMoves().size() << std::endl;
-			}
-
-			else
-				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
-
-			fileDialogBoardPos.ClearSelected();
-		}
-
-
-		ImGui::EndGroup();
-		ImGui::SameLine();
-		ImGui::Dummy(ImVec2(20.0f, 1.0f));
-		ImGui::SameLine();
-		ImGui::BeginGroup();
-
-		if (ImGui::Button("save pgn"))
-		{
-			try
-			{
-				std::stringstream fn;
-				auto t = std::time(nullptr);
-				auto tm = *std::localtime(&t);
-
-				fn
-					<< path2desktop()
-					<< "/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
-					<< ".pgn";
-
-				std::ofstream ofs { fn.str() };
-
-				if (ofs.is_open())
-					ofs << game.board_.ToPgnString() << std::endl;
-				else
-					std::cerr << "Cannot open file: " << fn.str() << std::endl;
-			}
-			catch (std::exception &e)
-			{
-				std::cerr << "exception: " << e.what() << std::endl;
+				ImGui::NewLine();
+				helper = 0;
 			}
 		}
-
-		ImGui::Dummy(ImVec2(20.0f, 4.0f));
-		if (ImGui::Button("load pgn"))
-			fileDialogGame.Open();
-		fileDialogGame.Display();
-
-		if(fileDialogGame.HasSelected())
-		{
-			std::ifstream ifs { fileDialogGame.GetSelected().string() };
-
-			if (ifs.is_open())
-			{
-				pgn::Game g;
-
-				ifs >> g;
-				std::cerr << "Loaded game" << std::endl << g << std::endl;
-
-				std::vector<std::pair<int, int>> moves;
-
-				for (const auto & move: g.moves())
-				{
-					if (move.white().valid())
-						moves.push_back(Gomoku::Board::StringToMove(move.white().str()));
-					if (move.black().valid())
-						moves.push_back(Gomoku::Board::StringToMove(move.black().str()));
-				}
-
-				game.board_ = Gomoku::Board(moves);
-			}
-			else
-				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
-
-			fileDialogGame.ClearSelected();
-		}
-		ImGui::EndGroup();
+		ImGui::End();
 	}
 
 	void DrawGameMenu(Gomoku::Game &game)
@@ -663,22 +410,17 @@ namespace GomokuDraw
 		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 349 - 40});
 		ImGui::SetNextWindowPos(ImVec2{660, 40});
 		ImGui::Begin("Game2", nullptr);
-
-		// static bool isDisable = false;
 		static float f0 = 1.0f, f1 = 2.0f, f2 = 3.0f;
 		ImGui::PushItemWidth(100);
 		if (game.state_ != Gomoku::Game::State::Main)
 			MakeNextObjectInActive();
-
 		ImGui::BeginGroup();
 		ImGui::Combo("mode <-- Game --> time", &gameModeId, gameModes, IM_ARRAYSIZE(gameModes));
 		ImGui::SameLine();
 		ImGui::Combo("", &gameTimeId, gameTimes, IM_ARRAYSIZE(gameTimes));
 		ImGui::EndGroup();
-
 		if (game.state_ != Gomoku::Game::State::Main)
 			MakeNextObjectActive();
-
 		ImGui::Dummy(ImVec2(15.0f, 15.0f));
 		ImGui::BeginGroup();
 		{
@@ -686,12 +428,8 @@ namespace GomokuDraw
 			ImGui::SameLine();
 			GomokuDraw::DrawPlayer(game,false);
 			ImGui::Dummy(ImVec2(110.0f, 20.0f));
-
-			// GomokuDraw::DrawSteps(game);
-			// ImGui::Dummy(ImVec2(130.0f, 20.0f));
 			ImGui::Text("Games status: ");
 			ImGui::SameLine();
-
 			if (game.state_ == Gomoku::Game::State::Main)
 			{
 				ImGui::Text("Not started");
@@ -721,87 +459,269 @@ namespace GomokuDraw
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		{
-			// Arrow buttons with Repeater
-			if (ImGui::Checkbox("Analysis", &enableEngine))
-			{
-				if (enableEngine) // Engine enabled
-				{
-
-				}
-				else
-				{
-
-				}
-			}
 			if (enableEngine)
-            {
-                if (game.state_ == Gomoku::Game::State::GameEndedBlackWin
-                    || game.state_ == Gomoku::Game::State::GameEndedWhiteWin
-                    || game.state_ == Gomoku::Game::State::GameEndedDraw)
-                    ImGui::Text("-");
-                else
-                    ;//ImGui::Text("%d", Gomoku::Engine::StaticPositionAnalize(game.board_));
-            }
-
-			GomokuDraw::DrawFilesButtons(game);
-
-			if (ImGui::TreeNode("Messages"))
-		{
-			//HelpMarker("Use child windows to begin into a self-contained independent scrolling/clipping regions within a host window.");
-
-			// Child 1: no border, enable horizontal scrollbar
 			{
-				ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
-				ImGui::BeginChild("ChildL", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.35f, 120), false, window_flags);
-				// for (int i = 0; i < 100; i++)
-				// 	ImGui::Text("%04d: scrollable region", i);
-
-				for (auto i = GomokuDraw::messages.begin(); i != GomokuDraw::messages.end(); ++i) 
-					ImGui::Text("%s", (*i).c_str());
-				ImGui::EndChild();
+				if (game.state_ == Gomoku::Game::State::GameEndedBlackWin
+					|| game.state_ == Gomoku::Game::State::GameEndedWhiteWin
+					|| game.state_ == Gomoku::Game::State::GameEndedDraw)
+					ImGui::Text("-");
 			}
-
+			GomokuDraw::DrawFilesButtons(game);
+			if (ImGui::TreeNode("Messages"))
+			{
+				{
+					ImGuiWindowFlags window_flags = ImGuiWindowFlags_HorizontalScrollbar;
+					ImGui::BeginChild("ChildL", ImVec2(ImGui::GetWindowContentRegionWidth() * 0.35f, 120), false, window_flags);
+					for (auto i = GomokuDraw::messages.begin(); i != GomokuDraw::messages.end(); ++i) 
+						ImGui::Text("%s", (*i).c_str());
+					ImGui::EndChild();
+				}
 			ImGui::SameLine();
-
 			ImGui::Separator();
 			ImGui::TreePop();
+			}
 		}
-		}
-
 		ImGui::PopItemWidth();
 		ImGui::EndGroup();
 		ImGui::End();
 	}
 
-	void DrawGameMoves(const Gomoku::Board &bs)
+	void DrawPlayer(const Gomoku::Game &game, bool isWhite)
 	{
-		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 679 - 370});
-		ImGui::SetNextWindowPos(ImVec2{660, 370}); // 1259, 679
-		ImGui::Begin("Game", nullptr);
-
-		int helper = 0;
-		for (int i = 0; i < bs.GetMovesList().size(); i += 2)
+		int count = game.board_.GetCapturePoints(!isWhite ? Gomoku::Board::Side::White : Gomoku::Board::Side::Black);
+		ImGui::BeginGroup();
 		{
-			if (i + 1 < bs.GetMovesList().size())
-				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s % 3s  ",
-						i/2 + 1,
-						Gomoku::Board::MoveToString(bs.GetMovesList()[i]).c_str(),
-						Gomoku::Board::MoveToString(bs.GetMovesList()[i + 1]).c_str());
-			else
-				TextWithColors( "{e6e600}% 3d. {ffffff}% 3s ...",
-						i/2 + 1,
-						Gomoku::Board::MoveToString(bs.GetMovesList()[i]).c_str());
-
-			helper++;
-			ImGui::SameLine();
-			if (helper == 5)
 			{
-				ImGui::NewLine();
-				helper = 0;
+				ImDrawList* draw_list = ImGui::GetWindowDrawList();
+				ImVec2 pos = ImGui::GetCursorScreenPos();
+				for (int i = 0; i < 5; i++) {
+					ImVec2 marker_min = ImVec2(pos.x + 21 * i , pos.y);
+					ImVec2 marker_max = ImVec2(pos.x + 21 * i + 15, pos.y + 15);
+					int color = i > 4 - count ? 0 : 255;
+					draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(isWhite ? color : 0, 0, isWhite ? 0 : color, 255));
+				}
+				ImGui::Dummy(ImVec2(15.0f, 4.0f));
 			}
+			ImGui::Text("    ");
+			if (game.state_ != Gomoku::Game::State::Main)
+				MakeNextObjectInActive();
+			if (isWhite)
+				ImGui::Combo("    ##1", &player1, items, IM_ARRAYSIZE(items)); 
+			else
+				ImGui::Combo("    ##2", &player2, items, IM_ARRAYSIZE(items));
+
+			if (game.state_ != Gomoku::Game::State::Main)
+				MakeNextObjectActive();
+			ImDrawList* draw_list = ImGui::GetWindowDrawList();
+			static float wrap_width = 70.0f;
+			ImGui::Text("Time left");
+			ImVec2 pos = ImGui::GetCursorScreenPos();
+			ImVec2 marker_min = ImVec2(pos.x, pos.y);
+			ImVec2 marker_max = ImVec2(pos.x + wrap_width, pos.y + 30);
+			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(170, 100, 50, 255));
+
+			// TODO проверить, что тут нормальное условие в ифе
+			if ((isWhite && game.board_.WhiteMove()) || (!isWhite && !game.board_.WhiteMove()))
+				draw_list->AddRect(marker_min, marker_max, IM_COL32(255, 255, 0, 255));
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+			ImGui::Dummy(ImVec2(15.0f, 4.0f));
+			if (isWhite)
+				ImGui::Text(" %s", game.clock_.GetTimeLeftWhite().c_str());
+			else
+				ImGui::Text(" %s", game.clock_.GetTimeLeftBlack().c_str());
+			ImGui::PopTextWrapPos();
+			ImGui::Dummy(ImVec2(15.0f, 10.0f));
+			ImGui::Text("Last move time:");
+			pos = ImGui::GetCursorScreenPos();
+			marker_min = ImVec2(pos.x, pos.y);
+			marker_max = ImVec2(pos.x + wrap_width, pos.y + 25);
+			draw_list->AddRectFilled(marker_min, marker_max, IM_COL32(50, 166, 20, 255));
+			ImGui::Dummy(ImVec2(15.0f, 2.0f));
+			ImGui::PushTextWrapPos(ImGui::GetCursorPos().x + wrap_width);
+			if (isWhite)
+				ImGui::Text(" %s", game.clock_.GetTimeSpentWhite().c_str());
+			else
+				ImGui::Text(" %s", game.clock_.GetTimeSpentBlack().c_str());
+
+			ImGui::PopTextWrapPos();
+		}
+		ImGui::EndGroup();
+	}
+
+	void DrawButtons(Gomoku::Game &game)
+	{
+		ImGui::BeginGroup();
+		{
+			// Start button
+			auto tmp = game.state_;
+			if (tmp == Gomoku::Game::State::GameInProcess
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw
+				)
+				MakeNextObjectInActive();
+			if (ImGui::Button("start"))
+				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
+			if (tmp == Gomoku::Game::State::GameInProcess
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw)
+				MakeNextObjectActive();
+
+			// Pause button
+			ImGui::SameLine();
+			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw)
+				MakeNextObjectInActive();
+			if (ImGui::Button("pause"))
+				game.Pause();
+			if (tmp == Gomoku::Game::State::Main || tmp == Gomoku::Game::State::GameInPause
+				|| tmp == Gomoku::Game::State::GameEndedWhiteWin
+				|| tmp == Gomoku::Game::State::GameEndedBlackWin
+				|| tmp == Gomoku::Game::State::GameEndedDraw)
+				MakeNextObjectActive();
+				
+			// Stop button
+			ImGui::SameLine();
+			if (tmp == Gomoku::Game::State::Main)
+				MakeNextObjectInActive();
+			if (ImGui::Button("stop"))
+				game.Stop();
+			if (tmp == Gomoku::Game::State::Main)
+				MakeNextObjectActive();
+
+			// Restart button
+			ImGui::SameLine();
+			if (ImGui::Button("restart"))
+			{
+				game.Stop();
+				game.Go(items[player1], items[player2], gameModes[gameModeId], gameTimes[gameTimeId]);
+			}
+
+			// Takeback button
+			ImGui::SameLine();
+			if (ImGui::Button("takeback"))
+				game.TakeBack();
+		}
+		ImGui::EndGroup();
+	}
+
+	/**
+	 * Returns the path to the current user's desktop.
+	 */
+	static char *path2desktop()
+	{
+		if (real_public_path[0])
+			return real_public_path;
+		strcpy(real_public_path, getenv("HOME"));
+		memcpy(real_public_path + strlen(real_public_path), "/Desktop", 8);
+		return real_public_path;
+	}
+
+	void DrawFilesButtons(Gomoku::Game &game)
+	{
+		ImGui::Dummy(ImVec2(20.0f, 9.0f));
+		ImGui::BeginGroup();
+		if (ImGui::Button("save fen"))
+		{
+			std::stringstream fn;
+			auto t = std::time(nullptr);
+			auto tm = *std::localtime(&t);
+			fn << path2desktop()
+				 << "/gomoku_"
+				 << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
+				 << ".gg";
+			std::cerr << "path: " << fn.str() << std::endl;
+			std::ofstream ofs { fn.str() };
+			if (ofs.is_open())
+				ofs << game.board_ << std::endl;
+			else
+				std::cerr << "Cannot open file: " << fn.str() << std::endl;
+		}
+		ImGui::Dummy(ImVec2(20.0f, 4.0f));
+		if (ImGui::Button("load fen"))
+			fileDialogBoardPos.Open();
+		fileDialogBoardPos.Display();
+		if(fileDialogBoardPos.HasSelected())
+		{
+			std::ifstream ifs { fileDialogBoardPos.GetSelected().string() };
+			if (ifs.is_open())
+			{
+				ifs >> game.board_;
+				std::cout << "//////AVL MOVES COUNT: " << game.board_.GetAvailableMoves().size() << std::endl;
+			}
+			else
+				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
+			fileDialogBoardPos.ClearSelected();
 		}
 
-		ImGui::End();
+		ImGui::EndGroup();
+		ImGui::SameLine();
+		ImGui::Dummy(ImVec2(20.0f, 1.0f));
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+
+		if (ImGui::Button("save pgn"))
+		{
+			try
+			{
+				std::stringstream fn;
+				auto t = std::time(nullptr);
+				auto tm = *std::localtime(&t);
+				fn
+					<< path2desktop()
+					<< "/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
+					<< ".pgn";
+
+				std::ofstream ofs { fn.str() };
+				if (ofs.is_open())
+					ofs << game.board_.ToPgnString() << std::endl;
+				else
+					std::cerr << "Cannot open file: " << fn.str() << std::endl;
+			}
+			catch (std::exception &e)
+			{
+				std::cerr << "exception: " << e.what() << std::endl;
+			}
+		}
+		ImGui::Dummy(ImVec2(20.0f, 4.0f));
+		if (ImGui::Button("load pgn"))
+			fileDialogGame.Open();
+		fileDialogGame.Display();
+		if(fileDialogGame.HasSelected())
+		{
+			std::ifstream ifs { fileDialogGame.GetSelected().string() };
+			if (ifs.is_open())
+			{
+				pgn::Game g;
+				ifs >> g;
+				std::cerr << "Loaded game" << std::endl << g << std::endl;
+				std::vector<std::pair<int, int>> moves;
+				for (const auto & move: g.moves())
+				{
+					if (move.white().valid())
+						moves.push_back(Gomoku::Board::StringToMove(move.white().str()));
+					if (move.black().valid())
+						moves.push_back(Gomoku::Board::StringToMove(move.black().str()));
+				}
+				game.board_ = Gomoku::Board(moves);
+			}
+			else
+				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
+			fileDialogGame.ClearSelected();
+		}
+		ImGui::EndGroup();
+	}
+
+	void Cleanup()
+	{
+		ImGui_ImplOpenGL3_Shutdown();
+		ImGui_ImplGlfw_Shutdown();
+		ImGui::DestroyContext();
+		glfwDestroyWindow(window);
+		glfwTerminate();
 	}
 
 	void PrintMessage(std::string message)

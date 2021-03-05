@@ -14,34 +14,30 @@
 
 namespace GomokuDraw
 {
-	bool Init();
-	bool Go();
-
-	void DrawSome();
-
 	static std::vector<std::string> messages; 
 	std::pair<int, int> MouseCoordinatesToStonePosition(float x_, float y_);
 	std::pair<float, float> StonePositionToPrintCoorinates(std::pair<int, int> stone);
 
-	bool MouseInsideBoard();
+	bool Init();
+	bool Go();
+	void Render();
+	void DrawSome();
 
+	bool MouseInsideBoard();
 	void ForbiddenCursor();
 	void DrawStone(float x, float y, int type);
-
 	void DrawStones(const Gomoku::Board &bs);
-
-	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite);
-	void DrawSteps(Gomoku::Game &game);
-	void DrawButtons(Gomoku::Game &game);
-
-	void PrintMessage(std::string);
-	void DrawFilesButtons(Gomoku::Game &game);
-	void DrawGameMenu(Gomoku::Game &game);
-
 	void DrawGameMoves(const Gomoku::Board &bs);
 
-	void Render();
+	void DrawGameMenu(Gomoku::Game &game);
+	void DrawPlayer(const Gomoku::Game &game, const std::string &timeLeft, int lastMove, bool isWhite);
+	// void DrawSteps(Gomoku::Game &game); ???
+	void DrawButtons(Gomoku::Game &game);
+	void DrawFilesButtons(Gomoku::Game &game);
+
 	void Cleanup();
+
+	void PrintMessage(std::string);
 };
 
 #endif //GOMOKU_GOMOKUDRAW_H
