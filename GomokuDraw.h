@@ -1,5 +1,5 @@
 //
-// Created by 17641238 on 18.01.2021.
+// Created by Brazhenko Andrew on 18.01.2021.
 //
 
 #ifndef GOMOKU_GOMOKUDRAW_H

@@ -1,5 +1,5 @@
 //
-// Created by 17641238 on 30.01.2021.
+// Created by Brazhenko Andrew on 30.01.2021.
 //
 
 #ifndef GOMOKU_IPLAYER_H
@@ -13,32 +13,40 @@
 
 namespace Gomoku
 {
+	/// @brief "make move" callback passed to IPlayer object
 	using MakeMove_t=std::function<Gomoku::Board::MoveResult (int row, int col)>;
 
+	/// @brief interface class for gomoku42 player
 	class IPlayer
 	{
 	protected:
+		/// @brief side player plays for
 		Board::Side side_;
+
+		/// @brief make move function
 		MakeMove_t MakeMove_;
+
+		/// @brief flag
 		bool myMove = false;
 
-
+		/// @brief reference at current state of game
 		const Gomoku::Board &currentBoard;
 	public:
-
+		/// @brief ctor
+		/// @param side color player plays for
+		/// @param MakeMove make move callback
+		/// @param realBoard current game state
 		explicit IPlayer(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard)
 		: side_{ side }
 		, MakeMove_{ std::move(MakeMove) }
-		, currentBoard( realBoard )
+		, currentBoard{ realBoard }
 		{}
 
 		virtual ~IPlayer() = default;
+		/// @brief notifier about turn
 		virtual void YourTurn() = 0;
-		void NotYourTurn()
-		{
-			myMove = false;
-		}
-	
+		/// @brief function called every time in game loop. if move is prepared it calls MakeMove_()
+		/// @return move result
 		virtual Board::MoveResult Ping() = 0;
 	};
 

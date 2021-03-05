@@ -1180,7 +1180,6 @@ TEST(board, count_free_fours_random)
 	}
 }
 
-#include "Players/AI2.h"
 #include "Players/AI1.h"
 #include "Engine.h"
 

@@ -1,5 +1,5 @@
 //
-// Created by 17641238 on 18.01.2021.
+// Created by Brazhenko Andrew on 18.01.2021.
 //
 
 #include "GomokuDraw.h"
@@ -389,7 +389,7 @@ namespace GomokuDraw
 		glfwTerminate();
 	}
 
-	static const char* items[] = { "Human", "AI1", "AI2", "AI3" };
+	static const char* items[] = { "Human", "AI1", "AI_Debug", "AI_Depth10", "AI_Easy" };
 	static int player1 = 0;
 	static int player2 = 1;
 	static bool enableEngine = true;
@@ -647,8 +647,11 @@ namespace GomokuDraw
 					if (move.black().valid())
 						moves.push_back(Gomoku::Board::StringToMove(move.black().str()));
 				}
-
-				game.board_ = Gomoku::Board(moves);
+				try {
+					game.board_ = Gomoku::Board(moves);
+				} catch (const std::exception &e) {
+					std::cerr << e.what() << std::endl;
+				}
 			}
 			else
 				std::cerr << "Cannot open file: " << fileDialogBoardPos.GetSelected().string() <<  std::endl;
@@ -721,28 +724,6 @@ namespace GomokuDraw
 		ImGui::SameLine();
 		ImGui::BeginGroup();
 		{
-			// Arrow buttons with Repeater
-			if (ImGui::Checkbox("Analysis", &enableEngine))
-			{
-				if (enableEngine) // Engine enabled
-				{
-
-				}
-				else
-				{
-
-				}
-			}
-			if (enableEngine)
-            {
-                if (game.state_ == Gomoku::Game::State::GameEndedBlackWin
-                    || game.state_ == Gomoku::Game::State::GameEndedWhiteWin
-                    || game.state_ == Gomoku::Game::State::GameEndedDraw)
-                    ImGui::Text("-");
-                else
-                    ;//ImGui::Text("%d", Gomoku::Engine::StaticPositionAnalize(game.board_));
-            }
-
 			GomokuDraw::DrawFilesButtons(game);
 
 			if (ImGui::TreeNode("Messages"))

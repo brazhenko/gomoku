@@ -1,11 +1,11 @@
 //
-// Created by 17641238 on 30.01.2021.
+// Created by Brazhenko Andrew on 30.01.2021.
 //
 
 #include "IPlayer.h"
 #include "Human.h"
+
 #include "AI1.h"
-#include "AI2.h"
 
 std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 		const std::string& name,
@@ -17,13 +17,13 @@ std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 	if (name == "Human")
 		return std::make_unique<Gomoku::Human>(side, MakeMove, bs, yourTurn);
 	if (name == "AI1")
-		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, yourTurn);
-	if (name == "AI2")
-		return std::make_unique<Gomoku::AI2>(side, MakeMove, bs);
-	if (name == "TestAI")
-        return std::make_unique<Gomoku::TestAI1>(side, MakeMove, bs, yourTurn);
-//	if (name == "AI3")
-//		return std::make_unique<Gomoku::AI3>(side, MakeMove);
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 5, 3, 3'000, false, yourTurn);
+	if (name == "AI_Debug")
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 5, 3, 5'000, true, yourTurn);;
+	if (name == "AI_Depth10")
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 10, 2, 9'000, false, yourTurn);
+	if (name == "AI_Easy")
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 2, 3, 9'000, false, yourTurn);;
 
 	return nullptr;
 }

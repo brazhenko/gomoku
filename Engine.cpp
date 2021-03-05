@@ -128,5 +128,5 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 int Gomoku::Engine::StaticPositionAnalize(const Gomoku::Board &bs)
 {
-	auto t = internal_(bs);
+	return internal_(bs);
 }

@@ -106,8 +106,7 @@ add_executable(${PROJECT_NAME}
 		Players/Human.h
 		Engine.cpp
 		Engine.h
-		Players/AI2.cpp
-		Players/AI2.h)
+        )
 
 target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
 

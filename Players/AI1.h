@@ -50,30 +50,29 @@ namespace Gomoku
 		std::function<bool(int score1, int score2)> score1BetterThenScore2;
 		std::function<bool(int score1, int score2)> score1WorseThenScore2;
 
-        std::atomic_int         depth_ = 5;
-        int	countOfBestCandididates_ = 3;
-		std::atomic_int         count_found = 0;
+        const int         		depth_ = 5;
+        const int 				countOfBestCandididates_ = 3;
+		Gomoku::Board::pcell 	nextMove_ {};
+
+		std::chrono::system_clock::time_point startedThinkingAt_{};
+		const std::chrono::milliseconds maxTimeToThink_  {  6'000 };
+		const bool debug_ = false;
+
         std::atomic_bool 		needReload_ = false;
-        bool toleft = true;
+
+        bool					toleft = true;
+
 		std::shared_ptr<CalcTreeNode>	tree_;
 
-//		std::deque<std::shared_ptr<CalcTreeNode>>	jobs_;
 		std::mutex	            jobsMtx_;
-
-//        std::stack<std::pair<int /* depth */, std::shared_ptr<CalcTreeNode>>> jobs2_;
-
 		std::condition_variable jobsCv_;
 		std::mutex              jobsCvMtx_;
+
+		std::mutex				nextMoveMtx_;
 
 		bool                    work_;
 		std::thread             workerThread_;
 
-		std::mutex				nextMoveMtx_;
-		Gomoku::Board::pcell 	nextMove_ {};
-
-		const int min_, max_;
-		static constexpr std::chrono::milliseconds maxTimeToThink_  {  6'000 };
-		std::chrono::system_clock::time_point startedThinkingAt_{};
 
 		bool FindNext();
 		void Worker();
@@ -81,12 +80,18 @@ namespace Gomoku
 
 		static std::function<bool(int score1, int score2)> LessIntializer(Board::Side side);
 		static std::function<bool(int score1, int score2)> GreaterIntializer(Board::Side side);
-
-		static int MinInitializer(Board::Side side);
-		static int MaxInitializer(Board::Side side);
     public:
 		AI1() = delete;
-		explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn);
+		explicit AI1(Board::Side side,
+				MakeMove_t MakeMove,
+				const Gomoku::Board &realBoard,
+				int depth,
+				int width,
+				int timeToThinkMS,
+				bool debug,
+				bool yourTurn);
+
+		// Test ctor
         explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn, bool test);
 		~AI1();
 
@@ -95,22 +100,5 @@ namespace Gomoku
 
 	};
 }
-
-namespace Gomoku
-{
-    class TestAI1 : public Gomoku::AI1
-    {
-    public:
-        explicit TestAI1() = delete;
-        explicit TestAI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn)
-                : Gomoku::AI1(side, MakeMove, realBoard, yourTurn)
-        {
-
-        }
-
-
-    };
-}
-
 
 #endif //GOMOKU_AI1_H

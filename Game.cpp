@@ -1,5 +1,5 @@
 //
-// Created by 17641238 on 19.01.2021.
+// Created by Brazhenko Andrew on 19.01.2021.
 //
 
 #include "Game.h"
@@ -95,17 +95,13 @@ void Gomoku::Game::TakeBack()
 
 		const auto &tmp = board_.GetMovesList();
 
+		if (board_.WhiteMove())
 		{
-			if (board_.WhiteMove())
-			{
-				this->whitePlayer->YourTurn();
-				this->blackPlayer->NotYourTurn();
-			}
-			else
-			{
-				this->blackPlayer->YourTurn();
-				this->whitePlayer->NotYourTurn();
-			}
+			this->whitePlayer->YourTurn();
+		}
+		else
+		{
+			this->blackPlayer->YourTurn();
 		}
 	}
 }

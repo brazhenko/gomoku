@@ -2,7 +2,7 @@
 #pragma ide diagnostic ignored "hicpp-signed-bitwise"
 
 //
-// Created by 17641238 on 19.01.2021.
+// Created by Brazhenko Andrew on 19.01.2021.
 //
 
 #include "Board.h"
@@ -81,10 +81,6 @@ Gomoku::Board::Board(const std::vector<Gomoku::Board::pcell> &moves)
 
 		this->MakeMove(move);
 	}
-
-	auto t2 = std::chrono::high_resolution_clock::now();
-	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>( t2 - t1 ).count();
-	std::cout << duration << std::endl;
 }
 
 bool Gomoku::Board::IsMoveCapture(pcell cell, Gomoku::Board::board_line mvPtrn) const

@@ -20,7 +20,7 @@ My aim was to code game interface and an Engine for one of variations.
 + Stones are put one at a time. Red starts.
 + Captures. If one puts a stone like this: `XOO_ -> XOOX` trapped zeros are removed from the board :
 `X__X`. These two free cells behave like they have never been occupied. Summary:
-2 squeezed stoned (by two other stone, ) must be removed.
+2 squeezed stoned (by two other stones) must be removed from board.
 + Playes must NOT put the stone which produces two or more free-threes because this figure is unstoppable.
 Free three is a figure that becomes a free four in one move: `_XX_X_ -> _XXXX_`.
 Exception: a capture which leads to 2 or more free threes *is not fobidden*.

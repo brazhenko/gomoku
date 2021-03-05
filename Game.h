@@ -1,5 +1,5 @@
 //
-// Created by 17641238 on 19.01.2021.
+// Created by Brazhenko Andrew on 19.01.2021.
 //
 
 #ifndef GOMOKU_GAME_H
