@@ -20,7 +20,6 @@ Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Go
 		, debug_(debug)
 		// Initializing calculating tree
 		, tree_(std::make_shared<CalcTreeNode>(realBoard, std::weak_ptr<CalcTreeNode>(), true, 0))
-		// , jobs_ { [this]() { std::deque<std::shared_ptr<CalcTreeNode>> ret; ret.push_back(tree_); return ret; }() }
 		// Starting calculating thread
 		, work_(true)
 		, workerThread_([this](){ Worker(); })
@@ -66,10 +65,7 @@ Gomoku::AI1::~AI1()
 {
 	work_ = false;
 
-	{
-		std::lock_guard lg(jobsMtx_);
-//		jobs_ = {};
-	}
+	std::lock_guard lg(jobsMtx_);
 
 	jobsCv_.notify_one();
 	workerThread_.join();
