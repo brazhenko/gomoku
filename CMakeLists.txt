@@ -1,25 +1,26 @@
 cmake_minimum_required(VERSION 3.15)
 project(gomoku)
 
-set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address         ")
+set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
 
 # DOXYGEN
 find_package(Doxygen REQUIRED)
 set(DOXYGEN_INPUT ${CMAKE_SOURCE_DIR})
-add_custom_target(doc1 COMMAND ${DOXYGEN_EXECUTABLE} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
-add_custom_target(doc2 COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/html)
-add_custom_target(doc COMMAND mv -f ${CMAKE_CURRENT_SOURCE_DIR}/html ${CMAKE_CURRENT_BINARY_DIR} DEPENDS doc1 doc2)
-#https://habr.com/ru/post/133512/
 
-include_directories(imgui/examples/libs/gl3w)
-include_directories(little_imgui)
-
+# Preparation
+add_custom_target(make_doc COMMAND ${DOXYGEN_EXECUTABLE} WORKING_DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR})
+add_custom_target(delete_old_doc COMMAND rm -rf ${CMAKE_CURRENT_BINARY_DIR}/html)
+add_custom_target(done_documentation COMMAND mv -f ${CMAKE_CURRENT_SOURCE_DIR}/html ${CMAKE_CURRENT_BINARY_DIR} DEPENDS delete_old_doc make_doc)
+add_custom_target(copy_textures COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/textures ${CMAKE_CURRENT_BINARY_DIR})
+add_custom_target(copy_test_files COMMAND cp -r ${CMAKE_CURRENT_SOURCE_DIR}/test_files ${CMAKE_CURRENT_BINARY_DIR})
 
 # IMGUI
 find_package (glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
+include_directories(imgui/examples/libs/gl3w)
+include_directories(little_imgui)
 include_directories(${OPENGL_INCLUDE_DIR})
 
 find_package(Boost COMPONENTS system filesystem REQUIRED)
@@ -27,7 +28,6 @@ find_package(Boost COMPONENTS system filesystem REQUIRED)
 find_package(GLEW REQUIRED)
 if (GLEW_FOUND)
 	include_directories(${GLEW_INCLUDE_DIRS})
-	#link_libraries(${GLEW_LIBRARIES})
 endif()
 
 SET(IMGUI_SOURCES
@@ -45,11 +45,9 @@ SET(IMGUI_SOURCES
 	imgui_little/imfilebrowser.hpp
 	imgui_little/TextWithColors.hpp
 )
-
 # /IMGUI
 
 # PGNLIB
-
 include_directories(pgnlib)
 SET(PGNLIB_SRC
         pgnlib/PGNCommentText.cpp
@@ -79,24 +77,18 @@ SET(PGNLIB_SRC
         pgnlib/PGNTag.cpp
         pgnlib/PGNTag.h
         pgnlib/PGNTagList.cpp
-        pgnlib/PGNTagList.h
-		Game.cpp Game.h)
+        pgnlib/PGNTagList.h)
 # /PGNLIB
-
-
-#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/textures ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-#configure_file(${CMAKE_CURRENT_SOURCE_DIR}/test_files ${CMAKE_CURRENT_BINARY_DIR} COPYONLY)
-#
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/textures DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-#file(COPY ${CMAKE_CURRENT_SOURCE_DIR}/test_files DESTINATION ${CMAKE_CURRENT_BINARY_DIR})
-
 
 
 enable_testing()
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
 
-add_executable(${PROJECT_NAME} main.cpp
+add_executable(${PROJECT_NAME}
+		main.cpp
+		Game.cpp
+		Game.h
 		GomokuDraw.cpp
 		GomokuDraw.h
 		${IMGUI_SOURCES}
@@ -129,13 +121,8 @@ target_link_libraries(${PROJECT_NAME}
         ${GTEST_MAIN_LIBRARY}
         )
 
+add_dependencies(${PROJECT_NAME} done_documentation copy_textures copy_test_files)
 
-add_test(
-        NAME runUnitTests
-        COMMAND runUnitTests
-)
-
-add_dependencies(${PROJECT_NAME} doc)
 
 if(CMAKE_BUILD_TYPE MATCHES Debug)
     target_compile_definitions(${PROJECT_NAME} PUBLIC DEBUG)
