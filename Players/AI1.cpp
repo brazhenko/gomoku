@@ -353,7 +353,12 @@ void Gomoku::AI1::Worker()
                 	if (!pair.second->parent_.expired())
 					{
                 		pair.second->parent_.lock()->beta = std::min(pair.second->parent_.lock()->beta, pair.second->positionScore_);
-						pair.second->parent_.lock()->positionScore_ = std::min(pair.second->parent_.lock()->positionScore_, pair.second->positionScore_);
+
+						// this is first kid of a parent
+						if (pair.second->parent_.lock()->children_[0] == pair.second)
+							pair.second->parent_.lock()->positionScore_ = pair.second->positionScore_;
+						else
+							pair.second->parent_.lock()->positionScore_ = std::min(pair.second->parent_.lock()->positionScore_, pair.second->positionScore_);
 					}
                 	else
 					{
@@ -366,7 +371,12 @@ void Gomoku::AI1::Worker()
 					if (!pair.second->parent_.expired())
 					{
 						pair.second->parent_.lock()->alpha = std::max(pair.second->parent_.lock()->alpha, pair.second->positionScore_);
-						pair.second->parent_.lock()->positionScore_ = std::max(pair.second->parent_.lock()->positionScore_, pair.second->positionScore_);
+
+						// this is first kid of a parent
+						if (pair.second->parent_.lock()->children_[0] == pair.second)
+							pair.second->parent_.lock()->positionScore_ = pair.second->positionScore_;
+						else
+							pair.second->parent_.lock()->positionScore_ = std::max(pair.second->parent_.lock()->positionScore_, pair.second->positionScore_);
 					}
 					else
 					{
@@ -415,7 +425,8 @@ void Gomoku::AI1::Worker()
         	std::cout << "Getting out of lock!" << std::endl;
     }
 
-	std::cout << "Worker died" << std::endl;
+	if (debug_)
+		std::cout << "Worker died" << std::endl;
 }
 
 std::function<bool(int score1, int score2)> Gomoku::AI1::GreaterIntializer(Gomoku::Board::Side side)
