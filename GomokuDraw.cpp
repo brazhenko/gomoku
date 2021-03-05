@@ -545,7 +545,7 @@ namespace GomokuDraw
 	{
 		ImGui::Dummy(ImVec2(20.0f, 9.0f));
 		ImGui::BeginGroup();
-		if (ImGui::Button("save fen"))
+		if (ImGui::Button("save pos"))
 		{
 			std::stringstream fn;
 			auto t = std::time(nullptr);
@@ -568,7 +568,7 @@ namespace GomokuDraw
 
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
 
-		if (ImGui::Button("load fen"))
+		if (ImGui::Button("load pos"))
 			fileDialogBoardPos.Open();
 
 		fileDialogBoardPos.Display();
