@@ -21,6 +21,7 @@ find_package (glfw3 REQUIRED)
 find_package(OpenGL REQUIRED)
 include_directories(imgui/examples/libs/gl3w)
 include_directories(little_imgui)
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 include_directories(${OPENGL_INCLUDE_DIR})
 
 find_package(Boost COMPONENTS system filesystem REQUIRED)

@@ -4,7 +4,7 @@
 
 #include "Human.h"
 
-#include "../GomokuDraw.h"
+#include "GomokuDraw.h"
 
 Gomoku::Board::MoveResult Gomoku::Human::Ping()
 {

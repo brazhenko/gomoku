@@ -364,9 +364,11 @@ namespace GomokuDraw
 			}
 	}
 
+    #define RGBA_TO_FLOAT(r,g,b,a) (float)r/255.0f, (float)g/255.0f, (float)b/255.0f, (float)a/255.0f
 	void Render()
 	{
-		const ImVec4 clear_color = ImVec4(1.45f, 0.55f, 0.60f, 1.00f);
+		const ImVec4 clear_color = ImVec4(0.8627, 0.8431, 1, 1);
+//                                    RGBA_TO_FLOAT(220, 215, 255, 255));
 		// Rendering
 		ImGui::Render();
 		int display_w, display_h;

@@ -12,8 +12,6 @@
 #include <thread>
 #include <queue>
 
-// http://web.cs.ucla.edu/~rosen/161/notes/alphabeta.html
-
 namespace Gomoku
 {
 	class AI1 : public IPlayer

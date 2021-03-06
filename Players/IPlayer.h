@@ -7,7 +7,7 @@
 
 #include <unordered_set>
 #include <memory>
-#include "../Board.h"
+#include "Board.h"
 #include <functional>
 #include <utility>
 
