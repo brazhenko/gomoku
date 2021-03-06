@@ -70,7 +70,7 @@ namespace Gomoku
 
 		std::mutex				nextMoveMtx_;
 
-		bool                    work_;
+		bool                 work_;
 		std::thread             workerThread_;
 
 

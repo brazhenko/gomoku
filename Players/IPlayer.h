@@ -58,7 +58,4 @@ namespace Gomoku
 			bool yourTurn);
 }
 
-
-
-
 #endif //GOMOKU_IPLAYER_H
