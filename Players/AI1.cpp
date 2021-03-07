@@ -199,18 +199,18 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
 
         std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates_, pm.end()), pm.end(),
 							[this, &node] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
-							if (node->maximize_)
-							{
-								if (left.second == right.second)
-									return Board::DistanceFromCenter(left.first.GetMovesList().back()) < Board::DistanceFromCenter(right.first.GetMovesList().back());
-								return left.second > right.second;
-							}
+			if (node->maximize_)
+			{
+				if (left.second == right.second)
+					return Board::DistanceFromCenter(left.first.GetMovesList().back()) < Board::DistanceFromCenter(right.first.GetMovesList().back());
+				return left.second > right.second;
+			}
 
-							if (left.second == right.second)
-								return Board::DistanceFromCenter(left.first.GetMovesList().back()) < Board::DistanceFromCenter(right.first.GetMovesList().back());
+			if (left.second == right.second)
+				return Board::DistanceFromCenter(left.first.GetMovesList().back()) < Board::DistanceFromCenter(right.first.GetMovesList().back());
 
-							return left.second < right.second;
-						});
+			return left.second < right.second;
+		});
 
         return pm;
     };
@@ -282,8 +282,6 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
 				node->maximize_ ^ true,
 				0));
 	}
-
-
 }
 
 void Gomoku::AI1::Worker()
