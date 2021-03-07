@@ -3,7 +3,7 @@
 //
 
 #include "Engine.h"
-
+#include <chrono>
 
 int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 {

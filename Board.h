@@ -9,7 +9,6 @@
 #include <array>
 #include <bitset>
 #include <unordered_map>
-#include <fstream>
 
 namespace Gomoku
 {

@@ -10,7 +10,6 @@
 #include "PGNGame.h"
 #include <algorithm>
 #include <sstream>
-#include <iostream>
 
 const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Board::PairHash> Gomoku::Board::_cToVerticles = [](){
 	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, PairHash> ret;

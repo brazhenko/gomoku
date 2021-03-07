@@ -4,13 +4,21 @@
 
 #include "AI1.h"
 #include "Engine.h"
-#include <map>
 #include <future>
 #include <queue>
 #include <iostream>
 #include <sstream>
+#include <stack>
+#include <iomanip>
 
-Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Gomoku::Board &realBoard, int depth, int width, int timeToThinkMS, bool debug, bool yourTurn)
+Gomoku::AI1::AI1(Gomoku::Board::Side side,
+                 Gomoku::MakeMove_t MakeMove,
+                 const Gomoku::Board &realBoard,
+                 int depth,
+                 int width,
+                 int timeToThinkMS,
+                 bool debug,
+                 bool yourTurn)
 		: IPlayer(side, std::move(MakeMove), realBoard)
 		, score1BetterThenScore2(GreaterIntializer(side))
 		, score1WorseThenScore2(LessIntializer(side))
