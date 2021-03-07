@@ -14,7 +14,7 @@ namespace Gomoku
 
 		static constexpr int halfFreeFourCoef = 2;
 		static constexpr int potentialCaptureCoef = 3;
-		static constexpr int captureCoef = 5;
+		static constexpr int captureCoef = 6;
 		static constexpr int freeThreeCoef = 2;
 		static constexpr int halfFreeThreeCoef = 1;
 
