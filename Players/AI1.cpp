@@ -27,7 +27,7 @@ Gomoku::AI1::AI1(Gomoku::Board::Side side,
 		, maxTimeToThink_(timeToThinkMS)
 		, debug_(debug)
 		// Initializing calculating tree
-		, tree_(std::make_shared<CalcTreeNode>(realBoard, std::weak_ptr<CalcTreeNode>(), true, 0))
+		, tree_(std::make_shared<CalcTreeNode>(realBoard, std::weak_ptr<CalcTreeNode>(), !yourTurn, 0))
 		// Starting calculating thread
 		, work_(true)
 		, workerThread_([this](){ Worker(); })
@@ -91,7 +91,8 @@ void Gomoku::AI1::YourTurn()
 
 	{
 		std::lock_guard lg(nextMoveMtx_);
-		nextMove_ = currentBoard.GetAvailableMoves().front();
+
+		nextMove_ = *(currentBoard.GetAvailableMoves().begin() + currentBoard.GetAvailableMoves().size()/2);
 	}
 
 	// reload tree root in worker
@@ -120,7 +121,8 @@ Gomoku::Board::MoveResult Gomoku::AI1::Ping()
 					std::cout << Board::MoveToString(child->state_.GetMovesList().back()) << "~" << child->positionScore_ << "; ";
 				}
 
-			nextMove_ =  (*std::max_element(
+			if (!tree_->children_.empty())
+				nextMove_ =  (*std::max_element(
 					tree_->children_.begin(),
 					tree_->children_.end(),
 					[this](const std::shared_ptr<CalcTreeNode> &l, const std::shared_ptr<CalcTreeNode> &r){
@@ -245,7 +247,6 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
 	for (int i = 0; i < countOfBestCandididates_ && !pq.empty(); i++)
 	{
 		node->children_.emplace_back(std::make_shared<CalcTreeNode>(
-				/* std::move(const_cast<Gomoku::Board&>() */
 				pq.top().first,
 				node,
 				node->maximize_ ^ true,
@@ -254,12 +255,25 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
 		pq.pop();
 	}
 
+	if (node->children_.empty() && !node->state_.GetAvailableMoves().empty())
+	{
+		auto copy = node->state_;
+		copy.MakeMove(*(node->state_.GetAvailableMoves().begin() + node->state_.GetAvailableMoves().size()/2));
+
+		node->children_.emplace_back(std::make_shared<CalcTreeNode>(
+				copy,
+				node,
+				node->maximize_ ^ true,
+				0));
+	}
+
+
 }
 
 void Gomoku::AI1::Worker()
 {
 	if (debug_)
-		std::cout << this->TreeToString() << std::endl;
+		std::cout << "////////////\n" << this->TreeToString() << "///////////\n" << std::endl;
 
     std::stack<std::pair<int /* i */, std::shared_ptr<CalcTreeNode>>> traverser;
 
@@ -275,7 +289,7 @@ void Gomoku::AI1::Worker()
 			std::cout << "[" << std::setw(3) << std::setfill(' ') << pr->positionScore_
 				  << std::setw(4) << std::setfill(' ')
 				  << ((!pr->state_.GetMovesList().empty()) ? Board::MoveToString(pr->state_.GetMovesList().back()) : "no")
-				  << " " << pr->maximize_ << " a: " << pr->alpha << " b: " << pr->beta << "]" << "\n";
+				  << " " << std::boolalpha << pr->maximize_ << " a: " << pr->alpha << " b: " << pr->beta << "]" << "\n";
 
         while (pr->Depth() < this->depth_)
         {
@@ -341,6 +355,7 @@ void Gomoku::AI1::Worker()
 			// Pop out a new job or break!
             {
             	std::lock_guard lg(jobsMtx_);
+
                 if (traverser.empty())
                 	break;
 

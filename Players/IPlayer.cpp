@@ -17,13 +17,13 @@ std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 	if (name == "Human")
 		return std::make_unique<Gomoku::Human>(side, MakeMove, bs, yourTurn);
 	if (name == "AI1")
-		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 5, 3, 2'000, false, yourTurn);
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 5, 5, 2'000, false, yourTurn);
 	if (name == "AI_Debug")
-		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 5, 3, 5'000, true, yourTurn);;
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 5, 3, 10'000, true, yourTurn);;
 	if (name == "AI_Depth10")
 		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 10, 2, 9'000, false, yourTurn);
 	if (name == "AI_Easy")
-		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 2, 3, 9'000, false, yourTurn);
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 2, 3, 1'000, false, yourTurn);
 
 	return nullptr;
 }
