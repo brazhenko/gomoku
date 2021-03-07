@@ -26,6 +26,8 @@ std::unique_ptr<Gomoku::IPlayer> Gomoku::PlayerFactory(
 		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 2, 3, 1'000, false, yourTurn);
 	if (name == "AI_Debug_3_3")
 		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 3, 3, 5'000, true, yourTurn);
+	if (name == "AI_Eval")
+		return std::make_unique<Gomoku::AI1>(side, MakeMove, bs, 3, 3, 400, false, yourTurn);
 
 	return nullptr;
 }

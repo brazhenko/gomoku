@@ -376,7 +376,7 @@ namespace GomokuDraw
 			}
 	}
 
-	static const char* items[] = { "Human", "AI1", "AI_Debug_5_3", "AI_Depth10", "AI_Easy", "AI_Debug_3_3" };
+	static const char* items[] = { "Human", "AI1", "AI_Debug_5_3", "AI_Depth10", "AI_Easy", "AI_Debug_3_3", "AI_Eval"};
 	static int player1 = 0;
 	static int player2 = 1;
 	static bool enableEngine = true;
