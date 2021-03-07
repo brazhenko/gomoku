@@ -93,8 +93,6 @@ void Gomoku::Game::TakeBack()
 		if (!board_.TakeBackMove())
 			return;
 
-		const auto &tmp = board_.GetMovesList();
-
 		if (board_.WhiteMove())
 		{
 			this->whitePlayer->YourTurn();
