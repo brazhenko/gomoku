@@ -65,7 +65,6 @@ int main()
 					game.clock_.Pause();
 				}
 
-
 				if (Gomoku::Board::MoveResult::BlackWin == b
 					|| !wt)
 				{

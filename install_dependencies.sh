@@ -4,8 +4,6 @@ brew install glfw
 brew install cmake
 brew install doxygen
 
-
-cd /goinfre/$USER
 git clone https://github.com/google/googletest
 cd googletest
 mkdir build
