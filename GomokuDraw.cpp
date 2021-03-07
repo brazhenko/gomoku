@@ -765,7 +765,7 @@ namespace GomokuDraw
 		glfwTerminate();
 	}
 
-	void PrintMessage(std::string message)
+	void PrintMessage(const std::string& message)
 	{
 		GomokuDraw::messages.push_back(message);
 	}
