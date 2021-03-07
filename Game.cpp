@@ -88,7 +88,7 @@ void Gomoku::Game::Stop()
 
 void Gomoku::Game::TakeBack()
 {
-	if (this->state_ == State::GameInProcess)
+	if (this->state_ == State::GameInPause)
 	{
 		if (!board_.TakeBackMove())
 			return;

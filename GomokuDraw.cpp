@@ -584,22 +584,18 @@ namespace GomokuDraw
 			}
 
 			// Takeback button
-			if (tmp != Gomoku::Game::State::GameInProcess)
+			if (tmp != Gomoku::Game::State::GameInPause)
 				MakeNextObjectInActive();
 			ImGui::SameLine();
 			if (ImGui::Button("takeback"))
 				game.TakeBack();
-			if (tmp != Gomoku::Game::State::GameInProcess)
+			if (tmp != Gomoku::Game::State::GameInPause)
 				MakeNextObjectActive();
 		}
 		ImGui::EndGroup();
 	}
 
-
-	/**
-	 * Returns the path to the current user's desktop.
-	 */
-	static char *path2desktop()
+	static char *Path2Desktop()
 	{
 		if (real_public_path[0])
 			return real_public_path;
@@ -618,10 +614,10 @@ namespace GomokuDraw
 			auto t = std::time(nullptr);
 			auto tm = *std::localtime(&t);
 
-			fn << path2desktop()
-				 << "/gomoku_"
-				 << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
-				 << ".gg";
+			fn << Path2Desktop()
+			   << "/gomoku_"
+			   << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
+			   << ".gg";
 
 			std::cerr << "path: " << fn.str() << std::endl;
 
@@ -635,8 +631,12 @@ namespace GomokuDraw
 
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
 
+		if (game.state_ != Gomoku::Game::State::Main)
+			MakeNextObjectInActive();
 		if (ImGui::Button("load pos"))
 			fileDialogBoardPos.Open();
+		if (game.state_ != Gomoku::Game::State::Main)
+			MakeNextObjectActive();
 
 		fileDialogBoardPos.Display();
 
@@ -672,7 +672,7 @@ namespace GomokuDraw
 				auto tm = *std::localtime(&t);
 
 				fn
-					<< path2desktop()
+						<< Path2Desktop()
 					<< "/game_" << std::put_time(&tm, "%d-%m-%Y%H-%M-%S")
 					<< ".pgn";
 
@@ -690,8 +690,13 @@ namespace GomokuDraw
 		}
 
 		ImGui::Dummy(ImVec2(20.0f, 4.0f));
+		if (game.state_ != Gomoku::Game::State::Main)
+			MakeNextObjectInActive();
 		if (ImGui::Button("load pgn"))
 			fileDialogGame.Open();
+		if (game.state_ != Gomoku::Game::State::Main)
+			MakeNextObjectActive();
+
 		fileDialogGame.Display();
 
 		if(fileDialogGame.HasSelected())
