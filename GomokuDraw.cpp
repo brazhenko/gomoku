@@ -584,10 +584,13 @@ namespace GomokuDraw
 			}
 
 			// Takeback button
+			if (tmp != Gomoku::Game::State::GameInProcess)
+				MakeNextObjectInActive();
 			ImGui::SameLine();
 			if (ImGui::Button("takeback"))
 				game.TakeBack();
-
+			if (tmp != Gomoku::Game::State::GameInProcess)
+				MakeNextObjectActive();
 		}
 		ImGui::EndGroup();
 	}
