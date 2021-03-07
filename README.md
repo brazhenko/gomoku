@@ -39,7 +39,7 @@ evaluation heuristics, selection heuristics and a bit more.
 bash install_dependencies.sh
 mkdir build_dir
 cd build_dir
-cmake -DCMAKE_BUILD_TYPE="Release" .. && make
+cmake -DCMAKE_BUILD_TYPE="Release" .. && make -j 4
 ```
 
 ## Usage
