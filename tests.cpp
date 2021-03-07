@@ -2,7 +2,6 @@
 // Created by Brazhenko Andrew on 1/24/21.
 //
 
-
 #include "gtest/gtest.h"
 #include "Board.h"
 #include <fstream>

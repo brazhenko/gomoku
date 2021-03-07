@@ -5,112 +5,112 @@
 
 int main()
 {
-//#if DEBUG
+#ifdef ENABLE_TEST
 	testing::InitGoogleTest();
     (void)RUN_ALL_TESTS();
-# if ONLYTEST
-	return 0;
-# endif
-//    return 0;
+#endif
 
-	Gomoku::Game game{};
-
-	if (!GomokuDraw::Init())
+	try
 	{
-		std::cerr << "Cannot init GomokuDraw" << std::endl;
-		return (-1);
+		Gomoku::Game game{};
+
+		if (!GomokuDraw::Init())
+		{
+			std::cerr << "Cannot init GomokuDraw" << std::endl;
+			return (-1);
+		}
+
+		// Draw loop
+		while (GomokuDraw::Go())
+		{
+			if (game.state_ == Gomoku::Game::State::Start)
+			{
+				// Отрисовать какие-то менюшки, туториалы и прочее.
+			}
+			// Экран ожидания
+			else if (game.state_ == Gomoku::Game::State::Main
+					 || game.state_ == Gomoku::Game::State::GameInPause)
+			{
+				GomokuDraw::DrawSome();
+
+				GomokuDraw::DrawStones(game.board_);
+
+				GomokuDraw::DrawGameMenu(game);
+				GomokuDraw::DrawGameMoves(game.board_);
+
+				ImGui::End();
+			}
+			// Экран игры
+			else if (game.state_ == Gomoku::Game::State::GameInProcess)
+			{
+				GomokuDraw::DrawSome();
+
+				GomokuDraw::DrawStones(game.board_);
+
+				auto w = game.whitePlayer->Ping();
+				auto b = game.blackPlayer->Ping();
+
+				bool wt = game.clock_.WhiteTimeLeft();
+				bool bt = game.clock_.BlackTimeLeft();
+
+				if (Gomoku::Board::MoveResult::WhiteWin == w
+					|| !bt)
+				{
+					game.state_ = Gomoku::Game::State::GameEndedWhiteWin;
+					game.clock_.Pause();
+				}
+				else if (Gomoku::Board::MoveResult::Draw == w)
+				{
+					game.state_ = Gomoku::Game::State::GameEndedDraw;
+					game.clock_.Pause();
+				}
+
+
+				if (Gomoku::Board::MoveResult::BlackWin == b
+					|| !wt)
+				{
+					game.state_ = Gomoku::Game::State::GameEndedBlackWin;
+					game.clock_.Pause();
+				}
+				else if (Gomoku::Board::MoveResult::Draw == b)
+				{
+					game.state_ = Gomoku::Game::State::GameEndedDraw;
+					game.clock_.Pause();
+				}
+
+				GomokuDraw::DrawGameMenu(game);
+				GomokuDraw::DrawGameMoves(game.board_);
+
+				ImGui::End();
+			}
+			else if (game.state_ == Gomoku::Game::State::GameEndedWhiteWin
+					 || game.state_ == Gomoku::Game::State::GameEndedBlackWin
+					 || game.state_ == Gomoku::Game::State::GameEndedDraw)
+			{
+				GomokuDraw::DrawSome();
+				GomokuDraw::DrawStones(game.board_);
+
+				GomokuDraw::DrawGameMenu(game);
+				GomokuDraw::DrawGameMoves(game.board_);
+
+				ImGui::End();
+			}
+
+			// Render
+			GomokuDraw::Render();
+		}
+
+		// Cleanup
+		GomokuDraw::Cleanup();
 	}
-
-	// To Remove
-	GomokuDraw::PrintMessage("Message longer \nthan width of this screen very very long");
-	GomokuDraw::PrintMessage("Messages");
-	GomokuDraw::PrintMessage("Printer");
-	for (int i = 0; i < 100; i++)
-		GomokuDraw::PrintMessage("Works");
-	// End Remove
-
-	// Main loop
-	while (GomokuDraw::Go())
+	catch (const std::exception &e)
 	{
-		if (game.state_ == Gomoku::Game::State::Start)
-		{
-			// Отрисовать какие-то менюшки, туториалы и прочее.
-		}
-		// Экран ожидания
-		else if (game.state_ == Gomoku::Game::State::Main
-				 || game.state_ == Gomoku::Game::State::GameInPause)
-		{
-			GomokuDraw::DrawSome();
-
-			GomokuDraw::DrawStones(game.board_);
-
-			GomokuDraw::DrawGameMenu(game);
-			GomokuDraw::DrawGameMoves(game.board_);
-
-			ImGui::End();
-		}
-		// Экран игры
-		else if (game.state_ == Gomoku::Game::State::GameInProcess)
-		{
-			GomokuDraw::DrawSome();
-
-			GomokuDraw::DrawStones(game.board_);
-
-			auto w = game.whitePlayer->Ping();
-			auto b = game.blackPlayer->Ping();
-
-			bool wt = game.clock_.WhiteTimeLeft();
-			bool bt = game.clock_.BlackTimeLeft();
-
-			if (Gomoku::Board::MoveResult::WhiteWin == w
-				|| !bt)
-			{
-				game.state_ = Gomoku::Game::State::GameEndedWhiteWin;
-				game.clock_.Pause();
-			}
-			else if (Gomoku::Board::MoveResult::Draw == w)
-			{
-				game.state_ = Gomoku::Game::State::GameEndedDraw;
-				game.clock_.Pause();
-			}
-
-
-			if (Gomoku::Board::MoveResult::BlackWin == b
-				|| !wt)
-			{
-				game.state_ = Gomoku::Game::State::GameEndedBlackWin;
-				game.clock_.Pause();
-			}
-			else if (Gomoku::Board::MoveResult::Draw == b)
-			{
-				game.state_ = Gomoku::Game::State::GameEndedDraw;
-				game.clock_.Pause();
-			}
-
-			GomokuDraw::DrawGameMenu(game);
-			GomokuDraw::DrawGameMoves(game.board_);
-
-			ImGui::End();
-		}
-		else if (game.state_ == Gomoku::Game::State::GameEndedWhiteWin
-				|| game.state_ == Gomoku::Game::State::GameEndedBlackWin
-				|| game.state_ == Gomoku::Game::State::GameEndedDraw)
-		{
-			GomokuDraw::DrawSome();
-			GomokuDraw::DrawStones(game.board_);
-
-			GomokuDraw::DrawGameMenu(game);
-			GomokuDraw::DrawGameMoves(game.board_);
-
-			ImGui::End();
-		}
-
-		// Render
-		GomokuDraw::Render();
+		std::cerr << e.what() << std::endl;
 	}
-
-	// Cleanup
-	GomokuDraw::Cleanup();
+	catch (...)
+	{
+		std::cerr << "Unknown exception, exit()" << std::endl;
+	}
 
 	return 0;
 }

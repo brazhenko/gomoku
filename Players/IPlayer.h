@@ -41,15 +41,19 @@ namespace Gomoku
 		, MakeMove_{ std::move(MakeMove) }
 		, currentBoard{ realBoard }
 		{}
-
+		/// @brief virtual dtor
 		virtual ~IPlayer() = default;
+
 		/// @brief notifier about turn
 		virtual void YourTurn() = 0;
+
 		/// @brief function called every time in game loop. if move is prepared it calls MakeMove_()
 		/// @return move result
 		virtual Board::MoveResult Ping() = 0;
 	};
 
+	/// @brief Factory function for player interfaced inheritors, may be expanded
+	/// @return
 	std::unique_ptr<Gomoku::IPlayer> PlayerFactory(
 			const std::string& name,
 			Gomoku::Board::Side side,
