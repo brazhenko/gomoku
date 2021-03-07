@@ -22,18 +22,18 @@ namespace Gomoku
 			const bool	maximize_;
 			Board		state_;
 
-			int alpha = -1000;
-			int beta = +1000;
+			int			alpha = -1000;
+			int			beta = +1000;
 
 			std::weak_ptr<CalcTreeNode>					parent_;
 			std::vector<std::shared_ptr<CalcTreeNode>>	children_;
 
             CalcTreeNode() = delete;
-            explicit CalcTreeNode(const Board& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
-            explicit CalcTreeNode(Board&& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
-            explicit CalcTreeNode(std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
-            [[nodiscard]] int Depth() const;
-            void UpdatePositionScore();
+            explicit			CalcTreeNode(const Board& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
+            explicit			CalcTreeNode(Board&& bs, std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
+            explicit			CalcTreeNode(std::weak_ptr<CalcTreeNode> parent, bool maximize, int positionScore);
+            [[nodiscard]] int	Depth() const;
+            void				UpdatePositionScore();
         };
 
 		std::string TreeToString() const;
@@ -68,7 +68,7 @@ namespace Gomoku
 
 		std::mutex				nextMoveMtx_;
 
-		bool                 work_;
+		bool                 	work_;
 		std::thread             workerThread_;
 
 
@@ -89,7 +89,7 @@ namespace Gomoku
 				bool debug,
 				bool yourTurn);
 
-		// Test ctor
+		// Test ctor, do not use!
         explicit AI1(Board::Side side, MakeMove_t MakeMove, const Gomoku::Board &realBoard, bool yourTurn, bool test);
 		~AI1();
 

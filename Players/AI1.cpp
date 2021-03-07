@@ -65,9 +65,7 @@ Gomoku::AI1::AI1(Gomoku::Board::Side side, Gomoku::MakeMove_t MakeMove, const Go
     }())
     , workerThread_([this](){ Worker(); })
 
-{
-
-}
+{}
 
 Gomoku::AI1::~AI1()
 {
@@ -95,7 +93,6 @@ void Gomoku::AI1::YourTurn()
 		std::lock_guard lg(nextMoveMtx_);
 		nextMove_ = currentBoard.GetAvailableMoves().front();
 	}
-
 
 	// reload tree root in worker
     needReload_ = true;
@@ -198,15 +195,12 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
             pm.emplace_back(std::move(copy), val);
 		}
 
-
-
         std::partial_sort(pm.begin(), std::min(pm.begin() + countOfBestCandididates_, pm.end()), pm.end(),
                           [this, &node] (const std::pair<Board, int> &left, const std::pair<Board, int> &right) {
                               if (node->maximize_)
                                   return left.second > right.second;
                               return left.second < right.second;
                           });
-
 
         return pm;
     };
@@ -244,9 +238,7 @@ void Gomoku::AI1::GenerateChildren(std::shared_ptr<CalcTreeNode> &node)
         auto result = futures[i].get();
 
         for (int j = 0; j < countOfBestCandididates_ && j < result.size(); j++)
-		{
 			pq.emplace(std::move(result[j]));
-		}
     }
 
     // put countOfBestCandididates_ best moves in jobs queue and calculation tree
