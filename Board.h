@@ -345,8 +345,9 @@ namespace Gomoku
 
 		/// @brief Performs a "capture" as if `move` is a last one
 		/// @param [in] move "last move"
+		/// @param [in] side side of capturer stone
 		/// @return vector of cells wich were captured
-		std::vector<pcell> MakeCaptureInternal(pcell move);
+		std::vector<pcell> MakeCaptureInternal(pcell move, Side side);
 
 		/// @brief Internal MakeMove function. Really is not supposed to be called. Call MakeMove instead
 		/// @param [in] row row index

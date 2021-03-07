@@ -10,6 +10,7 @@
 #include "PGNGame.h"
 #include <algorithm>
 #include <sstream>
+//#include <iostream>
 
 const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Board::PairHash> Gomoku::Board::_cToVerticles = [](){
 	std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, PairHash> ret;
@@ -250,7 +251,7 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 				continue;
 
 			// Pretending capture
-			auto captured = MakeCaptureInternal({i, j});
+			auto captured = MakeCaptureInternal({i, j}, Side(movePattern_.to_ulong()));
 			if (captured.empty())
 				continue;
 
@@ -284,11 +285,11 @@ void Gomoku::Board::FindMovesBreaksFifthInternal()
 		}
 }
 
-std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move)
+std::vector<Gomoku::Board::pcell> Gomoku::Board::MakeCaptureInternal(pcell move, Side side)
 {
 	std::vector<pcell> capturedStones;
     const int row = move.first, col = move.second;
-    const int centerStone = int(At(move));
+    const int centerStone = int(side);
 
 	// capture pair up
 	if (row + 3 < 19
@@ -460,7 +461,7 @@ Gomoku::Board::MoveResult Gomoku::Board::MakeMoveInternal(int row, int col)
 	// Delete cell from available ones
 
 	// Make captures if exist
-	if (!MakeCaptureInternal({row, col}).empty())
+	if (!MakeCaptureInternal({row, col}, Side(movePattern_.to_ulong())).empty())
 		ret = MoveResult::Capture;
 
 	availableMoves_ = {};

@@ -13,7 +13,6 @@ elseif (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
 	message(AUTHOR_WARNING "Asan enabled! Buildtype: " ${CMAKE_BUILD_TYPE})
 else()
 	message(STATUS "Asan  disabled! Buildtype: " ${CMAKE_BUILD_TYPE})
-	add_definitions(-DENABLE_TEST=1)
 endif()
 
 
