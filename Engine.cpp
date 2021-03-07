@@ -1,5 +1,5 @@
 //
-// Created by Lommy Reznak on 2/4/21.
+// Created by Brazhenko Andrew on 2/4/21.
 //
 
 #include "Engine.h"
@@ -7,8 +7,6 @@
 
 int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 {
-	auto time1 = std::chrono::high_resolution_clock::now();
-
 	int ret = 0;
 
 	// Edge cases
@@ -115,13 +113,6 @@ int  Gomoku::Engine::internal_(const Gomoku::Board &bs)
 
 		ret += (t1 - t2) * 	captureCoef;
 	}
-
-
-//	auto t2 = std::chrono::high_resolution_clock::now();
-//	auto duration = std::chrono::duration_cast<std::chrono::milliseconds>(t2 - time1 ).count();
-//	ss << "ms elapsed: " << duration << std::endl;
-
-//	std::cerr << ss.str();
 
 	return ret;
 }

@@ -50,15 +50,10 @@ const std::unordered_map<Gomoku::Board::pcell, Gomoku::Board::pcell, Gomoku::Boa
 
 Gomoku::Board::Board()
 {
-// Выбрать какой способ генерации доступных ходов сделать.
-
-	// Этот
+	// fast generation of available moves, GenerateAvailableMovesInternal() could be called instead
 	for (int i = 0; i < cells_in_line; i++)
 		for (int j = 0; j < cells_in_line; j++)
 			this->availableMoves_.emplace_back(i, j);
-
-	// Или этот
-// 	GenerateAvailableMovesInternal();
 }
 
 
@@ -88,50 +83,50 @@ bool Gomoku::Board::IsMoveCapture(pcell cell, Gomoku::Board::board_line mvPtrn) 
     const int& col = cell.second;
 
 	return
-			(row + 3 < 19
-			 && int(this->At(row + 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
-			 && int(this->At(row + 2, col)) == (mvPtrn.to_ulong() ^ 0b11U)
-			 && int(this->At(row + 3, col)) == (mvPtrn.to_ulong())
-			)
-			|| (row + 3 < 19
-				&& col + 3 < 19
-				&& int(this->At(row + 1, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 2, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 3, col + 3)) == (mvPtrn.to_ulong())
-			)
-			|| (col + 3 < 19
-				&& int(this->At(row, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col + 3)) == (mvPtrn.to_ulong())
-			)
-			|| (row - 3 >= 0
-				&& col + 3 < 19
-				&& int(this->At(row - 1, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 2, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 3, col + 3)) == (mvPtrn.to_ulong())
-			)
-			||  (row - 3 >= 0
-				 && int(this->At(row - 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
-				 && int(this->At(row - 2, col)) == (mvPtrn.to_ulong() ^ 0b11U)
-				 && int(this->At(row - 3, col)) == (mvPtrn.to_ulong())
-			)
-			|| (row - 3 >= 0
-				&& col - 3 >= 0
-				&& int(this->At(row - 1, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 2, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row - 3, col - 3)) == (mvPtrn.to_ulong())
-			)
-			|| (col - 3 >= 0
-				&& int(this->At(row, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row, col - 3)) == (mvPtrn.to_ulong())
-			)
-			|| (row + 3 < 19
-				&& col - 3 >= 0
-				&& int(this->At(row + 1, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 2, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
-				&& int(this->At(row + 3, col - 3)) == (mvPtrn.to_ulong())
-			);
+		(row + 3 < 19
+		 && int(this->At(row + 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+		 && int(this->At(row + 2, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+		 && int(this->At(row + 3, col)) == (mvPtrn.to_ulong())
+		)
+		|| (row + 3 < 19
+			&& col + 3 < 19
+			&& int(this->At(row + 1, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row + 2, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row + 3, col + 3)) == (mvPtrn.to_ulong())
+		)
+		|| (col + 3 < 19
+			&& int(this->At(row, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row, col + 3)) == (mvPtrn.to_ulong())
+		)
+		|| (row - 3 >= 0
+			&& col + 3 < 19
+			&& int(this->At(row - 1, col + 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row - 2, col + 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row - 3, col + 3)) == (mvPtrn.to_ulong())
+		)
+		||  (row - 3 >= 0
+			 && int(this->At(row - 1, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+			 && int(this->At(row - 2, col)) == (mvPtrn.to_ulong() ^ 0b11U)
+			 && int(this->At(row - 3, col)) == (mvPtrn.to_ulong())
+		)
+		|| (row - 3 >= 0
+			&& col - 3 >= 0
+			&& int(this->At(row - 1, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row - 2, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row - 3, col - 3)) == (mvPtrn.to_ulong())
+		)
+		|| (col - 3 >= 0
+			&& int(this->At(row, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row, col - 3)) == (mvPtrn.to_ulong())
+		)
+		|| (row + 3 < 19
+			&& col - 3 >= 0
+			&& int(this->At(row + 1, col - 1)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row + 2, col - 2)) == (mvPtrn.to_ulong() ^ 0b11U)
+			&& int(this->At(row + 3, col - 3)) == (mvPtrn.to_ulong())
+		);
 }
 
 int Gomoku::Board::CountFreeThreesLastMove(Gomoku::Board::Side side, Gomoku::Board::pcell lastMove) const
@@ -530,7 +525,6 @@ std::string Gomoku::Board::ToPgnString() const
 
 	pgn::MoveList ml;
 	pgn::GameResult gr;
-
 
 	const auto& moves = GetMovesList();
 

@@ -3,7 +3,16 @@ project(gomoku)
 
 set(CMAKE_CXX_STANDARD 17)
 
-set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+if(CMAKE_BUILD_TYPE STREQUAL "")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+	message(AUTHOR_WARNING "Asan enabled! Buildtype empty")
+elseif (NOT CMAKE_BUILD_TYPE STREQUAL "Release")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fsanitize=address")
+	message(AUTHOR_WARNING "Asan enabled! Buildtype: " ${CMAKE_BUILD_TYPE})
+else()
+	message(STATUS "Asan  disabled! Buildtype: " ${CMAKE_BUILD_TYPE})
+endif()
+
 
 # DOXYGEN
 find_package(Doxygen REQUIRED)
@@ -81,7 +90,6 @@ SET(PGNLIB_SRC
         pgnlib/PGNTagList.h)
 # /PGNLIB
 
-
 enable_testing()
 find_package(GTest REQUIRED)
 include_directories(${GTEST_INCLUDE_DIR})
@@ -106,8 +114,7 @@ add_executable(${PROJECT_NAME}
 		Players/Human.cpp
 		Players/Human.h
 		Engine.cpp
-		Engine.h
-        )
+		Engine.h)
 
 target_include_directories(${PROJECT_NAME} PUBLIC imgui_little)
 

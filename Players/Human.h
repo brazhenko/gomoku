@@ -1,5 +1,5 @@
 //
-// Created by Lommy Reznak on 2/4/21.
+// Created by Brazhenko Andrew on 2/4/21.
 //
 
 #ifndef GOMOKU_HUMAN_H
