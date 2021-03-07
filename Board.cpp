@@ -1238,4 +1238,9 @@ bool Gomoku::Board::IsCellHasStoneNearby(pcell cell, int eps) const
     return ret;
 }
 
+int Gomoku::Board::DistanceFromCenter(Gomoku::Board::pcell cell)
+{
+	return std::max(abs(cell.first - 9), abs(cell.second - 9));
+}
+
 #pragma clang diagnostic pop

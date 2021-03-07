@@ -1179,6 +1179,15 @@ TEST(board, count_free_fours_random)
 	}
 }
 
+TEST(board, distance)
+{
+	ASSERT_EQ(Gomoku::Board::DistanceFromCenter(Gomoku::Board::StringToMove("j10")), 0);
+	ASSERT_EQ(Gomoku::Board::DistanceFromCenter(Gomoku::Board::StringToMove("j11")), 1);
+	ASSERT_EQ(Gomoku::Board::DistanceFromCenter(Gomoku::Board::StringToMove("j12")), 2);
+	ASSERT_EQ(Gomoku::Board::DistanceFromCenter(Gomoku::Board::StringToMove("a1")), 9);
+}
+
+
 #include "Players/AI1.h"
 #include "Engine.h"
 

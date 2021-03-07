@@ -544,6 +544,8 @@ namespace Gomoku
         /// @return pgn string
 		[[nodiscard]] std::string ToPgnString() const;
 
+		[[nodiscard]] static int DistanceFromCenter(pcell cell);
+
 		/// @brief output operator
 		friend std::ostream& operator<<(std::ostream& os, const Board& bs);
 
