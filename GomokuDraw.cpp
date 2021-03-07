@@ -387,7 +387,7 @@ namespace GomokuDraw
 	{
 		ImGui::SetNextWindowSize(ImVec2{1259 - 660, 349 - 40});
 		ImGui::SetNextWindowPos(ImVec2{660, 40});
-		ImGui::Begin("Game2", nullptr, ImGuiWindowFlags_NoResize);
+		ImGui::Begin("Panel", nullptr, ImGuiWindowFlags_NoResize);
 
 		ImGui::PushItemWidth(100);
 		if (game.state_ != Gomoku::Game::State::Main)
