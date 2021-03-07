@@ -39,7 +39,7 @@ namespace GomokuDraw
 
 	void Cleanup();
 
-	void PrintMessage(std::string);
+	void PrintMessage(const std::string& s);
 };
 
 #endif //GOMOKU_GOMOKUDRAW_H
